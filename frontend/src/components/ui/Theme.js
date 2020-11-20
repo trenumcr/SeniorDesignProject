@@ -14,6 +14,12 @@ export default createMuiTheme({
     },
     secondary: {
       main: `${secColor}`
+    },
+  },
+  typography: {
+    h5: {
+      lineHeight: 2,
+      fontWeight: 700
     }
   }
 })
