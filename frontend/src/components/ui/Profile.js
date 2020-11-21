@@ -1,7 +1,12 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
+//import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import CardHeader from '@material-ui/core/CardHeader';
+import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -12,35 +17,74 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
   },
+  cardHeader: {
+    display: 'flex',
+    justifyContent: 'left',
+    alignItems: 'baseline',
+    //marginBottom: theme.spacing(2),
+  },
 }));
+
+const userInfo = [
+  {
+    name: "Rick Talon",
+    school: "University of Cincinnati",
+    major: "Electrical Engineering",
+    posts :   
+    {
+      Post1: "Post 1 Info",
+      Post2: "Post 2 Info",
+      Post3: "Post 3 Info"
+    },
+  }
+]
 
 export default function CenteredGrid() {
   const classes = useStyles();
 
-  // Paper class pads the contents
   return (
     <div className={classes.root}>
-      <Grid container spacing={3}>
-        <Grid item xs={6}>
-          <Grid container spacing={3}>
+      {userInfo.map((user) => (
+        <Grid container spacing={3}>
+          <Grid item xs={6}>
+            <Grid container spacing={3}>
             <Grid item xs={6}>
-              <Paper className={classes.paper}>Profile Picture</Paper>
+            <img src="https://3.bp.blogspot.com/-DVs1Ugx8LDQ/Uhx6Ol5NrRI/AAAAAAAAX9k/JPfLOUDRPgg/s1600/Mountains+Wallpapers.jpg" alt="Profile Picture" width="250" height="250"></img>
             </Grid>
             <Grid item xs={6}>
-              <Paper className={classes.paper}>Name, School, etc. in a list format</Paper>
+              <Card>
+                  <CardHeader
+                  title = {user.name}
+                  className={classes.cardHeader}
+                  />
+                </Card>
+                <CardContent>
+                    <div className={classes.cardContent}>
+                        <Typography variant="subtitle1" align="left">
+                          {user.school}
+                        </Typography>
+                        <Typography variant="subtitle1" align="left">
+                          {user.major}
+                        </Typography>
+                    </div>
+                  </CardContent>
             </Grid>
             <Grid item xs={12}>
-              <Paper className={classes.paper}>Contact Me Button</Paper>
+            <Button variant="contained" color="primary">
+              Contact me
+            </Button>
             </Grid>
           </Grid>
+          </Grid>
+          <Grid item xs={6}>
+            <div className={classes.paper}><h1>Biography</h1></div>
+            <p>This is The Biography</p>
+          </Grid>
+          <Grid item xs={12}>
+            <div className={classes.paper}>Component 1, Component 2, Component 3, etc.</div>
+          </Grid>
         </Grid>
-        <Grid item xs={6}>
-          <Paper className={classes.paper}><h1>Bio</h1><p1>Information on my projects and field of focus</p1></Paper>
-        </Grid>
-        <Grid item xs={12}>
-          <Paper className={classes.paper}><h1>Posts Made</h1>Component 1, Component 2, Component 3</Paper>
-        </Grid>
-      </Grid>
+      ))}
     </div>
   );
 }
