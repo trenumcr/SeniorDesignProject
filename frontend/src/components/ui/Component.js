@@ -9,8 +9,10 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import List from '@material-ui/core/List';
+import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import TextField from '@material-ui/core/TextField';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
@@ -77,11 +79,26 @@ const useStyles = makeStyles((theme) => ({
   commentWrap: {
     paddingBottom: 50,
   },
+  rating: {
+    paddingTop: 10,
+    paddingBottom: 20,
+  },
+  '*::-webkit-scrollbar': {
+      width: '0.4em'
+    },
+    '*::-webkit-scrollbar-track': {
+      '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)'
+    },
+    '*::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0,0,0,.1)',
+      outline: '1px solid slategrey'
+    },
 }));
 
 export default function Component() {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
+  const [commentValue, commentSetValue] = React.useState("");
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -95,20 +112,28 @@ export default function Component() {
 
           </Grid>
           <Grid item xs={12}>
-            <h2>Rating: x/10</h2>
+            <Typography variant="h4" className={classes.rating}>
+              Rating: x/10
+            </Typography>
           </Grid>
           <Grid item xs={12}>
             <Button variant="contained" color="primary">
-              Find an Expert
+              <Typography variant="button" align="center">
+                Find an Expert
+              </Typography>
             </Button>
           </Grid>
         </Grid>
         <Grid container item xs={12} md={6} lg={6} direction="column" className={classes.box}>
           <Grid item xs={12}>
-            <h1><b>Component Name</b></h1>
+            <Typography variant="h3" className={classes.rating}>
+              Component Name
+            </Typography>
           </Grid>
           <Grid item xs={12}>
-            <h3>Estimated Price: $00.00 - $00.00</h3>
+            <Typography variant="h5" className={classes.rating}>
+              Estimated Price: $00.00 - $00.00
+            </Typography>
           </Grid>
           <Grid item xs={12} className={classes.tabs}>
             <Tabs value={value} onChange={handleChange} aria-label="tabs" indicatorColor="primary"
@@ -158,7 +183,9 @@ export default function Component() {
             </TabPanel>
           </Grid>
           <Grid item xs={12}>
-            Key Terms:
+            <Typography variant="body2" className={classes.keyTerms} style={{paddingTop: 10}}>
+              Key Terms:
+            </Typography>
             <Button color="primary"><u>Type</u></Button>
             <Button color="primary"><u>Voltage</u></Button>
             <Button color="primary"><u>Power</u></Button>
@@ -167,23 +194,56 @@ export default function Component() {
       </Grid>
       <Grid container direction="column" justify="center" alignItems="flex-start">
         <Grid item xs={12}>
-          <h3>Posted by: User</h3>
+          <Typography variant="h5" style={{paddingTop: 20, paddingBottom: 10}}>
+            Posted by: User
+          </Typography>
         </Grid>
         <Grid item xs={12}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla elementum arcu quis turpis gravida convallis. Nam sit amet convallis velit, vel pellentesque arcu. Fusce eget ex at lacus pretium blandit a non magna. Nam ac massa ante. Aliquam et nibh metus. Suspendisse maximus, ex quis tempor congue, neque elit luctus turpis, vitae ultricies leo tellus in magna. Aliquam quis ante molestie, tempus augue eget, blandit sapien. Vivamus volutpat elit tortor, at varius diam porta eu. Nullam fermentum velit quam, ornare ornare urna commodo a. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce sit amet sem lectus. Proin dictum quam metus, vitae luctus felis luctus ac. Etiam dictum risus eu lacus accumsan faucibus.
+          <Typography variant="body1">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla elementum arcu quis turpis gravida convallis. Nam sit amet convallis velit, vel pellentesque arcu. Fusce eget ex at lacus pretium blandit a non magna. Nam ac massa ante. Aliquam et nibh metus. Suspendisse maximus, ex quis tempor congue, neque elit luctus turpis, vitae ultricies leo tellus in magna. Aliquam quis ante molestie, tempus augue eget, blandit sapien. Vivamus volutpat elit tortor, at varius diam porta eu. Nullam fermentum velit quam, ornare ornare urna commodo a. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce sit amet sem lectus. Proin dictum quam metus, vitae luctus felis luctus ac. Etiam dictum risus eu lacus accumsan faucibus.
+          </Typography>
         </Grid>
         <Grid container item direction="column" xs={12} className={classes.comments}>
+          <Divider variant="middle" style={{marginTop: 20}}/>
           <Grid item xs={12}>
-            <h2>Comments</h2>
+            <Typography variant="h4" style={{paddingTop: 20, paddingBottom: 10}}>
+              Comments
+            </Typography>
           </Grid>
+          <Grid container item direction="column" spacing={2} xs={12} className={classes.commentWrap}>
+            <Grid container item direction="row">
+              <Avatar xs={1} style={{marginTop: 15}}></Avatar>
+              <Grid item xs={11} style={{paddingLeft: 20}}>
+                <TextField
+                  label="Add a comment..."
+                  multiline
+                  fullWidth
+                  rowsMax={4}
+                  variant="standard"
+                />
+              </Grid>
+            </Grid>
+            <Grid container item xs={12} justify='flex-end'>
+              <Button variant="contained" color="primary">
+                <Typography variant="button" align="center">
+                  Post Comment
+                </Typography>
+              </Button>
+            </Grid>
+          </Grid>
+
           <Grid container item direction="row" xs={12} className={classes.commentWrap}>
             <Avatar xs={1}></Avatar>
             <Grid container item direction="column" xs={11} className={classes.text}>
               <Grid item className={classes.username}>
-                <b>UserName</b> 2 months ago
+                <Typography variant="body1">
+                  <b>UserName</b> <span style={{fontWeight: 100}}>2 months ago</span>
+                </Typography>
               </Grid>
               <Grid item className={classes.commentText}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla elementum arcu quis turpis gravida convallis. Nam sit amet convallis velit, vel pellentesque arcu. Fusce eget ex at lacus pretium blandit a non magna. Nam ac massa ante. Aliquam et nibh metus.
+                <Typography variant="body1">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla elementum arcu quis turpis gravida convallis. Nam sit amet convallis velit, vel pellentesque arcu. Fusce eget ex at lacus pretium blandit a non magna. Nam ac massa ante. Aliquam et nibh metus.
+                </Typography>
               </Grid>
             </Grid>
           </Grid>
@@ -191,10 +251,14 @@ export default function Component() {
             <Avatar xs={1}></Avatar>
             <Grid container item direction="column" xs={11} className={classes.text}>
               <Grid item className={classes.username}>
-                <b>UserName</b> 3 months ago
+                <Typography variant="body1">
+                  <b>UserName</b> <span style={{fontWeight: 100}}>3 months ago</span>
+                </Typography>
               </Grid>
               <Grid item className={classes.commentText}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla elementum arcu quis turpis gravida convallis. Nam sit amet convallis velit, vel pellentesque arcu. Fusce eget ex at lacus pretium blandit a non magna. Nam ac massa ante. Aliquam et nibh metus.
+                <Typography variant="body1">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla elementum arcu quis turpis gravida convallis. Nam sit amet convallis velit, vel pellentesque arcu. Fusce eget ex at lacus pretium blandit a non magna. Nam ac massa ante. Aliquam et nibh metus.
+                </Typography>
               </Grid>
             </Grid>
           </Grid>
@@ -202,10 +266,14 @@ export default function Component() {
             <Avatar xs={1}></Avatar>
             <Grid container item direction="column" xs={11} className={classes.text}>
               <Grid item className={classes.username}>
-                <b>UserName</b> 5 months ago
+                <Typography variant="body1">
+                  <b>UserName</b> <span style={{fontWeight: 100}}>5 months ago</span>
+                </Typography>
               </Grid>
               <Grid item className={classes.commentText}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla elementum arcu quis turpis gravida convallis. Nam sit amet convallis velit, vel pellentesque arcu. Fusce eget ex at lacus pretium blandit a non magna. Nam ac massa ante. Aliquam et nibh metus.
+                <Typography variant="body1">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla elementum arcu quis turpis gravida convallis. Nam sit amet convallis velit, vel pellentesque arcu. Fusce eget ex at lacus pretium blandit a non magna. Nam ac massa ante. Aliquam et nibh metus.
+                </Typography>
               </Grid>
             </Grid>
           </Grid>
