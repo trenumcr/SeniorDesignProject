@@ -155,6 +155,11 @@ const drawerWidth = 240;
     const handleDrawerClose = () => {
       setOpen(false);
     };
+   
+    const onSubmitHandler = (e) => {
+      e.preventDefault();
+      window.location.href = "/search-component";
+    };
     return (
       <React.Fragment>
         <ElevationScroll>
@@ -182,15 +187,17 @@ const drawerWidth = 240;
                 <div className={classes.searchIcon}>
                   <SearchIcon />
                 </div>
-                <InputBase
-                  placeholder="Search…"
-                  classes={{
-                    root: classes.inputRoot,
-                    input: classes.inputInput,
-                  }}
-                  inputProps={{ 'aria-label': 'search' }}
-                  component={Link} to="/search-component"
-                />
+                <form onSubmit={onSubmitHandler}>
+                  <InputBase
+                    placeholder="Search…"
+                    classes={{
+                      root: classes.inputRoot,
+                      input: classes.inputInput,
+                    }}
+                    inputProps={{ 'aria-label': 'search' }}
+                    component={Link} to="/search-component"
+                  />
+                </form>
               </div>
               <div className={classes.grow} />
               <Button color="inherit" component={Link} to="/login">Login</Button>
