@@ -195,7 +195,6 @@ const drawerWidth = 240;
                       input: classes.inputInput,
                     }}
                     inputProps={{ 'aria-label': 'search' }}
-                    component={Link} to="/search-component"
                   />
                 </form>
               </div>
