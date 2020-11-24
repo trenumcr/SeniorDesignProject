@@ -229,7 +229,7 @@ export default function ExpertList() {
               </Grid>
             </CardActionArea>
             <CardActions>
-              <Button size="small" color="primary">
+              <Button size="small" color="primary" component={Link} to="/expert-profile">
                 Contact
               </Button>
             </CardActions>
@@ -256,7 +256,7 @@ export default function ExpertList() {
               </Grid>
             </CardActionArea>
             <CardActions>
-              <Button size="small" color="primary">
+              <Button size="small" color="primary" component={Link} to="/expert-profile">
                 Contact
               </Button>
             </CardActions>
@@ -283,7 +283,7 @@ export default function ExpertList() {
               </Grid>
             </CardActionArea>
             <CardActions>
-              <Button size="small" color="primary">
+              <Button size="small" color="primary" component={Link} to="/expert-profile">
                 Contact
               </Button>
             </CardActions>
@@ -310,7 +310,7 @@ export default function ExpertList() {
               </Grid>
             </CardActionArea>
             <CardActions>
-              <Button size="small" color="primary">
+              <Button size="small" color="primary" component={Link} to="/expert-profile">
                 Contact
               </Button>
             </CardActions>
