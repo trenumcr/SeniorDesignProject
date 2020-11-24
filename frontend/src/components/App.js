@@ -10,6 +10,7 @@ import SignUp from "./ui/SignUp";
 import Search from "./ui/Search";
 import Profile from "./ui/Profile";
 import Footer from "./ui/Footer";
+import ExpertProfile from "./ui/ExpertProfile";
 import { ThemeProvider } from '@material-ui/styles';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import theme from './ui/Theme'
@@ -38,6 +39,7 @@ function App() {
           <Route exact path="/account" component={() => <Account />} />
           <Route exact path="/forums" component={() => <Forum />} />
           <Route exact path="/experts" component={() => <ExpertList />} />
+          <Route exact path="/expert-profile" component={() => <ExpertProfile />} />
         </Switch>
       </BrowserRouter>
       <Footer />
