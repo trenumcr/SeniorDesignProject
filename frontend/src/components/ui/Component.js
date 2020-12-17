@@ -20,6 +20,54 @@ import DescriptionIcon from '@material-ui/icons/Description';
 import ImageIcon from '@material-ui/icons/Image';
 import Button from '@material-ui/core/Button';
 
+const componentInfo =
+  {
+    name: "ComponentName",
+    priceHigh: "15.00",
+    priceLow: "10.00",
+    rating: "8",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed venenatis mi sit amet purus rhoncus, sed eleifend neque imperdiet. Integer at nisl et erat venenatis fermentum non eu lectus. Donec ut tortor iaculis, consectetur est vel, venenatis elit. Sed at ultrices mi. Aliquam sed justo magna. Nulla accumsan nec nisi sed ullamcorper. Suspendisse et velit fermentum, interdum ante et, consequat ipsum. Sed ullamcorper lectus in egestas dignissim. Nullam sodales in sapien viverra convallis. Integer mauris lorem, scelerisque a consectetur sit amet, faucibus nec dui.",
+    features: ["feature 1", "feature 2", "feature 3", "feature 4"],
+    documents:[
+      {
+        name: "User Submitted Photos",
+        date: "January 9, 2014",
+        icon: <ImageIcon />
+      },
+      {
+        name: "Data sheet",
+        date: "January 7, 2014",
+        icon: <PictureAsPdfIcon />
+      },
+      {
+        name: "Other documentation",
+        date: "July 20, 2014",
+        icon: <PictureAsPdfIcon />
+      }
+    ],
+    keyTerms: ["Type", "Voltage", "Power"],
+    user: "User",
+    userText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed venenatis mi sit amet purus rhoncus, sed eleifend neque imperdiet. Integer at nisl et erat venenatis fermentum non eu lectus. Donec ut tortor iaculis, consectetur est vel, venenatis elit. Sed at ultrices mi. Aliquam sed justo magna. Nulla accumsan nec nisi sed ullamcorper."
+  }
+
+  var comments = [
+    {
+    userName: "UserName1",
+    date: "December 4, 2020",
+    text: "Had issues with A on..."
+    },
+    {
+      userName: "UserName2",
+      date: "April 23, 2020",
+      text: "Had issues with B on..."
+    },
+    {
+      userName: "UserName3",
+      date: "February 10, 202",
+      text: "Had issues with C on..."
+    },
+  ]
+
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -113,13 +161,13 @@ export default function Component() {
           </Grid>
           <Grid item xs={12}>
             <Typography variant="h4" className={classes.rating}>
-              Rating: x/10
+              Rating: {componentInfo.rating}/10
             </Typography>
           </Grid>
           <Grid item xs={12}>
             <Button variant="contained" color="primary">
               <Typography variant="button" align="center">
-                Find an Expert
+                <a href="/experts">Find an Expert</a>
               </Typography>
             </Button>
           </Grid>
@@ -127,12 +175,12 @@ export default function Component() {
         <Grid container item xs={12} md={6} lg={6} direction="column" className={classes.box}>
           <Grid item xs={12}>
             <Typography variant="h3" className={classes.rating}>
-              Component Name
+              {componentInfo.name}
             </Typography>
           </Grid>
           <Grid item xs={12}>
             <Typography variant="h5" className={classes.rating}>
-              Estimated Price: $00.00 - $00.00
+              Estimated Price: ${componentInfo.priceLow} - ${componentInfo.priceHigh}
             </Typography>
           </Grid>
           <Grid item xs={12} className={classes.tabs}>
@@ -143,42 +191,27 @@ export default function Component() {
               <Tab className={classes.tab} label="Documents" {...a11yProps(2)} />
             </Tabs>
             <TabPanel value={value} index={0} className={classes.tabPanel}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed venenatis mi sit amet purus rhoncus, sed eleifend neque imperdiet. Integer at nisl et erat venenatis fermentum non eu lectus. Donec ut tortor iaculis, consectetur est vel, venenatis elit. Sed at ultrices mi. Aliquam sed justo magna. Nulla accumsan nec nisi sed ullamcorper. Suspendisse et velit fermentum, interdum ante et, consequat ipsum. Sed ullamcorper lectus in egestas dignissim. Nullam sodales in sapien viverra convallis. Integer mauris lorem, scelerisque a consectetur sit amet, faucibus nec dui.
+              {componentInfo.description}
             </TabPanel>
             <TabPanel value={value} index={1} className={classes.tabPanel}>
               <ul>
-                <li>Feature 1</li>
-                <li>Feature 2</li>
-                <li>Feature 3</li>
-                <li>Feature 4</li>
+                {componentInfo.features.map((feature) => (
+                  <li>{feature}</li>
+                ))}
               </ul>
             </TabPanel>
             <TabPanel value={value} index={2} className={classes.tabPanel}>
               <List className={classes.root}>
-                <ListItem>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <ImageIcon />
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText primary="User Submitted Photos" secondary="Jan 9, 2014" />
-                </ListItem>
-                <ListItem>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <PictureAsPdfIcon />
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText primary="Data sheet" secondary="Jan 7, 2014" />
-                </ListItem>
-                <ListItem>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <DescriptionIcon />
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText primary="Other Documentation" secondary="July 20, 2014" />
-                </ListItem>
+                {componentInfo.documents.map((document) => (
+                  <ListItem>
+                    <ListItemAvatar>
+                      <Avatar>
+                        {document.icon}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary={document.name} secondary={document.date} />
+                  </ListItem>
+                ))}
               </List>
             </TabPanel>
           </Grid>
@@ -186,21 +219,21 @@ export default function Component() {
             <Typography variant="body2" className={classes.keyTerms} style={{paddingTop: 10}}>
               Key Terms:
             </Typography>
-            <Button color="primary"><u>Type</u></Button>
-            <Button color="primary"><u>Voltage</u></Button>
-            <Button color="primary"><u>Power</u></Button>
+            {componentInfo.keyTerms.map((term) => (
+              <Button color="primary"><u>{term}</u></Button>
+            ))}
           </Grid>
         </Grid>
       </Grid>
       <Grid container direction="column" justify="center" alignItems="flex-start">
         <Grid item xs={12}>
           <Typography variant="h5" style={{paddingTop: 20, paddingBottom: 10}}>
-            Posted by: User
+            Posted by: {componentInfo.user}
           </Typography>
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body1">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla elementum arcu quis turpis gravida convallis. Nam sit amet convallis velit, vel pellentesque arcu. Fusce eget ex at lacus pretium blandit a non magna. Nam ac massa ante. Aliquam et nibh metus. Suspendisse maximus, ex quis tempor congue, neque elit luctus turpis, vitae ultricies leo tellus in magna. Aliquam quis ante molestie, tempus augue eget, blandit sapien. Vivamus volutpat elit tortor, at varius diam porta eu. Nullam fermentum velit quam, ornare ornare urna commodo a. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce sit amet sem lectus. Proin dictum quam metus, vitae luctus felis luctus ac. Etiam dictum risus eu lacus accumsan faucibus.
+            {componentInfo.userText}
           </Typography>
         </Grid>
         <Grid container item direction="column" xs={12} className={classes.comments}>
@@ -231,52 +264,23 @@ export default function Component() {
               </Button>
             </Grid>
           </Grid>
-
-          <Grid container item direction="row" xs={12} className={classes.commentWrap}>
-            <Avatar xs={1}></Avatar>
-            <Grid container item direction="column" xs={11} className={classes.text}>
-              <Grid item className={classes.username}>
-                <Typography variant="body1">
-                  <b>UserName</b> <span style={{fontWeight: 100}}>2 months ago</span>
-                </Typography>
-              </Grid>
-              <Grid item className={classes.commentText}>
-                <Typography variant="body1">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla elementum arcu quis turpis gravida convallis. Nam sit amet convallis velit, vel pellentesque arcu. Fusce eget ex at lacus pretium blandit a non magna. Nam ac massa ante. Aliquam et nibh metus.
-                </Typography>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid container item direction="row" xs={12} className={classes.commentWrap}>
-            <Avatar xs={1}></Avatar>
-            <Grid container item direction="column" xs={11} className={classes.text}>
-              <Grid item className={classes.username}>
-                <Typography variant="body1">
-                  <b>UserName</b> <span style={{fontWeight: 100}}>3 months ago</span>
-                </Typography>
-              </Grid>
-              <Grid item className={classes.commentText}>
-                <Typography variant="body1">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla elementum arcu quis turpis gravida convallis. Nam sit amet convallis velit, vel pellentesque arcu. Fusce eget ex at lacus pretium blandit a non magna. Nam ac massa ante. Aliquam et nibh metus.
-                </Typography>
+          {comments.map((comment) => (
+            <Grid container item direction="row" xs={12} className={classes.commentWrap}>
+              <Avatar xs={1}></Avatar>
+              <Grid container item direction="column" xs={10} s={11} className={classes.text}>
+                <Grid item className={classes.username}>
+                  <Typography variant="body1">
+                    <b>{comment.user}</b> <span style={{fontWeight: 100}}>{comment.date}</span>
+                  </Typography>
+                </Grid>
+                <Grid item className={classes.commentText}>
+                  <Typography variant="body1">
+                    {comment.text}
+                  </Typography>
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
-          <Grid container item direction="row" xs={12} className={classes.commentWrap}>
-            <Avatar xs={1}></Avatar>
-            <Grid container item direction="column" xs={11} className={classes.text}>
-              <Grid item className={classes.username}>
-                <Typography variant="body1">
-                  <b>UserName</b> <span style={{fontWeight: 100}}>5 months ago</span>
-                </Typography>
-              </Grid>
-              <Grid item className={classes.commentText}>
-                <Typography variant="body1">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla elementum arcu quis turpis gravida convallis. Nam sit amet convallis velit, vel pellentesque arcu. Fusce eget ex at lacus pretium blandit a non magna. Nam ac massa ante. Aliquam et nibh metus.
-                </Typography>
-              </Grid>
-            </Grid>
-          </Grid>
+          ))}
         </Grid>
       </Grid>
     </Container>
