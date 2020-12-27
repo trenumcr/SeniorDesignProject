@@ -1,28 +1,24 @@
-from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from component.models import *
 from .serializers import *
 from django.shortcuts import render
+from .view_functions import *
 
-class ComponentListView(generics.ListCreateAPIView):
-    queryset = Component.objects.all()
-    serializer_class = ComponentSerializer
+class ComponentListView(APIView):
+    def get(self, requests, *args, **kwargs):
+        queryset = Component.objects.all()
+        serializer = ComponentSerializer(queryset, many=True)
+        return Response(serializer.data)
 
-class ComponentView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = ComponentSerializer
-    queryset = Component.objects.all()
 
-class CommentListView(generics.ListCreateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
+class ComponentView(APIView):
+    def get(self, requests, *args, **kwargs):
+        return get_component(requests)
 
-class CommentView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = CommentSerializer
-    queryset = Comment.objects.all()
+    def post(self, requests, *args, **kwargs):
+        return post_component(requests)
 
-class SpecificationListView(generics.ListCreateAPIView):
-    queryset = Specification.objects.all()
-    serializer_class = SpecificationSerializer
-
-class SpecificationView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = SpecificationSerializer
-    queryset = Specification.objects.all()
+    def put(self, requests, *args, **kwargs):
+        return update_component(requests)
