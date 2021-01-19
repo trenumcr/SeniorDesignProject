@@ -2,6 +2,7 @@ import { Typography } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
+import axios from 'axios';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
@@ -28,9 +29,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
+function searchQuery() {
+  axios.get(`https://jsonplaceholder.typicode.com/users`)
+    .then(res => {
+      const persons = res.data;
+      this.setState({ persons });
+    })
+}
+
 export default function SearchResults() {
   const classes = useStyles();
-
   const [state, setState] = React.useState({
     opt11: false,
     opt12: false,
@@ -97,6 +106,7 @@ export default function SearchResults() {
         },
   ]
 
+//render() {
   return(
     <div className={classes.root}>
 
@@ -162,8 +172,11 @@ export default function SearchResults() {
             </FormControl>
           </Grid>
         </Grid>
-
         <Grid container item sm={10} spacing={4}>
+        <ul>
+          <li>Element 1</li>
+          <li>Element 2</li>
+        </ul>
         {results.map((component) => (
           <Grid item md={4}>
               <Card>
@@ -189,4 +202,5 @@ export default function SearchResults() {
       </Grid>
     </div>
   )
+//  }
 }

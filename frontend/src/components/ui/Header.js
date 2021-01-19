@@ -29,6 +29,64 @@ import ListItemText from '@material-ui/core/ListItemText';
 
 const drawerWidth = 240;
 
+class SearchField extends React.Component 
+{
+  constructor(props) {
+    super(props);
+    this.state = {value: ''};
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+
+  handleChange(event) {
+    this.setState({value: event.target.value});
+  }
+
+  handleSubmit(event) {
+    window.location.href = "/search-component";
+    event.preventDefault();
+    /*
+    this.props.navigation.navigate( "/search-component", {
+      custparam: "passed",
+    })
+    */
+  }
+
+  render(){
+    const inputclasses = makeStyles(theme => ({
+      inputRoot: {
+        color: 'inherit',
+      },
+      inputInput: {
+        padding: theme.spacing(1, 1, 1, 0),
+        // vertical padding + font size from searchIcon
+        paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+        transition: theme.transitions.create('width'),
+        width: '100%',
+        [theme.breakpoints.up('md')]: {
+          width: '20ch',
+        },
+      },
+    }))
+    return(
+      <form onSubmit={this.handleSubmit}>
+        <InputBase
+          placeholder="Search…"
+          
+          classes={{
+            root: inputclasses.inputRoot,
+            input: inputclasses.inputInput,
+          }}
+          
+          inputProps={{ 'aria-label': 'search' }}
+          onChange={this.handleChange}
+          />
+        </form>
+    )
+  }
+}
+
   const useStyles = makeStyles(theme => ({
     toolbarMargin: {
       ...theme.mixins.toolbar,
@@ -157,8 +215,10 @@ const drawerWidth = 240;
     };
    
     const onSubmitHandler = (e) => {
+      
       e.preventDefault();
       window.location.href = "/search-component";
+
     };
     return (
       <React.Fragment>
@@ -184,19 +244,10 @@ const drawerWidth = 240;
                 </Typography>
               </Button>
               <div className={classes.search}>
-                <div className={classes.searchIcon}>
-                  <SearchIcon />
+              <div className={classes.searchIcon}>
+                <SearchIcon />
                 </div>
-                <form onSubmit={onSubmitHandler}>
-                  <InputBase
-                    placeholder="Search…"
-                    classes={{
-                      root: classes.inputRoot,
-                      input: classes.inputInput,
-                    }}
-                    inputProps={{ 'aria-label': 'search' }}
-                  />
-                </form>
+                <SearchField />
               </div>
               <div className={classes.grow} />
               <Button color="inherit" component={Link} to="/login">Login</Button>
