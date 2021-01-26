@@ -63,7 +63,7 @@ const componentInfo =
     },
     {
       userName: "UserName3",
-      date: "February 10, 202",
+      date: "February 10, 2020",
       text: "Had issues with C on..."
     },
   ]
@@ -141,6 +141,16 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: 'rgba(0,0,0,.1)',
       outline: '1px solid slategrey'
     },
+    button: {
+      background: theme.palette.secondary.main,
+      '&hover': {
+        background: theme.palette.secondary.dark,
+      }
+    },
+    buttonText: {
+      color: theme.palette.common.white,
+      textDecoration: 'none',
+    },
 }));
 
 export default function Component() {
@@ -165,9 +175,9 @@ export default function Component() {
             </Typography>
           </Grid>
           <Grid item xs={12}>
-            <Button variant="contained" color="primary">
+            <Button variant="contained" className={classes.button}>
               <Typography variant="button" align="center">
-                <a href="/experts">Find an Expert</a>
+                <a className={classes.buttonText} href="/experts">Find an Expert</a>
               </Typography>
             </Button>
           </Grid>
@@ -220,7 +230,7 @@ export default function Component() {
               Key Terms:
             </Typography>
             {componentInfo.keyTerms.map((term) => (
-              <Button color="primary"><u>{term}</u></Button>
+              <Button color="secondary"><u>{term}</u></Button>
             ))}
           </Grid>
         </Grid>
@@ -257,8 +267,8 @@ export default function Component() {
               </Grid>
             </Grid>
             <Grid container item xs={12} justify='flex-end'>
-              <Button variant="contained" color="primary">
-                <Typography variant="button" align="center">
+              <Button variant="contained" className={classes.button}>
+                <Typography variant="button" align="center" className={classes.buttonText}>
                   Post Comment
                 </Typography>
               </Button>
