@@ -26,6 +26,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import logo from "../../static/images/logo1IntoWordsBlack.png";
 
 const drawerWidth = 240;
 
@@ -89,9 +90,11 @@ const drawerWidth = 240;
       display: 'none',
       [theme.breakpoints.up('sm')]: {
       display: 'block',
+      filter: 'invert(100%)',
       },
     },
     search: {
+      float: 'right',
       position: 'relative',
       borderRadius: theme.shape.borderRadius,
       backgroundColor: fade(theme.palette.common.white, 0.15),
@@ -155,7 +158,7 @@ const drawerWidth = 240;
     const handleDrawerClose = () => {
       setOpen(false);
     };
-   
+
     const onSubmitHandler = (e) => {
       e.preventDefault();
       window.location.href = "/search-component";
@@ -180,7 +183,7 @@ const drawerWidth = 240;
               </IconButton>
               <Button component={Link} to="/" color="secondary">
                 <Typography variant="h6" className={classes.title} noWrap>
-                  Component Review
+                  <img src={logo} alt="Component Clip Art"  height="40px"/>
                 </Typography>
               </Button>
               <div className={classes.search}>
