@@ -10,7 +10,6 @@ const secColorLight = "#eae4bd"
 export default createMuiTheme({
   palette: {
     common: {
-      primDark: "#801216",
       white: "#fff"
     },
     primary: {
