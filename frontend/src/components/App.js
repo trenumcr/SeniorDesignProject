@@ -1,6 +1,7 @@
 import Header from "./ui/Header";
 import Home from "./ui/Home";
 import Account from "./ui/Account";
+import AddComponent from "./ui/AddComponent";
 import Category from "./ui/Category";
 import Component from "./ui/Component";
 import ExpertList from "./ui/ExpertList";
@@ -40,6 +41,7 @@ function App() {
           <Route exact path="/forums" component={() => <Forum />} />
           <Route exact path="/experts" component={() => <ExpertList />} />
           <Route exact path="/expert-profile" component={() => <ExpertProfile />} />
+          <Route exact path="/add-component" component={() => <AddComponent />} />
         </Switch>
       </BrowserRouter>
       <Footer />

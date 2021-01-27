@@ -43,7 +43,7 @@ export default function SearchResults() {
 
   const { opt1, opt2, opt3 } = state;
 
-  var results = [ 
+  var results = [
     {
     Picture: "Insert Picture",
     Name: "5/10",
@@ -169,7 +169,7 @@ export default function SearchResults() {
                 <CardContent>
                   <div className={classes.cardContent}>
                     <Typography variant="subtitle1">
-                      Rating: {component.Name}
+                      <b>Rating: {component.Name}</b>
                     </Typography>
                   </div>
                       <Typography variant="subtitle1" align="center">

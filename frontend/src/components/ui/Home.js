@@ -14,8 +14,11 @@ import colorLogo from "../../static/images/logo1PlugGold.png";
 
 const useStyles = makeStyles((theme) => ({
   button: {
+    background: theme.palette.secondary.main,
     color: theme.palette.common.white,
-    backgroundColor: theme.palette.secondary.main
+    '&:hover': {
+      background: theme.palette.secondary.dark,
+    }
   },
   greenBox: {
     "box-shadow":"0px 0px 20px #888888",

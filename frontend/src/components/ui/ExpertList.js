@@ -187,6 +187,7 @@ export default function ExpertList() {
       </Grid>
       <Grid container item direction="row">
         <Grid container item direction="row" xs={12} md={3}>
+          <Typography variant="h5" style={{width: '100%'}}>Filters</Typography>
           <FormControl className={classes.formControl}>
             <InputLabel htmlFor="filled-age-native-simple">University</InputLabel>
             <Select
@@ -224,6 +225,9 @@ export default function ExpertList() {
                 />
               </FormGroup>
             </FormControl>
+            <Button variant="contained" className={classes.button}>
+              Apply Filters
+            </Button>
           </Grid>
         </Grid>
         <Grid container item xs={12} md={8}>

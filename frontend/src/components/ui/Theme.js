@@ -4,7 +4,7 @@ const primColor = "#235a33"
 const primColorDark = "#103d1d"
 const primColorLight = "#668f72"
 const secColor = "#c0af70"
-const secColorDark = "#c0af70"
+const secColorDark = "#918455"
 const secColorLight = "#eae4bd"
 
 export default createMuiTheme({
