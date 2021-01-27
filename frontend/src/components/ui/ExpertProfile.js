@@ -40,6 +40,9 @@ const useStyles = makeStyles((theme) => ({
   button: {
     background: theme.palette.primary.light,
     color: theme.palette.common.white,
+    '&:hover': {
+      background: theme.palette.primary.main,
+    }
   },
   title: {
     paddingBottom: "20px",

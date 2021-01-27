@@ -143,7 +143,7 @@ const useStyles = makeStyles((theme) => ({
     },
     button: {
       background: theme.palette.secondary.main,
-      '&hover': {
+      '&:hover': {
         background: theme.palette.secondary.dark,
       }
     },

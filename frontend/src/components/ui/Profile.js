@@ -9,6 +9,7 @@ import CardHeader from '@material-ui/core/CardHeader';
 import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
+import Container from '@material-ui/core/Container';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,25 +22,35 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.secondary,
   },
   cardHeader: {
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: theme.palette.secondary.light,
   },
   cardContent: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'baseline',
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: theme.palette.common.white,
     marginBottom: theme.spacing(2),
+  },
+  button: {
+    background: theme.palette.primary.light,
+    color: theme.palette.common.white,
+    '&:hover': {
+      background: theme.palette.primary.main,
+    }
+  },
+  title: {
+    paddingBottom: "20px",
   },
 }));
 
-const userInfo = 
+const userInfo =
   {
     name: "Rick Talon",
     school: "University of Cincinnati",
     major: "Electrical Engineering",
   }
 
-  var posts = [ 
+  var posts = [
     {
     componentName: "IC Chip A",
     rating: "5/10",
@@ -61,46 +72,50 @@ export default function CenteredGrid() {
   const classes = useStyles();
 
   return (
-    <div className={classes.root}>
-            <Grid container spacing={3}>
-            <Grid item>
+    <Container component="main" maxWidth="lg">
+      <div className={classes.root}>
+        <Grid container spacing={3}>
+          <Grid item>
             <img src="https://3.bp.blogspot.com/-DVs1Ugx8LDQ/Uhx6Ol5NrRI/AAAAAAAAX9k/JPfLOUDRPgg/s1600/Mountains+Wallpapers.jpg" alt="Profile Picture" width="250" height="250"></img>
-            </Grid>
-            <Grid item sm={3}>
-              <Card>
-                  <CardHeader
-                  title = {userInfo.name}
-                  className={classes.cardHeader}
-                  />
-                <CardContent>
-                      <div className={classes.cardContent}>
-                        <List /*dense={dense}*/>
-                          <ListItem>
-                            {userInfo.school}
-                          </ListItem>
-                          <ListItem>
-                            {userInfo.major}
-                          </ListItem>
-                        </List>
-                    </div>
-                  </CardContent>
-              </Card>
-            </Grid>
-            <Grid item sm={6}>
-            <Typography variant="h3">Biography</Typography>
-            <Typography variant="p">This is The Biography This is The Biography This is The Biography v This is The Biography This is The Biography This is The Biography This is The Biography This is The Biography This is The Biography This is The Biography This is The Biography This is The Biography This is The Biography This is The Biography This is The Biography This is The Biography This is The Biography</Typography>
-            </Grid>
-            <Grid item sm={12}>
-            <Button variant="contained" color="primary">
-              Contact me
-            </Button>
+          </Grid>
+        <Grid item sm={3}>
+          <Card>
+              <CardHeader
+              title = {userInfo.name}
+              className={classes.cardHeader}
+              />
+            <CardContent>
+              <div className={classes.cardContent}>
+                <List /*dense={dense}*/>
+                  <ListItem>
+                    <Typography variant="body1"><b>Location:</b> {userInfo.school}</Typography>
+                  </ListItem>
+                  <ListItem>
+                    <Typography variant="body1"><b>Major:</b> {userInfo.major}</Typography>
+                  </ListItem>
+                </List>
+              </div>
+              </CardContent>
+          </Card>
+        </Grid>
+        <Grid item sm={6}>
+          <Typography variant="h3" className={classes.title}>Biography</Typography>
+          <Typography variant="body1">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum neque vitae ipsum maximus, vel posuere arcu porttitor. Curabitur ligula nulla, rutrum vitae sapien at, consequat iaculis risus. Etiam condimentum mi leo, non aliquam urna condimentum sit amet. Vivamus ac ligula placerat, interdum diam eget, ullamcorper neque. Proin non lacus nec turpis mollis luctus ac eget augue. Integer leo nibh, lacinia ut ante eget, ultrices accumsan ex. In libero metus, gravida sed risus nec, convallis scelerisque enim. Fusce eu massa purus. Aenean a varius lectus, sit amet fermentum ex.
+          </Typography>
+        </Grid>
+        <Grid item sm={12}>
+          <Button variant="contained" className={classes.button}>
+            Contact me
+          </Button>
             </Grid>
           </Grid>
-          <Typography variant="h3">Posts Made</Typography>
-          <Grid container spacing={3}>
-          {posts.map((post) => (
-          <Grid item sm={2}>
-          <Card>
+          <Typography variant="h5" style={{paddingTop: 20}}>
+            Posts Made
+          </Typography>
+          <Grid container spacing={3} style={{paddingTop: 20}}>
+            {posts.map((post) => (
+            <Grid item sm={2}>
+              <Card>
                 <CardHeader
                   title={post.componentName}
                   titleTypographyProps={{ align: 'center' }}
@@ -109,17 +124,18 @@ export default function CenteredGrid() {
                 <CardContent>
                   <div className={classes.cardContent}>
                     <Typography variant="subtitle1">
-                      Rating: {post.rating}
+                      <b>Rating: {post.rating}</b>
                     </Typography>
                   </div>
-                      <Typography variant="subtitle1" align="center">
-                        {post.comment}
-                      </Typography>
+                  <Typography variant="subtitle1" align="center">
+                    {post.comment}
+                  </Typography>
                 </CardContent>
               </Card>
-          </Grid>
+            </Grid>
           ))}
         </Grid>
-    </div>
+      </div>
+    </Container>
   )
 }
