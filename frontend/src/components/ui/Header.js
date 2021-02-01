@@ -44,13 +44,8 @@ class SearchField extends React.Component
   }
 
   handleSubmit(event) {
-    window.location.href = "/search-component";
+    window.location.href = "/search-component/"+this.state.value;
     event.preventDefault();
-    /*
-    this.props.navigation.navigate( "/search-component", {
-      custparam: "passed",
-    })
-    */
   }
 
   render(){
@@ -171,7 +166,11 @@ class SearchField extends React.Component
       pointerEvents: 'none',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'left',
+    },
+    searchField: {
+      padding: theme.spacing(0, 6),
+      position: 'relative',
     },
     inputRoot: {
       color: 'inherit',
@@ -247,7 +246,9 @@ class SearchField extends React.Component
               <div className={classes.searchIcon}>
                 <SearchIcon />
                 </div>
+                <div className={classes.searchField}>
                 <SearchField />
+                </div>
               </div>
               <div className={classes.grow} />
               <Button color="inherit" component={Link} to="/login">Login</Button>

@@ -35,7 +35,8 @@ const useStyles = makeStyles((theme) => ({
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.secondary.light,
+    color: theme.palette.secondary.dark,
   },
   form: {
     width: '100%', // Fix IE 11 issue.
@@ -43,6 +44,12 @@ const useStyles = makeStyles((theme) => ({
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
+    background: theme.palette.secondary.main,
+    color: theme.palette.common.white,
+    '&:hover': {
+        backgroundColor: theme.palette.secondary.dark,
+        color: '#FFF'
+    }
   },
 }));
 
@@ -54,7 +61,7 @@ export default function Login() {
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
-          <LockOutlinedIcon style={{fill: "#3BA0A9"}} />
+          <LockOutlinedIcon/>
         </Avatar>
         <Typography component="h1" variant="h5">
           Sign in
@@ -65,10 +72,9 @@ export default function Login() {
             margin="normal"
             required
             fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
+            id="username"
+            label="Username"
+            name="username"
             autoFocus
           />
           <TextField
