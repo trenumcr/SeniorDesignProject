@@ -9,7 +9,6 @@ from accounts.models import UserProfile
 from .forms import CreateUserForm
 from knox.models import AuthToken
 from django.contrib.auth import login
-from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
 from .permissions import IsUser
