@@ -10,6 +10,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
+import FilterListIcon from '@material-ui/icons/FilterList';
 
 import { useParams } from 'react-router-dom';
 
@@ -98,9 +99,11 @@ export default function SearchResults() {
         <Grid item sm={12}><Typography variant="h5">Results for {componentName}</Typography></Grid>
 
         <Grid container item sm={2} spacing={3}>
+        <FilterListIcon style={{ padding: 5 }} color="secondary" />
+        <Typography variant="h6" component="h3">Filters:</Typography>
           <Grid item sm={12}>
             <FormControl component="fieldset">
-            <FormLabel component="legend">Filter Type 1:</FormLabel>
+            <FormLabel component="legend">Hardware Category</FormLabel>
             <FormGroup>
               <FormControlLabel
                 control={<Checkbox checked={opt1} onChange={handleChange} name="opt1" />}
@@ -119,7 +122,7 @@ export default function SearchResults() {
           </Grid>
           <Grid item sm={12}>
             <FormControl component="fieldset">
-            <FormLabel component="legend">Filter Type 2:</FormLabel>
+            <FormLabel component="legend">Manufacturer</FormLabel>
             <FormGroup>
               <FormControlLabel
                 control={<Checkbox checked={opt1} onChange={handleChange} name="opt1" />}
@@ -138,7 +141,26 @@ export default function SearchResults() {
           </Grid>
           <Grid item sm={12}>
             <FormControl component="fieldset">
-            <FormLabel component="legend">Filter Type 3:</FormLabel>
+            <FormLabel component="legend">Price</FormLabel>
+            <FormGroup>
+              <FormControlLabel
+                control={<Checkbox checked={opt1} onChange={handleChange} name="opt1" />}
+                label="Option 1"
+              />
+              <FormControlLabel
+                control={<Checkbox checked={opt2} onChange={handleChange} name="opt2" />}
+                label="Option 2"
+              />
+              <FormControlLabel
+                control={<Checkbox checked={opt3} onChange={handleChange} name="opt3" />}
+                label="Option 3"
+              />
+            </FormGroup>
+            </FormControl>
+          </Grid>
+          <Grid item sm={12}>
+            <FormControl component="fieldset">
+            <FormLabel component="legend">Rating</FormLabel>
             <FormGroup>
               <FormControlLabel
                 control={<Checkbox checked={opt1} onChange={handleChange} name="opt1" />}
