@@ -33,6 +33,7 @@ function App() {
           <Route exact path="/" component={() => <Home />} />
           <Route exact path="/profile" component={() => <Profile />} />
           <Route exact path="/search-component" component={() => <Search />} />
+          <Route path="/search-component/:componentName" component={() => <Search />} />
           <Route exact path="/categories" component={() => <Category />} />
           <Route exact path="/component" component={() => <Component />} />
           <Route exact path="/login" component={() => <Login />} />
