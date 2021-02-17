@@ -129,9 +129,6 @@ class OtherUserProfileView(generics.RetrieveAPIView):
     """
     serializer_class = UserProfileSerializer
     queryset = UserProfile.objects.all()
-    # permission_classes = [
-    #     permissions.IsAuthenticated,
-    # ]
     lookup_field = "user__username"
 
     def get_queryset(self):
