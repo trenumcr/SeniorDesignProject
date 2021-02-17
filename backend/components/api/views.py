@@ -72,3 +72,18 @@ class AuthVoteView(APIView):
 
     def patch(self, requests, *args, **kwargs):
         return update_vote(requests)
+
+class FileView(APIView):
+    '''
+    An endpoint to retrieve datasheet
+    '''
+
+    def get(self, requests, *args, **kwargs):
+        return get_file(requests)
+
+class CategoryListView(APIView):
+    '''
+    An endpoint to get unique categories in the database
+    '''
+    def get(self, requests, *args, **kwargs):
+        return get_categories(requests)
