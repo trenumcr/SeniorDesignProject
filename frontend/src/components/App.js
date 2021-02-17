@@ -15,7 +15,7 @@ import ExpertProfile from "./ui/ExpertProfile";
 import { ThemeProvider } from '@material-ui/styles';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import theme from './ui/Theme'
-import { makeStyles, useTheme } from '@material-ui/styles';
+import { makeStyles } from '@material-ui/styles';
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -24,7 +24,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function App() {
-  const classes = useStyles();
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>

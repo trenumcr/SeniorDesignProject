@@ -133,6 +133,8 @@ const drawerWidth = 240;
     },
   }));
 
+
+
   function ElevationScroll(props) {
     const { children, window } = props;
     const trigger = useScrollTrigger({
@@ -143,6 +145,36 @@ const drawerWidth = 240;
         elevation: trigger ? 4 : 0,
       });
     }
+
+
+
+  class LoginLogout extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        token: localStorage.getItem('token'),
+        username: localStorage.getItem('username'),
+      };
+      this.handleLogout = this.handleLogout.bind(this);
+    }
+
+    handleLogout(e) {
+        console.log(`logged out`)
+        console.log(localStorage.getItem('token'))
+        this.state.token = "";
+        localStorage.removeItem('token');
+        window.location.reload(false);
+    }
+
+    render() {
+      if (this.state.token != null) {
+        return (<Typography>Hello, {this.state.username}!<Button color="inherit" component={Link} onClick={this.handleLogout}> Logout</Button></Typography> );
+      }
+      else {
+          return (<Button color="inherit" component={Link} to="/login">Login</Button>);
+      }
+    }
+  }
 
   export default function Header(props) {
     const classes = useStyles()
@@ -163,6 +195,7 @@ const drawerWidth = 240;
       e.preventDefault();
       window.location.href = "/search-component";
     };
+
     return (
       <React.Fragment>
         <ElevationScroll>
@@ -202,7 +235,7 @@ const drawerWidth = 240;
                 </form>
               </div>
               <div className={classes.grow} />
-              <Button color="inherit" component={Link} to="/login">Login</Button>
+              <LoginLogout/>
             </Toolbar>
           </AppBar>
         </ElevationScroll>

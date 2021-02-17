@@ -10,23 +10,13 @@ import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import{ Component } from "react";
+import axiosInstance from "../../axiosApi";
+import { Redirect } from 'react-router'
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Component Review
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
-const useStyles = makeStyles((theme) => ({
+const useStyles = theme => ({
   paper: {
     marginTop: theme.spacing(8),
     display: 'flex',
@@ -51,73 +41,133 @@ const useStyles = makeStyles((theme) => ({
         color: '#FFF'
     }
   },
-}));
+});
 
-export default function Login() {
-  const classes = useStyles();
+class Login extends Component {
+  constructor(props) {
+    super(props);
 
-  return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <div className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <LockOutlinedIcon/>
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign in
-        </Typography>
-        <form className={classes.form} noValidate>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="username"
-            label="Username"
-            name="username"
-            autoFocus
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-          />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-          >
-            Sign In
-          </Button>
-          <Grid container>
-            <Grid item xs>
-              <Link href="#" variant="body2">
-                Forgot password?
-              </Link>
+    this.state = {
+      username: "",
+      password: "",
+      token: "",
+      login: false,
+    };
+  }
+
+  login = () => {
+    console.log("data.");
+    var data = {
+      password: this.state.password,
+      username: this.state.username,
+    }
+
+    console.log(data);
+
+    axiosInstance.post("accounts/auth/login/", data)
+      .then(response => {
+        this.setState({
+          token: response.data.token,
+          login: true,
+        });
+        localStorage.setItem('token', this.state.token)
+        localStorage.setItem('username', this.state.username)
+        console.log(this.state.token + " " + this.state.login);
+
+        window.location.reload(false);
+      })
+      .catch(e => {
+        this.setState({
+          login: false,
+        });
+        console.log(this.state.token + " " + this.state.login);
+        console.log(e);
+      });
+  }
+
+  _handleUsernameChange = (e) => {
+    this.setState({
+      username: e.target.value
+    });
+  }
+
+  _handlePasswordChange = (e) => {
+    this.setState({
+      password: e.target.value
+    });
+  }
+
+  render() {
+    const { classes } = this.props;
+
+    if (this.state.login) {
+      // redirect to home if signed up
+      return <Redirect to = {{ pathname: "/" }} />;
+    }
+
+    return (
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon/>
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign in
+          </Typography>
+          <form className={classes.form} onSubmit={this.login}>
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="username"
+              label="Username"
+              name="username"
+              autoFocus
+              onChange={this._handleUsernameChange}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              onChange={this._handlePasswordChange}
+            />
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            />
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+              onClick={this.login}
+            >
+              Sign In
+            </Button>
+            <Grid container>
+              <Grid item xs>
+                <Link href="#" variant="body2">
+                  Forgot password?
+                </Link>
+              </Grid>
+              <Grid item>
+                <Link href="/sign-up" variant="body2">
+                  {"Don't have an account? Sign Up"}
+                </Link>
+              </Grid>
             </Grid>
-            <Grid item>
-              <Link href="/sign-up" variant="body2">
-                {"Don't have an account? Sign Up"}
-              </Link>
-            </Grid>
-          </Grid>
-        </form>
-      </div>
-      <Box mt={8}>
-        <Copyright />
-      </Box>
-    </Container>
-  );
+          </form>
+        </div>
+      </Container>
+    );
+  }
 }
+export default withStyles(useStyles)(Login)
