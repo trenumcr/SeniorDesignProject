@@ -1,11 +1,44 @@
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from rest_framework.response import Response
 from rest_framework import status
 from bson.json_util import dumps
 from bson.objectid import ObjectId
+from bson.binary import Binary
 import pymongo
 import json
 import datetime
+import gridfs
+import base64
 from accounts.models import UserProfile
+import io
+
+
+
+
+def write_new_file(request, db):
+    fs = gridfs.GridFS(db)
+    data = request.FILES['datasheet'].file.read()
+    resp = {"id": None, "filename": ""}
+    in_file = fs.put(data, filename=request.FILES['datasheet'].name)
+    file_data = fs.get(in_file)
+
+    resp["id"] = in_file
+    resp["filename"] = file_data.filename
+
+    return resp
+
+
+
+def get_file(request):
+    client = pymongo.MongoClient('mongodb://localhost:27017/')
+    db = client['ComponentReviewDB']
+    fs = gridfs.GridFS(db)
+    data = fs.get(ObjectId(request.query_params["id"]))
+    content = dumps(data)
+    resp = json.loads(content)
+    return Response(resp, status=status.HTTP_200_OK)
+
 
 def get_component(request):
     client = pymongo.MongoClient('mongodb://localhost:27017')
@@ -15,16 +48,37 @@ def get_component(request):
     resp = json.loads(content)
     return Response(resp, status=status.HTTP_200_OK)
 
+def get_categories(request):
+    client = pymongo.MongoClient('mongodb://localhost:27017')
+    db = client['ComponentReviewDB']
+    collection = db['components']
+
+    if "category" in request.query_params:
+        data = collection.find({"category": request.query_params["category"]})
+    else:
+        categories = list()
+        for category in collection.find().distinct('category'):
+            categories.append(category)
+        data = {"categories": categories}
+
+    content = dumps(data)
+    resp = json.loads(content)
+    return Response(resp, status=status.HTTP_200_OK)
+
 def post_component(request):
     client = pymongo.MongoClient('mongodb://localhost:27017')
     db = client['ComponentReviewDB']
     collection = db['components']
+    fs = gridfs.GridFS(db)
     doc = request.data
+    doc['who'] = request.user.username
     doc["rating"] = {
                         "total": request.data["rating"],
                         "votes": 1,
                         "avg_rating": request.data["rating"]
                     }
+    doc["datasheets"] = []
+    doc["picture"] = []
     doc["comments"] = []
     doc["created"] = datetime.datetime.now()
     doc["updated"] = doc["created"]
@@ -51,7 +105,9 @@ def update_component(request):
         change_occured = True
 
     if "picture" in request.data:
-        collection.update({'_id': ObjectId(doc['id']) }, {'$push': {'picture': doc["picture"]}})
+        img_obj = write_new_file(request, db)
+        collection.update({'_id': ObjectId(doc['id'])},
+                          {'$push': {'picture': {"id": img_obj["id"], "filename": img_obj["filename"]}}})
         change_occured = True
 
     if "category" in request.data:
@@ -71,7 +127,8 @@ def update_component(request):
         change_occured = True
 
     if "datasheet" in request.data:
-        collection.update({'_id': ObjectId(doc['id']) }, {'$push': {'datasheet': doc["datasheet"]}})
+        pdf_obj = write_new_file(request, db)
+        collection.update({'_id': ObjectId(doc['id'])}, {'$push': {'datasheet': {"id": pdf_obj["id"], "filename": pdf_obj["filename"]}}})
         change_occured = True
 
     if "specifications" in request.data:
