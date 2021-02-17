@@ -30,6 +30,64 @@ import logo from "../../static/images/logo1IntoWordsBlack.png";
 
 const drawerWidth = 240;
 
+class SearchField extends React.Component 
+{
+  constructor(props) {
+    super(props);
+    this.state = {value: ''};
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+
+  handleChange(event) {
+    this.setState({value: event.target.value});
+  }
+
+  handleSubmit(event) {
+    window.location.href = "/search-component/"+this.state.value;
+    event.preventDefault();
+    /*
+    this.props.navigation.navigate( "/search-component", {
+      custparam: "passed",
+    })
+    */
+  }
+
+  render(){
+    const inputclasses = makeStyles(theme => ({
+      inputRoot: {
+        color: 'inherit',
+      },
+      inputInput: {
+        padding: theme.spacing(1, 1, 1, 0),
+        // vertical padding + font size from searchIcon
+        paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+        transition: theme.transitions.create('width'),
+        width: '100%',
+        [theme.breakpoints.up('md')]: {
+          width: '20ch',
+        },
+      },
+    }))
+    return(
+      <form onSubmit={this.handleSubmit}>
+        <InputBase
+          placeholder="Search…"
+          
+          classes={{
+            root: inputclasses.inputRoot,
+            input: inputclasses.inputInput,
+          }}
+          
+          inputProps={{ 'aria-label': 'search' }}
+          onChange={this.handleChange}
+          />
+        </form>
+    )
+  }
+}
+
   const useStyles = makeStyles(theme => ({
     toolbarMargin: {
       ...theme.mixins.toolbar,
@@ -116,7 +174,11 @@ const drawerWidth = 240;
       pointerEvents: 'none',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'left',
+      },
+    searchField: {
+      padding: theme.spacing(0, 6),
+      position: 'relative',
     },
     inputRoot: {
       color: 'inherit',
@@ -223,16 +285,9 @@ const drawerWidth = 240;
                 <div className={classes.searchIcon}>
                   <SearchIcon />
                 </div>
-                <form onSubmit={onSubmitHandler}>
-                  <InputBase
-                    placeholder="Search…"
-                    classes={{
-                      root: classes.inputRoot,
-                      input: classes.inputInput,
-                    }}
-                    inputProps={{ 'aria-label': 'search' }}
-                  />
-                </form>
+                <div className={classes.searchField}>
+                  <SearchField />
+                </div>
               </div>
               <div className={classes.grow} />
               <LoginLogout/>

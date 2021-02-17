@@ -5,11 +5,19 @@ import React from 'react';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
+import TextField from '@material-ui/core/TextField';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
+import FilterListIcon from '@material-ui/icons/FilterList';
+import Rating from '@material-ui/lab/Rating';
+import Box from '@material-ui/core/Box';
+import InputLabel from '@material-ui/core/InputLabel';
+import Input from '@material-ui/core/Input';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,22 +34,41 @@ const useStyles = makeStyles((theme) => ({
     //backgroundColor: theme.palette.grey[200],
     marginBottom: theme.spacing(2),
   },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
 }));
 
 export default function SearchResults() {
   const classes = useStyles();
+  const { componentName } = useParams();
 
-  const [state, setState] = React.useState({
-    opt1: false,
-    opt2: false,
-    opt3: false,
-  });
+  //Filter Variables
+  const [manufacturer, setManufacturer] = React.useState('');
+  const [hardwareCategory, setHardwareCategory] = React.useState('');
+  const [rating, setRating] = React.useState(0);
+  const [price, setPrice] = React.useState(0);
 
-  const handleChange = (event) => {
-    setState({ ...state, [event.target.name]: event.target.checked });
+  //Filter Functions
+  const handlePriceChange = (event, newPrice) => {
+    setPrice(newPrice);
   };
 
-  const { opt1, opt2, opt3 } = state;
+  const handleManufacturerChange = (event) => {
+    setManufacturer(event.target.value);
+  };
+
+  const handleHardwareCategoryChange = (event) => {
+    setHardwareCategory(event.target.value);
+  };
+
+  const handleRatingChange = (event) => {
+    setRating(event.target.value);
+  };
 
   var results = [
     {
@@ -90,71 +117,69 @@ export default function SearchResults() {
           Rating: "Had issues with C on..."
         },
   ]
-
   return(
     <div className={classes.root}>
-
       <Grid container spacing={3}>
-        <Grid item sm={12}><Typography variant="h5">Results for "Component"</Typography></Grid>
+        <Grid item sm={12}><Typography variant="h5">Results for "{componentName}"</Typography></Grid>
 
         <Grid container item sm={2} spacing={3}>
+        <FilterListIcon style={{ padding: 5 }} color="secondary" />
+        <Typography variant="h6" component="h3">Filters:</Typography>
           <Grid item sm={12}>
-            <FormControl component="fieldset">
-            <FormLabel component="legend">Filter Type 1:</FormLabel>
-            <FormGroup>
-              <FormControlLabel
-                control={<Checkbox checked={opt1} onChange={handleChange} name="opt1" />}
-                label="Option 1"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={opt2} onChange={handleChange} name="opt2" />}
-                label="Option 2"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={opt3} onChange={handleChange} name="opt3" />}
-                label="Option 3"
-              />
-            </FormGroup>
+            <FormControl className={classes.formControl}>
+              <Typography>Manufacturer</Typography>
+                <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={manufacturer}
+                    onChange={handleManufacturerChange}
+                  >
+                    <MenuItem value={"MGM Electronics"}>MGM Electronics</MenuItem>
+                    <MenuItem value={"Adaptec"}>Adaptec</MenuItem>
+                    <MenuItem value={"Aereo"}>Aereo</MenuItem>
+                </Select>
+            </FormControl>
+          </Grid>
+          <Grid item sm={12}>
+            <FormControl className={classes.formControl}>
+              <Typography>Hardware Category</Typography>
+                <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={hardwareCategory}
+                    onChange={handleHardwareCategoryChange}
+                  >
+                    <MenuItem value={"Active"}>Active</MenuItem>
+                    <MenuItem value={"Passive"}>Passive</MenuItem>
+                    <MenuItem value={"Op Amps"}>Op Amps</MenuItem>
+                </Select>
             </FormControl>
           </Grid>
           <Grid item sm={12}>
             <FormControl component="fieldset">
-            <FormLabel component="legend">Filter Type 2:</FormLabel>
-            <FormGroup>
-              <FormControlLabel
-                control={<Checkbox checked={opt1} onChange={handleChange} name="opt1" />}
-                label="Option 1"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={opt2} onChange={handleChange} name="opt2" />}
-                label="Option 2"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={opt3} onChange={handleChange} name="opt3" />}
-                label="Option 3"
-              />
-            </FormGroup>
+              <Typography>Price</Typography>
+              <FormGroup>
+                <Typography variant="body2">Less than</Typography>
+                <Input 
+                  size="small" 
+                  id="outlined-basic" 
+                  type="number"
+                  variant="outlined" 
+                  value={price} 
+                  onChange={handlePriceChange} 
+                  startAdornment={<InputAdornment position="start">$</InputAdornment>}
+                />
+              </FormGroup>
             </FormControl>
           </Grid>
-          <Grid item sm={12}>
-            <FormControl component="fieldset">
-            <FormLabel component="legend">Filter Type 3:</FormLabel>
-            <FormGroup>
-              <FormControlLabel
-                control={<Checkbox checked={opt1} onChange={handleChange} name="opt1" />}
-                label="Option 1"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={opt2} onChange={handleChange} name="opt2" />}
-                label="Option 2"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={opt3} onChange={handleChange} name="opt3" />}
-                label="Option 3"
-              />
-            </FormGroup>
-            </FormControl>
-          </Grid>
+          <Box component="fieldset" mb={3} borderColor="transparent">
+            <Typography component="legend">Rating</Typography>
+            <Rating
+              name="simple-controlled"
+              value={rating}
+              onChange={handleRatingChange}
+            />
+          </Box>
         </Grid>
 
         <Grid container item sm={10} spacing={4}>
@@ -182,5 +207,5 @@ export default function SearchResults() {
         </Grid>
       </Grid>
     </div>
-  )
+  );
 }
