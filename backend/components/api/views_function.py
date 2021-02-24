@@ -1,17 +1,13 @@
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
+from django.http import FileResponse
 from rest_framework.response import Response
 from rest_framework import status
 from bson.json_util import dumps
 from bson.objectid import ObjectId
-from bson.binary import Binary
 import pymongo
 import json
 import datetime
 import gridfs
-import base64
 from accounts.models import UserProfile
-import io
 
 
 
@@ -35,9 +31,16 @@ def get_file(request):
     db = client['ComponentReviewDB']
     fs = gridfs.GridFS(db)
     data = fs.get(ObjectId(request.query_params["id"]))
-    content = dumps(data)
-    resp = json.loads(content)
-    return Response(resp, status=status.HTTP_200_OK)
+    file_type = data.filename.split('.')
+    file_type = file_type[1]
+    if file_type == 'pdf':
+        resp = FileResponse(data, content_type='application/force-download')
+        resp['Content-Disposition'] = 'attachment; filename=' + data.filename
+        return resp
+    else:
+        content = dumps(data)
+        resp = json.loads(content)
+        return Response(resp, status=status.HTTP_200_OK)
 
 
 def get_component(request):
