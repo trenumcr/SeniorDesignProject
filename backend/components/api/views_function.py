@@ -13,10 +13,15 @@ from accounts.models import UserProfile
 
 
 def write_new_file(request, db):
-    fs = gridfs.GridFS(db)
-    data = request.FILES['datasheet'].file.read()
     resp = {"id": None, "filename": ""}
-    in_file = fs.put(data, filename=request.FILES['datasheet'].name)
+    fs = gridfs.GridFS(db)
+    if "datasheet" in request.data:
+        data = request.FILES['datasheet'].file.read()
+        in_file = fs.put(data, filename=request.FILES['datasheet'].name)
+    if "picture" in request.data:
+        data = request.FILES['picture'].file.read()
+        in_file = fs.put(data, filename=request.FILES['picture'].name)
+
     file_data = fs.get(in_file)
 
     resp["id"] = in_file
@@ -34,7 +39,7 @@ def get_file(request):
     file_type = data.filename.split('.')
     file_type = file_type[1]
     if file_type == 'pdf':
-        resp = FileResponse(data, content_type='application/force-download')
+        resp = FileResponse(data, content_type='application/pdf')
         resp['Content-Disposition'] = 'attachment; filename=' + data.filename
         return resp
     else:
