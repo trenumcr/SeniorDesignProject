@@ -56,30 +56,40 @@ class ComponentGrid extends Component {
     {
       components: [],
       price: '',
-      manufacturer: '',
-      hardwareCategory: '',
+      manufacture_name: '',
+      category: '',
       rating: ''
     };
     this.componentDidMount = this.componentDidMount.bind(this);
+    this.stateShow = this.stateShow.bind(this);
+
+    this.handleHardwareCategoryChange = this.handleHardwareCategoryChange.bind(this);
+    this.handleManufacturerChange = this.handleManufacturerChange.bind(this);
+    this.handlePriceChange = this.handlePriceChange.bind(this);
+    this.handleRatingChange = this.handleRatingChange.bind(this);
+  }
+
+  stateShow(){
+    console.log(this.state);
   }
 
  //Filter Functions
 
-handlePriceChange = (e) => {
+handlePriceChange(e) {
   this.setState({
     price: e.target.value
   });
-};
+}
 
-handleManufacturerChange = (e) => {
+handleManufacturerChange(e){
   this.setState({
-    manufacturer: e.target.value
+    manufacture_name: e.target.value
   });
-};
+}
 
 handleHardwareCategoryChange = (e) => {
   this.setState({
-    hardwareCategory: e.target.value
+    category: e.target.value
   });
 };
 
@@ -91,16 +101,17 @@ handleRatingChange = (e) => {
 
  componentDidMount() {
    
+  var filters = {};
+  for (const filter in this.state) {
+      if (`${filter}`!= 'components' && `${this.state[filter]}` != '') {
+          filters[`${filter}`] = this.state[filter];
+      }
+  }
+  filters["name"] = this.props.searchParam;
+
+    
     axios.get('http://127.0.0.1:8000/api/components/filter', {
-      params: {
-        "name" : this.props.searchParam,
-        /*
-        "price" : this.state.price,
-        "manufacture_name" : this.state.manufacturer,
-        "rating" : this.state.rating,
-        "category" : this.state.category
-        */
-      },
+      params: filters
     })
     .then(results => {
       console.log(results.data);
@@ -119,12 +130,16 @@ handleRatingChange = (e) => {
         <div className={this.props.classes.root}>
           <Grid container spacing={3}>
             <Grid item sm={12}>
+              <Button onClick={this.stateShow}>Show State</Button>
               <Typography variant="h5">Results for "{this.props.searchParam}"</Typography>
             </Grid>
     
             <Grid container item sm={2} spacing={3}>
             <FilterListIcon style={{ padding: 5 }} color="secondary" />
             <Typography variant="h6" component="h3">Filters:</Typography>
+            <Button variant="contained" color="secondary" onClick={this.componentDidMount}>
+              Apply Filters
+            </Button>
               <Grid item sm={12}>
                 <FormControl className={this.props.classes.formControl}>
                   <Typography>Manufacturer</Typography>
