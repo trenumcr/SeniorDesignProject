@@ -163,12 +163,13 @@ const drawerWidth = 240;
         console.log(localStorage.getItem('token'))
         this.state.token = "";
         localStorage.removeItem('token');
+        localStorage.removeItem('username');
         window.location.reload(false);
     }
 
     render() {
       if (this.state.token != null) {
-        return (<Typography>Hello, {this.state.username}!<Button color="inherit" component={Link} onClick={this.handleLogout}> Logout</Button></Typography> );
+        return (<Typography>Hello, <Button component={Link} to={"/profile/" + this.state.username}>{this.state.username}</Button>!<Button color="inherit" component={Link} onClick={this.handleLogout}> Logout</Button></Typography> );
       }
       else {
           return (<Button color="inherit" component={Link} to="/login">Login</Button>);
