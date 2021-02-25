@@ -1,10 +1,10 @@
 import { Typography } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
-import { makeStyles } from '@material-ui/core/styles';
-import React from 'react';
-import FormLabel from '@material-ui/core/FormLabel';
+import React, { Component } from 'react';
+//import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
+import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -18,8 +18,15 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
+import { withStyles } from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/styles';
 
-const useStyles = makeStyles((theme) => ({
+const axiosInstance = axios.create({
+  baseURL: 'http://127.0.0.1:8000/api',
+});
+
+const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
     padding: 30,
@@ -30,8 +37,6 @@ const useStyles = makeStyles((theme) => ({
   cardContent: {
     display: 'flex',
     justifyContent: 'center',
-    //alignItems: 'baseline',
-    //backgroundColor: theme.palette.grey[200],
     marginBottom: theme.spacing(2),
   },
   selectEmpty: {
@@ -43,169 +48,192 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SearchResults() {
-  const classes = useStyles();
-  const { componentName } = useParams();
+class ComponentGrid extends Component {
 
-  //Filter Variables
-  const [manufacturer, setManufacturer] = React.useState('');
-  const [hardwareCategory, setHardwareCategory] = React.useState('');
-  const [rating, setRating] = React.useState(0);
-  const [price, setPrice] = React.useState(0);
-
-  //Filter Functions
-  const handlePriceChange = (event, newPrice) => {
-    setPrice(newPrice);
-  };
-
-  const handleManufacturerChange = (event) => {
-    setManufacturer(event.target.value);
-  };
-
-  const handleHardwareCategoryChange = (event) => {
-    setHardwareCategory(event.target.value);
-  };
-
-  const handleRatingChange = (event) => {
-    setRating(event.target.value);
-  };
-
-  var results = [
+  constructor(props) {
+    super(props);
+    this.state = 
     {
-    Picture: "Insert Picture",
-    Name: "5/10",
-    Rating: "Had issues with A on..."
-    },
-    {
-      Picture: "Insert Picture",
-      Name: "8/10",
-      Rating: "Had issues with B on..."
-    },
-    {
-      Picture: "Insert Picture",
-      Name: "7/10",
-      Rating: "Had issues with C on..."
-    },
-    {
-      Picture: "Insert Picture",
-      Name: "5/10",
-      Rating: "Had issues with A on..."
+      components: [],
+      price: '',
+      manufacturer: '',
+      hardwareCategory: '',
+      rating: ''
+    };
+    this.componentDidMount = this.componentDidMount.bind(this);
+  }
+
+ //Filter Functions
+
+handlePriceChange = (e) => {
+  this.setState({
+    price: e.target.value
+  });
+};
+
+handleManufacturerChange = (e) => {
+  this.setState({
+    manufacturer: e.target.value
+  });
+};
+
+handleHardwareCategoryChange = (e) => {
+  this.setState({
+    hardwareCategory: e.target.value
+  });
+};
+
+handleRatingChange = (e) => {
+  this.setState({
+    rating: e.target.value
+  });
+};
+
+ componentDidMount() {
+   
+    axios.get('http://127.0.0.1:8000/api/components/filter', {
+      params: {
+        "name" : this.props.searchParam,
+        /*
+        "price" : this.state.price,
+        "manufacture_name" : this.state.manufacturer,
+        "rating" : this.state.rating,
+        "category" : this.state.category
+        */
       },
-      {
-        Picture: "Insert Picture",
-        Name: "8/10",
-        Rating: "Had issues with B on..."
-      },
-      {
-        Picture: "Insert Picture",
-        Name: "7/10",
-        Rating: "Had issues with C on..."
-      },
-      {
-        Picture: "Insert Picture",
-        Name: "5/10",
-        Rating: "Had issues with A on..."
-        },
-        {
-          Picture: "Insert Picture",
-          Name: "8/10",
-          Rating: "Had issues with B on..."
-        },
-        {
-          Picture: "Insert Picture",
-          Name: "7/10",
-          Rating: "Had issues with C on..."
-        },
-  ]
-  return(
-    <div className={classes.root}>
-      <Grid container spacing={3}>
-        <Grid item sm={12}><Typography variant="h5">Results for "{componentName}"</Typography></Grid>
+    })
+    .then(results => {
+      console.log(results.data);
+      this.setState({ components: results.data });
+    })
+    .catch(function (error) {
+      console.log(error);
+    })
+  }
 
-        <Grid container item sm={2} spacing={3}>
-        <FilterListIcon style={{ padding: 5 }} color="secondary" />
-        <Typography variant="h6" component="h3">Filters:</Typography>
-          <Grid item sm={12}>
-            <FormControl className={classes.formControl}>
-              <Typography>Manufacturer</Typography>
-                <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={manufacturer}
-                    onChange={handleManufacturerChange}
-                  >
-                    <MenuItem value={"MGM Electronics"}>MGM Electronics</MenuItem>
-                    <MenuItem value={"Adaptec"}>Adaptec</MenuItem>
-                    <MenuItem value={"Aereo"}>Aereo</MenuItem>
-                </Select>
-            </FormControl>
-          </Grid>
-          <Grid item sm={12}>
-            <FormControl className={classes.formControl}>
-              <Typography>Hardware Category</Typography>
-                <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={hardwareCategory}
-                    onChange={handleHardwareCategoryChange}
-                  >
-                    <MenuItem value={"Active"}>Active</MenuItem>
-                    <MenuItem value={"Passive"}>Passive</MenuItem>
-                    <MenuItem value={"Op Amps"}>Op Amps</MenuItem>
-                </Select>
-            </FormControl>
-          </Grid>
-          <Grid item sm={12}>
-            <FormControl component="fieldset">
-              <Typography>Price</Typography>
-              <FormGroup>
-                <Typography variant="body2">Less than</Typography>
-                <Input 
-                  size="small" 
-                  id="outlined-basic" 
-                  type="number"
-                  variant="outlined" 
-                  value={price} 
-                  onChange={handlePriceChange} 
-                  startAdornment={<InputAdornment position="start">$</InputAdornment>}
+  render() {
+    //const { classes } = this.props;
+    let comp = this.state.components;
+
+    return(
+        <div className={this.props.classes.root}>
+          <Grid container spacing={3}>
+            <Grid item sm={12}>
+              <Typography variant="h5">Results for "{this.props.searchParam}"</Typography>
+            </Grid>
+    
+            <Grid container item sm={2} spacing={3}>
+            <FilterListIcon style={{ padding: 5 }} color="secondary" />
+            <Typography variant="h6" component="h3">Filters:</Typography>
+              <Grid item sm={12}>
+                <FormControl className={this.props.classes.formControl}>
+                  <Typography>Manufacturer</Typography>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={this.state.manufacturer}
+                        onChange={this.handleManufacturerChange}
+                      >
+                        <MenuItem value={"MGM Electronics"}>MGM Electronics</MenuItem>
+                        <MenuItem value={"Adaptec"}>Adaptec</MenuItem>
+                        <MenuItem value={"Aereo"}>Aereo</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+              <Grid item sm={12}>
+                <FormControl className={this.props.classes.formControl}>
+                  <Typography>Hardware Category</Typography>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={this.state.hardwareCategory}
+                        onChange={this.handleHardwareCategoryChange}
+                      >
+                        <MenuItem value={"Active"}>Active</MenuItem>
+                        <MenuItem value={"Passive"}>Passive</MenuItem>
+                        <MenuItem value={"Op Amps"}>Op Amps</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+              <Grid item sm={12}>
+                <FormControl component="fieldset">
+                  <Typography>Price</Typography>
+                  <FormGroup>
+                    <Typography variant="body2">Less than</Typography>
+                    <Input 
+                      size="small" 
+                      id="outlined-basic" 
+                      type="number"
+                      variant="outlined" 
+                      value={this.state.price} 
+                      onChange={this.handlePriceChange} 
+                      startAdornment={<InputAdornment position="start">$</InputAdornment>}
+                    />
+                  </FormGroup>
+                </FormControl>
+              </Grid>
+              <Box component="fieldset" mb={3} borderColor="transparent">
+                <Typography component="legend">Rating</Typography>
+                <Rating
+                  name="simple-controlled"
+                  value={this.state.rating}
+                  onChange={this.handleRatingChange}
+                  precision={0.5}
                 />
-              </FormGroup>
-            </FormControl>
-          </Grid>
-          <Box component="fieldset" mb={3} borderColor="transparent">
-            <Typography component="legend">Rating</Typography>
-            <Rating
-              name="simple-controlled"
-              value={rating}
-              onChange={handleRatingChange}
-            />
-          </Box>
-        </Grid>
-
-        <Grid container item sm={10} spacing={4}>
-        {results.map((component) => (
+              </Box>
+            </Grid>
+    
+      <Grid container item sm={10} spacing={4}>
+        {comp.map((component) => (
           <Grid item md={4}>
               <Card>
                 <CardHeader
-                  title={component.Picture}
+                  title={component.name}
                   titleTypographyProps={{ align: 'center' }}
-                  className={classes.cardHeader}
+                  className={this.props.classes.cardHeader}
                 />
                 <CardContent>
-                  <div className={classes.cardContent}>
+                  <div className={this.props.classes.cardContent}>
                     <Typography variant="subtitle1">
-                      <b>Rating: {component.Name}</b>
+                      <b>{component.picture}</b>
                     </Typography>
                   </div>
                       <Typography variant="subtitle1" align="center">
-                        {component.Rating}
+                        Rating:                       
+                        <Rating
+                          name="read-only"
+                          value={component.rating}
+                          precision={0.5}
+                          readOnly
+                        />
+                      </Typography>
+                      <Typography variant="subtitle1" align="center">
+                        Manufacturer: {component.manufacture_name == undefined ? "N/A" : component.manufacture_name}
+                      </Typography>
+                      <Typography variant="subtitle1" align="center">
+                        Price: {component.price == undefined ? "N/A" : "$ "+component.price}
+                      </Typography>
+                      <Typography variant="subtitle1" align="center">
+                        Hardware Category: {component.category == undefined ? "N/A" : component.category}
                       </Typography>
                 </CardContent>
               </Card>
           </Grid>
         ))}
-        </Grid>
       </Grid>
-    </div>
+    
+          </Grid>
+        </div>
+    );
+  }
+}
+
+export default function PassSearchParam() {
+  const componentParam = useParams();
+  const classes = useStyles()
+  return(
+    <ComponentGrid searchParam={componentParam.componentName} classes={classes} />
   );
 }
+
+//export default withStyles(useStyles)(PassSearchParam)
