@@ -260,7 +260,7 @@ def key_filter_component(request):
     if "name" in request.query_params:
         term = request.query_params["name"]
         search_name = "^" + term + "|" + "\B" + term + "|" + term +"\B"
-        query["$and"].append({"name": {"$regex": search_name}})
+        query["$and"].append({"name": {"$regex": search_name, "$options": "i"}})
 
     if "category" in request.query_params:
         category = request.query_params["category"].split(",")
