@@ -227,32 +227,20 @@ def update_vote(request):
 
 
 def general_filter_component(request):
-    general = request.query_params["general"]
-    general_arr = general.split()
-    num_general_array = general.split()
-    for item in num_general_array:
-        try:
-            float(item)
-        except ValueError:
-            continue
-
-
     client = pymongo.MongoClient('mongodb://localhost:27017')
     db = client['ComponentReviewDB']
     collection = db['components']
+    collection.create_index([("name", pymongo.TEXT),
+                                ("category", pymongo.TEXT),
+                                ("manufacture_name", pymongo.TEXT),
+                                ("manufacture_num", pymongo.TEXT),
+                                ("specifications", pymongo.TEXT)])
 
-    query = { "$or": [
-                {"name": {"$in": general_arr}},
-                {"category": {"$in": general_arr}},
-                {"manufacture_name": {"$in": general_arr}},
-                {"manufacture_num": {"$in": general_arr}},
-                {"manufacture_num": {"$in": general_arr}},
-                {"price": {"$lte": {"$in": num_general_array}}},
-                {"specifications": {"$in": general_arr}},
-                {"rating": {"$gte": {"$in": num_general_array}}}
-            ]}
+    data = collection.find(
+            {"$text": {"$search": request.query_params["general"]}},
+            {"score": {"$meta": "textScore"}}
+         ).sort([("score", {"$meta": "textScore"}), ("rating", pymongo.DESCENDING), ("price", pymongo.ASCENDING)])
 
-    data = collection.find(query)
     content = dumps(data)
     resp = json.loads(content)
     if resp == []:
@@ -278,7 +266,6 @@ def key_filter_component(request):
 
     if "manufacture_name" in request.query_params:
         man_name = request.query_params["manufacture_name"].split(",")
-        print(man_name)
         query["$and"].append({"manufacture_name": { "$in": man_name}})
 
     if "manufacture_num" in request.query_params:
@@ -295,7 +282,7 @@ def key_filter_component(request):
     if "rating" in request.query_params:
         query["$and"].append({"rating": {"$gte": float(request.query_params["rating"])}})
 
-
+    
     data = collection.find(query)
     content = dumps(data)
     resp = json.loads(content)
