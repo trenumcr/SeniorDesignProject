@@ -17,6 +17,8 @@ class UserProfile(models.Model):
     # Preset user data provided by Django
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # Additional User data needed for project
+    firstname = models.CharField(max_length=50, default='')
+    lastname = models.CharField(max_length=50, default='')
     image = models.ImageField(default='default-user.jpg', upload_to='profile_pics')
     role = models.CharField(max_length=9,choices=ROLE_CHOICES)
     school = models.CharField(max_length=50, default='')
