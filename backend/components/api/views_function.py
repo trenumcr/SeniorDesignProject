@@ -258,7 +258,9 @@ def key_filter_component(request):
 
 
     if "name" in request.query_params:
-        query["$and"].append({"name":  request.query_params["name"]})
+        term = request.query_params["name"]
+        search_name = "^" + term + "|" + "\B" + term + "|" + term +"\B"
+        query["$and"].append({"name": {"$regex": search_name}})
 
     if "category" in request.query_params:
         category = request.query_params["category"].split(",")
@@ -282,7 +284,7 @@ def key_filter_component(request):
     if "rating" in request.query_params:
         query["$and"].append({"rating": {"$gte": float(request.query_params["rating"])}})
 
-    
+
     data = collection.find(query)
     content = dumps(data)
     resp = json.loads(content)
