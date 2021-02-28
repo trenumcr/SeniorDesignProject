@@ -1,3 +1,4 @@
+from django.http import FileResponse
 from rest_framework.response import Response
 from rest_framework import status
 from bson.json_util import dumps
@@ -5,7 +6,47 @@ from bson.objectid import ObjectId
 import pymongo
 import json
 import datetime
+import gridfs
 from accounts.models import UserProfile
+
+
+
+
+def write_new_file(request, db):
+    resp = {"id": None, "filename": ""}
+    fs = gridfs.GridFS(db)
+    if "datasheet" in request.data:
+        data = request.FILES['datasheet'].file.read()
+        in_file = fs.put(data, filename=request.FILES['datasheet'].name)
+    if "picture" in request.data:
+        data = request.FILES['picture'].file.read()
+        in_file = fs.put(data, filename=request.FILES['picture'].name)
+
+    file_data = fs.get(in_file)
+
+    resp["id"] = in_file
+    resp["filename"] = file_data.filename
+
+    return resp
+
+
+
+def get_file(request):
+    client = pymongo.MongoClient('mongodb://localhost:27017/')
+    db = client['ComponentReviewDB']
+    fs = gridfs.GridFS(db)
+    data = fs.get(ObjectId(request.query_params["id"]))
+    file_type = data.filename.split('.')
+    file_type = file_type[1]
+    if file_type == 'pdf':
+        resp = FileResponse(data, content_type='application/pdf')
+        resp['Content-Disposition'] = 'attachment; filename=' + data.filename
+        return resp
+    else:
+        content = dumps(data)
+        resp = json.loads(content)
+        return Response(resp, status=status.HTTP_200_OK)
+
 
 def get_component(request):
     client = pymongo.MongoClient('mongodb://localhost:27017')
@@ -15,16 +56,37 @@ def get_component(request):
     resp = json.loads(content)
     return Response(resp, status=status.HTTP_200_OK)
 
+def get_categories(request):
+    client = pymongo.MongoClient('mongodb://localhost:27017')
+    db = client['ComponentReviewDB']
+    collection = db['components']
+
+    if "category" in request.query_params:
+        data = collection.find({"category": request.query_params["category"]})
+    else:
+        categories = list()
+        for category in collection.find().distinct('category'):
+            categories.append(category)
+        data = {"categories": categories}
+
+    content = dumps(data)
+    resp = json.loads(content)
+    return Response(resp, status=status.HTTP_200_OK)
+
 def post_component(request):
     client = pymongo.MongoClient('mongodb://localhost:27017')
     db = client['ComponentReviewDB']
     collection = db['components']
+    fs = gridfs.GridFS(db)
     doc = request.data
+    doc['who'] = request.user.username
     doc["rating"] = {
                         "total": request.data["rating"],
                         "votes": 1,
                         "avg_rating": request.data["rating"]
                     }
+    doc["datasheets"] = []
+    doc["picture"] = []
     doc["comments"] = []
     doc["created"] = datetime.datetime.now()
     doc["updated"] = doc["created"]
@@ -51,7 +113,9 @@ def update_component(request):
         change_occured = True
 
     if "picture" in request.data:
-        collection.update({'_id': ObjectId(doc['id']) }, {'$push': {'picture': doc["picture"]}})
+        img_obj = write_new_file(request, db)
+        collection.update({'_id': ObjectId(doc['id'])},
+                          {'$push': {'picture': {"id": img_obj["id"], "filename": img_obj["filename"]}}})
         change_occured = True
 
     if "category" in request.data:
@@ -71,7 +135,8 @@ def update_component(request):
         change_occured = True
 
     if "datasheet" in request.data:
-        collection.update({'_id': ObjectId(doc['id']) }, {'$push': {'datasheet': doc["datasheet"]}})
+        pdf_obj = write_new_file(request, db)
+        collection.update({'_id': ObjectId(doc['id'])}, {'$push': {'datasheet': {"id": pdf_obj["id"], "filename": pdf_obj["filename"]}}})
         change_occured = True
 
     if "specifications" in request.data:
@@ -162,32 +227,20 @@ def update_vote(request):
 
 
 def general_filter_component(request):
-    general = request.query_params["general"]
-    general_arr = general.split()
-    num_general_array = general.split()
-    for item in num_general_array:
-        try:
-            float(item)
-        except ValueError:
-            continue
-
-
     client = pymongo.MongoClient('mongodb://localhost:27017')
     db = client['ComponentReviewDB']
     collection = db['components']
+    collection.create_index([("name", pymongo.TEXT),
+                                ("category", pymongo.TEXT),
+                                ("manufacture_name", pymongo.TEXT),
+                                ("manufacture_num", pymongo.TEXT),
+                                ("specifications", pymongo.TEXT)])
 
-    query = { "$or": [
-                {"name": {"$in": general_arr}},
-                {"category": {"$in": general_arr}},
-                {"manufacture_name": {"$in": general_arr}},
-                {"manufacture_num": {"$in": general_arr}},
-                {"manufacture_num": {"$in": general_arr}},
-                {"price": {"$lte": {"$in": num_general_array}}},
-                {"specifications": {"$in": general_arr}},
-                {"rating": {"$gte": {"$in": num_general_array}}}
-            ]}
+    data = collection.find(
+            {"$text": {"$search": request.query_params["general"]}},
+            {"score": {"$meta": "textScore"}}
+         ).sort([("score", {"$meta": "textScore"}), ("rating", pymongo.DESCENDING), ("price", pymongo.ASCENDING)])
 
-    data = collection.find(query)
     content = dumps(data)
     resp = json.loads(content)
     if resp == []:
@@ -205,7 +258,9 @@ def key_filter_component(request):
 
 
     if "name" in request.query_params:
-        query["$and"].append({"name":  request.query_params["name"]})
+        term = request.query_params["name"]
+        search_name = "^" + term + "|" + "\B" + term + "|" + term +"\B"
+        query["$and"].append({"name": {"$regex": search_name, "$options": "i"}})
 
     if "category" in request.query_params:
         category = request.query_params["category"].split(",")
@@ -213,7 +268,6 @@ def key_filter_component(request):
 
     if "manufacture_name" in request.query_params:
         man_name = request.query_params["manufacture_name"].split(",")
-        print(man_name)
         query["$and"].append({"manufacture_name": { "$in": man_name}})
 
     if "manufacture_num" in request.query_params:
