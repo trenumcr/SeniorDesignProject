@@ -54,6 +54,7 @@ class ComponentGrid extends Component {
     super(props);
     this.state = 
     {
+      _id:'',
       components: [],
       price: '',
       manufacture_name: '',
@@ -61,16 +62,13 @@ class ComponentGrid extends Component {
       rating: ''
     };
     this.componentDidMount = this.componentDidMount.bind(this);
-    this.stateShow = this.stateShow.bind(this);
 
     this.handleHardwareCategoryChange = this.handleHardwareCategoryChange.bind(this);
     this.handleManufacturerChange = this.handleManufacturerChange.bind(this);
     this.handlePriceChange = this.handlePriceChange.bind(this);
     this.handleRatingChange = this.handleRatingChange.bind(this);
-  }
 
-  stateShow(){
-    console.log(this.state);
+    this.handleSelectComponent = this.handleSelectComponent.bind(this);
   }
 
  //Filter Functions
@@ -99,6 +97,12 @@ handleRatingChange = (e) => {
   });
 };
 
+
+handleSelectComponent = (e) => {
+  window.location.href = "/component/"+this.state.value;
+  e.preventDefault();
+}
+
  componentDidMount() {
    
   var filters = {};
@@ -114,11 +118,15 @@ handleRatingChange = (e) => {
       params: filters
     })
     .then(results => {
-      console.log(results.data);
       this.setState({ components: results.data });
+      //console.log("Comp1 _id: ",this.state.components[0]["_id"]);
     })
     .catch(function (error) {
-      console.log(error);
+      /*if(error.response.status==404){
+        this.setState({ components: [] });
+      } else {*/
+        console.log(error);
+      //}
     })
   }
 
@@ -130,7 +138,6 @@ handleRatingChange = (e) => {
         <div className={this.props.classes.root}>
           <Grid container spacing={3}>
             <Grid item sm={12}>
-              <Button onClick={this.stateShow}>Show State</Button>
               <Typography variant="h5">Results for "{this.props.searchParam}"</Typography>
             </Grid>
     
@@ -149,6 +156,7 @@ handleRatingChange = (e) => {
                         value={this.state.manufacturer}
                         onChange={this.handleManufacturerChange}
                       >
+                        <MenuItem value={""}>---</MenuItem>
                         <MenuItem value={"MGM Electronics"}>MGM Electronics</MenuItem>
                         <MenuItem value={"Adaptec"}>Adaptec</MenuItem>
                         <MenuItem value={"Aereo"}>Aereo</MenuItem>
@@ -164,6 +172,7 @@ handleRatingChange = (e) => {
                         value={this.state.hardwareCategory}
                         onChange={this.handleHardwareCategoryChange}
                       >
+                        <MenuItem value={""}>---</MenuItem>
                         <MenuItem value={"Active"}>Active</MenuItem>
                         <MenuItem value={"Passive"}>Passive</MenuItem>
                         <MenuItem value={"Op Amps"}>Op Amps</MenuItem>
@@ -201,7 +210,7 @@ handleRatingChange = (e) => {
       <Grid container item sm={10} spacing={4}>
         {comp.map((component) => (
           <Grid item md={4}>
-              <Card>
+              <Card onClick={this.handleSelectComponent}>
                 <CardHeader
                   title={component.name}
                   titleTypographyProps={{ align: 'center' }}
