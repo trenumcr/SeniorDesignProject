@@ -296,3 +296,13 @@ export default function Component() {
     </Container>
   )
 }
+
+/*
+export default function PassSearchParam() {
+  const componentParam = useParams();
+  const classes = useStyles()
+  return(
+    <ComponentGrid searchParam={componentParam.componentName} classes={classes} />
+  );
+}
+*/

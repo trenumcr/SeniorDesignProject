@@ -48,18 +48,70 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+class ComponentBox extends Component {
+  constructor(props) {
+    super(props);
+  
+    
+    this.handleViewComponent = this.handleViewComponent.bind(this);
+  }
+
+  handleViewComponent(event) {
+    window.location.href = "/component/"+this.props.component._id;
+    event.preventDefault();
+  }
+
+  render() {
+    return(
+      <Grid item md={4}>
+      <Card>
+        <CardHeader
+          title={this.props.component.name}
+          titleTypographyProps={{ align: 'center' }}
+          className={this.props.classes.cardHeader}
+        />
+        <CardContent>
+          <div className={this.props.classes.cardContent}>
+            <Typography variant="subtitle1">
+              <b>{this.props.component.picture}</b>
+            </Typography>
+          </div>
+              <Typography variant="subtitle1" align="center">
+                Rating:                       
+                <Rating
+                  name="read-only"
+                  value={this.props.component.rating}
+                  precision={0.5}
+                  readOnly
+                />
+              </Typography>
+              <Typography variant="subtitle1" align="center">
+                Manufacturer: {this.props.component.manufacture_name == undefined ? "N/A" : this.props.component.manufacture_name}
+              </Typography>
+              <Typography variant="subtitle1" align="center">
+                Price: {this.props.component.price == undefined ? "N/A" : "$ "+this.props.component.price}
+              </Typography>
+              <Typography variant="subtitle1" align="center">
+                Hardware Category: {this.props.component.category == undefined ? "N/A" : this.props.component.category}
+              </Typography>
+              <Button align="center" variant="contained" color="primary" onClick={this.handleViewComponent}>
+                View
+              </Button>
+        </CardContent>
+      </Card>
+    </Grid>
+    )
+  }
+
+}
+
 class ComponentGrid extends Component {
 
   constructor(props) {
     super(props);
     this.state = 
     {
-      _id:'',
       components: [],
-      price: '',
-      manufacture_name: '',
-      category: '',
-      rating: ''
     };
     this.componentDidMount = this.componentDidMount.bind(this);
 
@@ -67,8 +119,6 @@ class ComponentGrid extends Component {
     this.handleManufacturerChange = this.handleManufacturerChange.bind(this);
     this.handlePriceChange = this.handlePriceChange.bind(this);
     this.handleRatingChange = this.handleRatingChange.bind(this);
-
-    this.handleSelectComponent = this.handleSelectComponent.bind(this);
   }
 
  //Filter Functions
@@ -98,9 +148,11 @@ handleRatingChange = (e) => {
 };
 
 
-handleSelectComponent = (e) => {
-  window.location.href = "/component/"+this.state.value;
-  e.preventDefault();
+handleSelectComponent(obj,id) {
+  //window.location.href = "/component/"+this.state.value;
+  console.log("Component id: ",id);
+  //console.log("event Id: ",e.data.id);
+  //e.preventDefault();
 }
 
  componentDidMount() {
@@ -209,40 +261,7 @@ handleSelectComponent = (e) => {
     
       <Grid container item sm={10} spacing={4}>
         {comp.map((component) => (
-          <Grid item md={4}>
-              <Card onClick={this.handleSelectComponent}>
-                <CardHeader
-                  title={component.name}
-                  titleTypographyProps={{ align: 'center' }}
-                  className={this.props.classes.cardHeader}
-                />
-                <CardContent>
-                  <div className={this.props.classes.cardContent}>
-                    <Typography variant="subtitle1">
-                      <b>{component.picture}</b>
-                    </Typography>
-                  </div>
-                      <Typography variant="subtitle1" align="center">
-                        Rating:                       
-                        <Rating
-                          name="read-only"
-                          value={component.rating}
-                          precision={0.5}
-                          readOnly
-                        />
-                      </Typography>
-                      <Typography variant="subtitle1" align="center">
-                        Manufacturer: {component.manufacture_name == undefined ? "N/A" : component.manufacture_name}
-                      </Typography>
-                      <Typography variant="subtitle1" align="center">
-                        Price: {component.price == undefined ? "N/A" : "$ "+component.price}
-                      </Typography>
-                      <Typography variant="subtitle1" align="center">
-                        Hardware Category: {component.category == undefined ? "N/A" : component.category}
-                      </Typography>
-                </CardContent>
-              </Card>
-          </Grid>
+            <ComponentBox classes={this.props.classes} component={component} />
         ))}
       </Grid>
     

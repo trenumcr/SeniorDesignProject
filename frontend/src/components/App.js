@@ -35,6 +35,7 @@ function App() {
           <Route path="/search-component/:componentName" component={() => <Search />} />
           <Route exact path="/categories" component={() => <Category />} />
           <Route exact path="/component" component={() => <Component />} />
+          <Route path="/component/:componentId" component={() => <Component />} />
           <Route exact path="/login" component={() => <Login />} />
           <Route exact path="/sign-up" component={() => <SignUp />} />
           <Route exact path="/account" component={() => <Account />} />
