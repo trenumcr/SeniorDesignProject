@@ -3,11 +3,12 @@ from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.contrib.postgres.search import SearchVector, SearchQuery
+from django.core import mail
+from django.conf import settings
 from .serializers import UserSerializer, UserProfileSerializer, RegisterSerializer, LoginSerializer, ChangePasswordSerializer
 from accounts.models import UserProfile
 from knox.models import AuthToken
 from .permissions import IsUser
-
 
 
 class RegisterAPI(generics.GenericAPIView):
@@ -180,3 +181,33 @@ class FilterUserProfileView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
             return Response(serializer.data,status=status.HTTP_200_OK)
+
+class ContactUserView(generics.CreateAPIView):
+    """
+    An endpoint for sending an email to a user
+    """
+    permission_classes = [
+        permissions.IsAuthenticated,
+        IsUser
+    ]
+
+    def create(self, request, *args, **kwargs):
+            subject = request.data["subject"]
+            message = request.data["message"]
+            from_email = request.user.email
+            to_email = [request.data["to"]]
+            cr_message = settings.EMAIL_HOST_USER
+
+            connection = mail.get_connection()
+            connection.open()
+            email = mail.EmailMessage(
+                subject,
+                message,
+                cr_message,
+                to_email,
+                reply_to=[from_email]
+            )
+            email.send()
+            connection.close()
+
+            return Response(status=status.HTTP_200_OK)
