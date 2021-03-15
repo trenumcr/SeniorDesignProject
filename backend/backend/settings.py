@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '<security key goes here>'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'knox',
     'django_rest_passwordreset',
     'accounts.apps.AccountsConfig',
+    'components.apps.ComponentsConfig'
 ]
 
 MIDDLEWARE = [
@@ -94,16 +95,7 @@ CORS_ORIGIN_WHITELIST = (
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': '<database_name>',
-        'USER': '<username>',
-        'PASSWORD': '<password>',
-        'HOST': '<host>',
-        'PORT': '<port>',
-    }
-}
+
 
 
 # Password validation
@@ -148,5 +140,12 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-# Print reset password request in Backend Terminal
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email backend for password reset and user to user messaging
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 0
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_USE_SSL = False
+

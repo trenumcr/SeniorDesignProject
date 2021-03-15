@@ -34,8 +34,10 @@ function App() {
           <Route exact path="/profile/:username" render={({ match }) => <Profile match={match} mine={true} />} />
           <Route exact path="/edit-profile" component={() => <EditProfile />}/>
           <Route exact path="/search-component" component={() => <Search />} />
+          <Route path="/search-component/:componentName" component={() => <Search />} />
           <Route exact path="/categories" component={() => <Category />} />
           <Route exact path="/component" component={() => <Component />} />
+          <Route path="/component/:componentId" component={() => <Component />} />
           <Route exact path="/login" component={() => <Login />} />
           <Route exact path="/sign-up" component={() => <SignUp />} />
           <Route exact path="/account" component={() => <Account />} />

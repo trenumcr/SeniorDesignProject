@@ -1,19 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.contrib.postgres.search import SearchVector, SearchQuery
+from django.core import mail
+from django.conf import settings
 from .serializers import UserSerializer, UserProfileSerializer, RegisterSerializer, LoginSerializer, ChangePasswordSerializer
 from accounts.models import UserProfile
-from .forms import CreateUserForm
 from knox.models import AuthToken
-from django.contrib.auth import login
-from rest_framework import permissions
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-from knox.views import LoginView as KnoxLoginView
 from .permissions import IsUser
-
 
 
 class RegisterAPI(generics.GenericAPIView):
@@ -139,3 +134,80 @@ class OtherUserProfileView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return self.queryset.filter()
+
+
+class FilterUserProfileView(APIView):
+    """
+    An endpoint for filtering through profiles
+    """
+
+    def get(self, request):
+        vector = SearchVector("component_knowledge", "posts_made", "role", "school", "field_study")
+        search_terms = "p"
+
+        if "component_knowledge" in self.request.query_params:
+            search_terms += " " + self.request.query_params["component_knowledge"]
+
+        if "posts_made" in self.request.query_params:
+            search_terms += " " + self.request.query_params["posts_made"]
+
+        # if "role" in self.request.query_params:
+        #     incorrect_input = False
+        #     role = self.request.query_params["role"].lower()
+        #
+        #     if role == "student" or role == "s" or role == "students":
+        #         search_role = "s"
+        #     elif role == "professor" or role == "p" or role == "professors":
+        #         search_role = "p"
+        #     else:
+        #         incorrect_input = True
+        #
+        #     if not incorrect_input:
+        #         search_terms += search_role + " "
+
+        if "school" in self.request.query_params:
+            search_terms += " " + self.request.query_params["school"]
+
+
+        if "field_study" in self.request.query_params:
+            search_terms += " " + self.request.query_params["field_study"]
+
+        query = SearchQuery(search_terms)
+
+        accounts = UserProfile.objects.annotate(search=vector).filter(search=query)
+
+        serializer = UserProfileSerializer(accounts, many=True)
+        if not serializer.data:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(serializer.data,status=status.HTTP_200_OK)
+
+class ContactUserView(generics.CreateAPIView):
+    """
+    An endpoint for sending an email to a user
+    """
+    permission_classes = [
+        permissions.IsAuthenticated,
+        IsUser
+    ]
+
+    def create(self, request, *args, **kwargs):
+            subject = request.data["subject"]
+            message = request.data["message"]
+            from_email = request.user.email
+            to_email = [request.data["to"]]
+            cr_message = settings.EMAIL_HOST_USER
+
+            connection = mail.get_connection()
+            connection.open()
+            email = mail.EmailMessage(
+                subject,
+                message,
+                cr_message,
+                to_email,
+                reply_to=[from_email]
+            )
+            email.send()
+            connection.close()
+
+            return Response(status=status.HTTP_200_OK)
