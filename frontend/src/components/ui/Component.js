@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
@@ -19,6 +19,10 @@ import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import DescriptionIcon from '@material-ui/icons/Description';
 import ImageIcon from '@material-ui/icons/Image';
 import Button from '@material-ui/core/Button';
+import { useParams } from 'react-router-dom';
+import axiosInstance from './../../axiosApi.js';
+
+const axiosI = axiosInstance;
 
 const componentInfo =
   {
@@ -153,156 +157,171 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function Component() {
-  const classes = useStyles();
-  const [value, setValue] = React.useState(0);
-  const [commentValue, commentSetValue] = React.useState("");
+class ComponentProfile extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { component: {features: [],documents: [],keyTerms: [],comments: []} }//{value:0, commentValue:""};
+    this.handleChange = this.handleChange.bind(this);
+  }
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  componentDidMount() {
+    axiosI.get('/components', {
+      params: { "_id": this.props.componentId }
+    })
+    .then(component => {
+      this.setState({ component: component.data });
+    })
+    .catch(function (error) {
+        console.log(error);
+    })
+  }
+  
+  handleChange = (event, newValue) => {
+    this.setState({value: newValue});
   };
 
-  return(
-    <Container component="main" maxWidth="md">
-      <Grid container direction="row" justify="center" alignItems="flex-start">
-        <Grid container item xs={12} md={6} lg={6} direction="column">
-          <Grid item xs={12} className={classes.image}>
-
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="h4" className={classes.rating}>
-              Rating: {componentInfo.rating}/10
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Button variant="contained" className={classes.button}>
-              <Typography variant="button" align="center">
-                <a className={classes.buttonText} href="/experts">Find an Expert</a>
-              </Typography>
-            </Button>
-          </Grid>
-        </Grid>
-        <Grid container item xs={12} md={6} lg={6} direction="column" className={classes.box}>
-          <Grid item xs={12}>
-            <Typography variant="h3" className={classes.rating}>
-              {componentInfo.name}
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="h5" className={classes.rating}>
-              Estimated Price: ${componentInfo.priceLow} - ${componentInfo.priceHigh}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} className={classes.tabs}>
-            <Tabs value={value} onChange={handleChange} aria-label="tabs" indicatorColor="primary"
-    textColor="primary">
-              <Tab className={classes.tab} label="Description" {...a11yProps(0)} />
-              <Tab className={classes.tab} label="Features" {...a11yProps(1)} />
-              <Tab className={classes.tab} label="Documents" {...a11yProps(2)} />
-            </Tabs>
-            <TabPanel value={value} index={0} className={classes.tabPanel}>
-              {componentInfo.description}
-            </TabPanel>
-            <TabPanel value={value} index={1} className={classes.tabPanel}>
-              <ul>
-                {componentInfo.features.map((feature) => (
-                  <li>{feature}</li>
-                ))}
-              </ul>
-            </TabPanel>
-            <TabPanel value={value} index={2} className={classes.tabPanel}>
-              <List className={classes.root}>
-                {componentInfo.documents.map((document) => (
-                  <ListItem>
-                    <ListItemAvatar>
-                      <Avatar>
-                        {document.icon}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary={document.name} secondary={document.date} />
-                  </ListItem>
-                ))}
-              </List>
-            </TabPanel>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="body2" className={classes.keyTerms} style={{paddingTop: 10}}>
-              Key Terms:
-            </Typography>
-            {componentInfo.keyTerms.map((term) => (
-              <Button color="secondary"><u>{term}</u></Button>
-            ))}
-          </Grid>
-        </Grid>
-      </Grid>
-      <Grid container direction="column" justify="center" alignItems="flex-start">
-        <Grid item xs={12}>
-          <Typography variant="h5" style={{paddingTop: 20, paddingBottom: 10}}>
-            Posted by: {componentInfo.user}
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="body1">
-            {componentInfo.userText}
-          </Typography>
-        </Grid>
-        <Grid container item direction="column" xs={12} className={classes.comments}>
-          <Divider variant="middle" style={{marginTop: 20}}/>
-          <Grid item xs={12}>
-            <Typography variant="h4" style={{paddingTop: 20, paddingBottom: 10}}>
-              Comments
-            </Typography>
-          </Grid>
-          <Grid container item direction="column" spacing={2} xs={12} className={classes.commentWrap}>
-            <Grid container item direction="row">
-              <Avatar xs={1} style={{marginTop: 15}}></Avatar>
-              <Grid item xs={11} style={{paddingLeft: 20}}>
-                <TextField
-                  label="Add a comment..."
-                  multiline
-                  fullWidth
-                  rowsMax={4}
-                  variant="standard"
-                />
-              </Grid>
+  render() {
+    return(
+      <Container component="main" maxWidth="md">
+        <Grid container direction="row" justify="center" alignItems="flex-start">
+          <Grid container item xs={12} md={6} lg={6} direction="column">
+            <Grid item xs={12} className={this.props.classes.image}>
+              {this.state.component.picture}
             </Grid>
-            <Grid container item xs={12} justify='flex-end'>
-              <Button variant="contained" className={classes.button}>
-                <Typography variant="button" align="center" className={classes.buttonText}>
-                  Post Comment
+            <Grid item xs={12}>
+              <Typography variant="h4" className={this.props.classes.rating}>
+                Rating: {this.state.component.rating}/5
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Button variant="contained" className={this.props.classes.button}>
+                <Typography variant="button" align="center">
+                  <a className={this.props.classes.buttonText} href="/experts">Find an Expert</a>
                 </Typography>
               </Button>
             </Grid>
           </Grid>
-          {comments.map((comment) => (
-            <Grid container item direction="row" xs={12} className={classes.commentWrap}>
-              <Avatar xs={1}></Avatar>
-              <Grid container item direction="column" xs={10} s={11} className={classes.text}>
-                <Grid item className={classes.username}>
-                  <Typography variant="body1">
-                    <b>{comment.user}</b> <span style={{fontWeight: 100}}>{comment.date}</span>
-                  </Typography>
-                </Grid>
-                <Grid item className={classes.commentText}>
-                  <Typography variant="body1">
-                    {comment.text}
-                  </Typography>
+          <Grid container item xs={12} md={6} lg={6} direction="column" className={this.props.classes.box}>
+            <Grid item xs={12}>
+              <Typography variant="h3" className={this.props.classes.rating}>
+                {this.state.component.name}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h5" className={this.props.classes.rating}>
+                Estimated Price: ${this.state.component.price} {/*${componentInfo.priceLow} - ${componentInfo.priceHigh} No Price Estimate Yet*/}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} className={this.props.classes.tabs}>
+              <Tabs value={this.state.value} onChange={this.handleChange} aria-label="tabs" indicatorColor="primary"
+      textColor="primary">
+                <Tab className={this.props.classes.tab} label="Description" {...a11yProps(0)} />
+                <Tab className={this.props.classes.tab} label="Features" {...a11yProps(1)} />
+                <Tab className={this.props.classes.tab} label="Documents" {...a11yProps(2)} />
+              </Tabs>
+              <TabPanel value={this.state.value} index={0} className={this.props.classes.tabPanel}>
+                {this.state.component.description}
+              </TabPanel>
+              <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
+                <ul>
+                  {this.state.component.features.map((feature) => (
+                    <li>{feature}</li>
+                  ))}
+                </ul>
+              </TabPanel>
+              <TabPanel value={this.state.value} index={2} className={this.props.classes.tabPanel}>
+                <List className={this.props.classes.root}>
+                  {this.state.component.documents.map((document) => (
+                    <ListItem>
+                      <ListItemAvatar>
+                        <Avatar>
+                          {document.icon}
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText primary={document.name} secondary={document.date} />
+                    </ListItem>
+                  ))}
+                </List>
+              </TabPanel>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="body2" className={this.props.classes.keyTerms} style={{paddingTop: 10}}>
+                Key Terms:
+              </Typography>
+              {this.state.component.keyTerms.map((term) => (
+                <Button color="secondary"><u>{term}</u></Button>
+              ))}
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid container direction="column" justify="center" alignItems="flex-start">
+          <Grid item xs={12}>
+            <Typography variant="h5" style={{paddingTop: 20, paddingBottom: 10}}>
+              Posted by: {this.state.component.user}
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="body1">
+              {this.state.component.userText}
+            </Typography>
+          </Grid>
+          <Grid container item direction="column" xs={12} className={this.props.classes.comments}>
+            <Divider variant="middle" style={{marginTop: 20}}/>
+            <Grid item xs={12}>
+              <Typography variant="h4" style={{paddingTop: 20, paddingBottom: 10}}>
+                Comments
+              </Typography>
+            </Grid>
+            <Grid container item direction="column" spacing={2} xs={12} className={this.props.classes.commentWrap}>
+              <Grid container item direction="row">
+                <Avatar xs={1} style={{marginTop: 15}}></Avatar>
+                <Grid item xs={11} style={{paddingLeft: 20}}>
+                  <TextField
+                    label="Add a comment..."
+                    multiline
+                    fullWidth
+                    rowsMax={4}
+                    variant="standard"
+                  />
                 </Grid>
               </Grid>
+              <Grid container item xs={12} justify='flex-end'>
+                <Button variant="contained" className={this.props.classes.button}>
+                  <Typography variant="button" align="center" className={this.props.classes.buttonText}>
+                    Post Comment
+                  </Typography>
+                </Button>
+              </Grid>
             </Grid>
-          ))}
+            {this.state.component.comments.map((comment) => (
+              <Grid container item direction="row" xs={12} className={this.props.classes.commentWrap}>
+                <Avatar xs={1}></Avatar>
+                <Grid container item direction="column" xs={10} s={11} className={this.props.classes.text}>
+                  <Grid item className={this.props.classes.username}>
+                    <Typography variant="body1">
+                      <b>{comment.user}</b> <span style={{fontWeight: 100}}>{comment.date}</span>
+                    </Typography>
+                  </Grid>
+                  <Grid item className={this.props.classes.commentText}>
+                    <Typography variant="body1">
+                      {comment.text}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+            ))}
+          </Grid>
         </Grid>
-      </Grid>
-    </Container>
-  )
+      </Container>
+    )
+  }
 }
 
-/*
-export default function PassSearchParam() {
+
+export default function LaunchProfile() {
   const componentParam = useParams();
   const classes = useStyles()
   return(
-    <ComponentGrid searchParam={componentParam.componentName} classes={classes} />
+    <ComponentProfile componentId={componentParam.componentId} classes={classes} />
   );
 }
-*/
