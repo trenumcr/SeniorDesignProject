@@ -76,6 +76,7 @@ const useStyles = theme => ({
         token: localStorage.getItem('token'),
         username: localStorage.getItem('username'),
         edited: false,
+        deleted: false,
       };
     }
 
@@ -137,7 +138,24 @@ const useStyles = theme => ({
     }
 
     deleteAccount = (e) => {
-      //not done yet
+      var url = "accounts/auth/user/profile/" + this.state.username +"/";
+      var token = "Token " + this.state.token;
+
+      axiosInstance.delete(url, {
+        headers: {
+          'Authorization': token
+        }})
+        .then(response => {
+          this.setState({
+            deleted: true,
+          });
+          localStorage.removeItem('token');
+          localStorage.removeItem('username');
+          window.location.reload(false);
+        })
+        .catch(e => {
+          console.log(e);
+        });
     }
 
     _handleSchoolChange = (e) => {
@@ -176,6 +194,11 @@ const useStyles = theme => ({
       if (this.state.edited) {
         // redirect to home if signed up
         return <Redirect to = {{ pathname: "/profile/" + this.state.username }} />;
+      }
+
+      if (this.state.deleted) {
+        // redirect to home if signed up
+        return <Redirect to = {{ pathname: "/home" }} />;
       }
 
         return (

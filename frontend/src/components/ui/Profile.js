@@ -118,54 +118,57 @@ const useStyles = theme => ({
 
       if (localStorage.getItem('username') == this.state.profile) {
         return (<Container component="main" maxWidth="lg">
-        <Button variant="contained" className={classes.button}>
-        <Link href="/edit-profile" variant="body2">
-          {"Edit Profile"}
-        </Link>
-        </Button>
           <div className={classes.root}>
             <Grid container spacing={3}>
               <Grid item>
                 <img src="https://3.bp.blogspot.com/-DVs1Ugx8LDQ/Uhx6Ol5NrRI/AAAAAAAAX9k/JPfLOUDRPgg/s1600/Mountains+Wallpapers.jpg" alt="Profile Picture" width="250" height="250"></img>
               </Grid>
-            <Grid item sm={3}>
-              <Card>
-                  <CardHeader
-                  title = {this.state.profile}
-                  className={classes.cardHeader}
-                  />
-                <CardContent>
-                  <div className={classes.cardContent}>
-                    <List /*dense={dense}*/>
-                      <ListItem>
-                        <Typography variant="body1"><b>Location:</b> {this.state.school}</Typography>
-                      </ListItem>
-                      <ListItem>
-                        <Typography variant="body1">
-                        {isStudent ? (<b>Major:</b>) : (<b>Field:</b>)}
-                        {this.state.field}</Typography>
-                      </ListItem>
-                    </List>
-                  </div>
-                  </CardContent>
-              </Card>
-            </Grid>
-            <Grid item sm={6}>
-              <Typography variant="h3" className={classes.title}>Biography</Typography>
-              <Typography variant="body1">{this.state.about}</Typography>
-            </Grid>
-            <Grid item sm={12}>
-            {isStudent ? (<b></b>) : (
-              <Button variant="contained" className={classes.button}>
-              Contact me
-              </Button>)}
-                </Grid>
+              <Grid item sm={3}>
+                <Card>
+                    <CardHeader
+                    title = {this.state.profile}
+                    className={classes.cardHeader}
+                    />
+                  <CardContent>
+                    <div className={classes.cardContent}>
+                      <List /*dense={dense}*/>
+                        <ListItem>
+                          <Typography variant="body1"><b>Location:</b> {this.state.school}</Typography>
+                        </ListItem>
+                        <ListItem>
+                          <Typography variant="body1">
+                          {isStudent ? (<b>Major:</b>) : (<b>Field:</b>)}
+                          {this.state.field}</Typography>
+                        </ListItem>
+                      </List>
+                    </div>
+                    </CardContent>
+                </Card>
               </Grid>
-              <Typography variant="h5" style={{paddingTop: 20}}>
-                Posts Made
-              </Typography>
-              <Grid container spacing={3} style={{paddingTop: 20}}>
-                {posts.map((post) => (
+              <Grid item sm={6}>
+                <Typography variant="h3" className={classes.title}>Biography</Typography>
+                <Typography variant="body1">{this.state.about}</Typography>
+              </Grid>
+              <Grid item sm={12}>
+                {isStudent ? (<b></b>) : (
+                  <Button variant="contained" className={classes.button}>
+                    Contact me
+                  </Button>)
+                }
+              </Grid>
+              <Grid item sm={12}>
+                <Button variant="contained" className={classes.button}>
+                  <Link href="/edit-profile" variant="body2">
+                    {"Edit Profile"}
+                  </Link>
+                </Button>
+              </Grid>
+            </Grid>
+            <Typography variant="h5" style={{paddingTop: 20}}>
+              Posts Made
+            </Typography>
+            <Grid container spacing={3} style={{paddingTop: 20}}>
+              {posts.map((post) => (
                 <Grid item sm={2}>
                   <Card>
                     <CardHeader
