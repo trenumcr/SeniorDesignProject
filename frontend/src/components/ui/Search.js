@@ -21,10 +21,9 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { withStyles } from '@material-ui/core/styles';
 import { makeStyles, useTheme } from '@material-ui/styles';
+import axiosInstance from './../../axiosApi.js';
 
-const axiosInstance = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
-});
+const axiosI = axiosInstance;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -166,7 +165,7 @@ handleSelectComponent(obj,id) {
   filters["name"] = this.props.searchParam;
 
     
-    axios.get('http://127.0.0.1:8000/api/components/filter', {
+    axiosI.get('/components/filter', {
       params: filters
     })
     .then(results => {
@@ -174,16 +173,11 @@ handleSelectComponent(obj,id) {
       //console.log("Comp1 _id: ",this.state.components[0]["_id"]);
     })
     .catch(function (error) {
-      /*if(error.response.status==404){
-        this.setState({ components: [] });
-      } else {*/
         console.log(error);
-      //}
     })
   }
 
   render() {
-    //const { classes } = this.props;
     let comp = this.state.components;
 
     return(
