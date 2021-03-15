@@ -26,8 +26,10 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
+import { withStyles } from '@material-ui/core/styles';
+import axiosInstance from "../../axiosApi";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = theme => ({
   root: {
     display: 'flex',
   },
@@ -81,189 +83,305 @@ const useStyles = makeStyles((theme) => ({
   formControlLabel: {
     fontSize: '0.6rem'
   }
-}));
+});
 
-var experts = [
-  {
-  name: "Dr. Smith",
-  university: "University of Cincinnati",
-  specialty: "Embedded Systems",
-  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean ex felis, sodales et commodo sed, ultrices a nisi. Proin eget..."
-  },
-  {
-  name: "Dr. Johnson",
-  university: "University of Kentucky",
-  specialty: "Databases",
-  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean ex felis, sodales et commodo sed, ultrices a nisi. Proin eget..."
-  },
-  {
-  name: "Dr. Brown",
-  university: "University of Cincinnati",
-  specialty: "Software",
-  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean ex felis, sodales et commodo sed, ultrices a nisi. Proin eget..."
-  },
-  {
-  name: "Dr. Davis",
-  university: "Xavier University",
-  specialty: "Embedded Systems",
-  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean ex felis, sodales et commodo sed, ultrices a nisi. Proin eget..."
-  },
-]
+class ExpertList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      token: localStorage.getItem('token'),
+      username: localStorage.getItem('username'),
+      experts: [],
+      role: "",
+      universities: [],
+      fields: [],
+      filters: {
+        field: [],
+        university: ""
+      }
+    };
+  }
 
-var universities = [
-  {
-    name: "University of Cincinnati",
-    id: 1,
-  },
-  {
-    name: "University of Kentucky",
-    id: 2,
-  },
-  {
-    name: "Xavier University",
-    id: 3,
-  },
-]
+  componentDidMount = (e) => {
+    var url = "accounts/";
 
-export default function ExpertList() {
-  const classes = useStyles();
-  const theme = useTheme();
+    axiosInstance.get(url).then(response => {
+      console.log(response.data);
+      var expertList = response.data.filter(
+        function (el) {
+          return el.role == "p";
+      });
+      console.log(expertList);
 
-  const [state, setState] = React.useState({
-    uc: true,
-    uk: false,
-    xu: false,
-    database: false,
-    embedded: false,
-    software: false
-  });
+      this.setState({
+        experts: expertList
+      });
 
-  const handleChange = (event) => {
-    setState({ ...state, [event.target.name]: event.target.checked });
-  };
+      var lookup = {};
+      var items = expertList;
+      var universities = [];
 
-  const { uc, uk, xu, database, embedded, software } = state;
+      for (var item, i = 0; item = items[i++];) {
+        var name = item.school;
+        if (name != "") {
+          if (!(name in lookup)) {
+            lookup[name] = 1;
+            universities.push(name);
+          }
+        }
+      }
 
-  return(
-    <Container component="main" maxWidth="lg">
-      <Grid container item direction="row">
-        <Grid container item direction="column" xs={3} >
+      this.setState({
+        universities: universities
+      });
 
-        </Grid>
-        <Grid container item direction="column"  xs={9} spacing={3}>
-          <Grid container direction="row" alignItems="flex-start" style={{paddingTop: 40}}>
+      lookup = {};
+      var fields = [];
+
+      for (var item, i = 0; item = items[i++];) {
+        var name = item.field_study;
+
+        if (name != "") {
+          if (!(name in lookup)) {
+            lookup[name] = 1;
+            fields.push(name);
+          }
+        }
+      }
+
+      this.setState({
+        fields: fields
+      });
+    })
+    .catch(e => {
+      this.setState({
+
+      });
+      console.log(e);
+    });
+  }
+
+  applyFilters = (e) => {
+    var url = "accounts/";
+
+    axiosInstance.get(url).then(response => {
+      console.log(response.data);
+      var expertList = response.data.filter(
+        function (el) {
+          return (el.role == "p") ;
+      });
+      console.log(expertList);
+
+      var school = this.state.filters.school;
+
+      if (!(school === undefined || school == ""))
+        var expertList = expertList.filter(
+          function (el) {
+            return (el.school == school) ;
+      });
+      console.log(expertList);
+
+      var fields = this.state.filters.field;
+      var filtered = [];
+
+      if (!(fields === undefined || fields.length == 0)) {
+        expertList = expertList.filter(
+          function (el) {
+            for (var item, i = 0; item = fields[i++];) {
+              if (el.field_study == item) {
+                filtered.push(el);
+              }
+            }
+            return filtered;
+          }
+        );
+      }
+      else {
+        filtered = expertList;
+      }
+      console.log(filtered);
+
+      this.setState({
+        experts: filtered
+      });
+      console.log(this.state)
+    })
+    .catch(e => {
+      this.setState({
+
+      });
+      console.log(e);
+    });
+  }
+
+  _handleSchoolChange = (e) => {
+    this.setState({
+      filters: {
+        school: e.target.value,
+        field: this.state.filters.field
+      }
+    });
+  }
+
+  _handleFieldChange = (e) => {
+    console.log(e);
+    if (e.target.checked == true) {
+      var items = [];
+      if (!(this.state.filters.field === undefined)){
+        items = this.state.filters.field;
+      }
+
+      items.push(e.target.value);
+
+      this.setState({
+        filters: {
+          field: items,
+          school: this.state.filters.school
+        }
+      });
+    }
+    else {
+      var items = this.state.filters.field;
+      var newFilter = [];
+      var toRemove = e.target.value;
+
+      for (var item, i = 0; item = items[i++];) {
+        if (item != toRemove) {
+          newFilter.push(item);
+        }
+      }
+
+      this.setState({
+        filters: {
+          field: newFilter,
+          school: this.state.filters.school
+        }
+      });
+    }
+  }
+
+  render() {
+    const { classes } = this.props;
+    const isStudent = (this.state.role == "s");
+    console.log(this.state);
+
+    return(
+      <Container component="main" maxWidth="lg">
+        <Grid container item direction="row">
+          <Grid container item direction="column" xs={3} >
+
+          </Grid>
+          <Grid container item direction="column"  xs={9} spacing={3}>
+            <Grid container direction="row" alignItems="flex-start" style={{paddingTop: 40}}>
+              <Grid item>
+                <Typography variant="h5">
+                  Search for an Expert
+                </Typography>
+              </Grid>
+              <Grid item>
+                <div className={classes.search}>
+                  <div className={classes.searchIcon}>
+                    <SearchIcon />
+                  </div>
+                  <InputBase
+                    placeholder="Search…"
+                    classes={{
+                      root: classes.inputRoot,
+                      input: classes.inputInput,
+                    }}
+                    inputProps={{ 'aria-label': 'search' }}
+                    component={Link} to="/search-component"
+                    color="primary"
+                  />
+                </div>
+              </Grid>
+            </Grid>
             <Grid item>
-              <Typography variant="h5">
-                Search for an Expert
+              <Typography variant="caption">
+                Showing results for ...
               </Typography>
             </Grid>
-            <Grid item>
-              <div className={classes.search}>
-                <div className={classes.searchIcon}>
-                  <SearchIcon />
-                </div>
-                <InputBase
-                  placeholder="Search…"
-                  classes={{
-                    root: classes.inputRoot,
-                    input: classes.inputInput,
-                  }}
-                  inputProps={{ 'aria-label': 'search' }}
-                  component={Link} to="/search-component"
-                  color="primary"
-                />
-              </div>
+          </Grid>
+        </Grid>
+        <Grid item  style={{margin: 10}}>
+          <Divider />
+        </Grid>
+        <Grid container item direction="row">
+          <Grid container item direction="row" xs={12} md={3}>
+            <Typography variant="h5" style={{width: '100%'}}>Filters</Typography>
+            <FormControl className={classes.formControl}>
+              <InputLabel htmlFor="filled-age-native-simple">University</InputLabel>
+              <Select
+                native
+                value={this.state.school}
+                onChange={this._handleSchoolChange}
+                inputProps={{
+                  name: 'university',
+                }}
+              >
+                <option aria-label="None" value=""/>
+                {this.state.universities.map((university) => (
+                  <option value={university}>{university}</option>
+                ))}
+              </Select>
+            </FormControl>
+            <Grid item className={classes.filters} xs={6} md={12}>
+              <FormControl component="fieldset" className={classes.formControl}>
+                <FormLabel component="legend" className={classes.filterLabel}>Specialty</FormLabel>
+                <FormGroup>
+                {this.state.fields.map((field) => (
+                  <FormControlLabel
+                    control={<Checkbox color="secondary" name="database" />}
+                    label={field}
+                    value={field}
+                    className={classes.option}
+                    onChange={this._handleFieldChange}
+                  />
+                ))}
+                </FormGroup>
+              </FormControl>
+              <Button variant="contained" onClick={this.applyFilters} className={classes.button}>
+                Apply Filters
+              </Button>
             </Grid>
           </Grid>
-          <Grid item>
-            <Typography variant="caption">
-              Showing results for ...
-            </Typography>
+          <Grid container item xs={12} md={8}>
+            {this.state.experts.map((expert) => (
+              <Card className={classes.root} style={{height: 150, marginBottom: '20px', width: '100%'}}>
+                <CardActionArea>
+                  <Grid container item direction="row">
+                    <Grid item xs={3} style={{height: 100, width: 100, backgroundColor: '#eee'}}>
+                    </Grid>
+                    <Grid item  xs={9}>
+                      <CardMedia
+                        title={expert.user.username}
+                      />
+                      <CardContent>
+                        <Typography gutterBottom variant="h5" component="h2">
+                        {expert.user.username}
+                          <Typography gutterBottom variant="body1">
+                            University: {expert.school}
+                          </Typography>
+                          <Typography gutterBottom variant="body1">
+                            Specialty: {expert.field_study}
+                          </Typography>
+                        </Typography>
+                      </CardContent>
+                    </Grid>
+                  </Grid>
+                </CardActionArea>
+                <CardActions>
+                  <Button size="small" color="primary" component={Link} to={"/profile/" + expert.user.username}>
+                    Contact
+                  </Button>
+                </CardActions>
+              </Card>
+            ))}
           </Grid>
         </Grid>
-      </Grid>
-      <Grid item  style={{margin: 10}}>
-        <Divider />
-      </Grid>
-      <Grid container item direction="row">
-        <Grid container item direction="row" xs={12} md={3}>
-          <Typography variant="h5" style={{width: '100%'}}>Filters</Typography>
-          <FormControl className={classes.formControl}>
-            <InputLabel htmlFor="filled-age-native-simple">University</InputLabel>
-            <Select
-              native
-              value={state.university}
-              onChange={handleChange}
-              inputProps={{
-                name: 'university',
-              }}
-            >
-              <option aria-label="None" value="" />
-              {universities.map((university) => (
-                <option value={university.id}>{university.name}</option>
-              ))}
-            </Select>
-          </FormControl>
-          <Grid item className={classes.filters} xs={6} md={12}>
-            <FormControl component="fieldset" className={classes.formControl}>
-              <FormLabel component="legend" className={classes.filterLabel}>Specialty</FormLabel>
-              <FormGroup>
-                <FormControlLabel
-                  control={<Checkbox color="secondary" checked={database} onChange={handleChange} name="database" />}
-                  label="Databases"
-                  className={classes.option}
-                />
-                <FormControlLabel
-                  control={<Checkbox color="secondary" checked={embedded} onChange={handleChange} name="embedded" />}
-                  label="Embedded Systems"
-                  className={classes.option}
-                />
-                <FormControlLabel
-                  control={<Checkbox color="secondary" checked={software} onChange={handleChange} name="software" />}
-                  label="Software"
-                  className={classes.option}
-                />
-              </FormGroup>
-            </FormControl>
-            <Button variant="contained" className={classes.button}>
-              Apply Filters
-            </Button>
-          </Grid>
-        </Grid>
-        <Grid container item xs={12} md={8}>
-          {experts.map((expert) => (
-            <Card className={classes.root} style={{height: 150, marginBottom: '20px', width: '100%'}}>
-              <CardActionArea>
-                <Grid container item direction="row">
-                  <Grid item xs={3} style={{height: 100, width: 100, backgroundColor: '#eee'}}>
-                  </Grid>
-                  <Grid item  xs={9}>
-                    <CardMedia
-                      title={expert.name}
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="h2">
-                        {expert.name}
-                        <Typography gutterBottom variant="body1">
-                          University: {expert.university} {expert.specialty}
-                        </Typography>
-                        <Typography gutterBottom variant="body1">
-                          Specialty: {expert.specialty}
-                        </Typography>
-                      </Typography>
-                    </CardContent>
-                  </Grid>
-                </Grid>
-              </CardActionArea>
-              <CardActions>
-                <Button size="small" color="primary" component={Link} to="/expert-profile">
-                  Contact
-                </Button>
-              </CardActions>
-            </Card>
-          ))}
-        </Grid>
-      </Grid>
-    </Container>
-  )
+      </Container>
+    )
+  }
 }
+
+export default withStyles(useStyles)(ExpertList)

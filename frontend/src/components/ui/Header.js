@@ -30,7 +30,7 @@ import logo from "../../static/images/logo1IntoWordsBlack.png";
 
 const drawerWidth = 240;
 
-class SearchField extends React.Component 
+class SearchField extends React.Component
 {
   constructor(props) {
     super(props);
@@ -74,12 +74,12 @@ class SearchField extends React.Component
       <form onSubmit={this.handleSubmit}>
         <InputBase
           placeholder="Search…"
-          
+
           classes={{
             root: inputclasses.inputRoot,
             input: inputclasses.inputInput,
           }}
-          
+
           inputProps={{ 'aria-label': 'search' }}
           onChange={this.handleChange}
           />
@@ -225,12 +225,13 @@ class SearchField extends React.Component
         console.log(localStorage.getItem('token'))
         this.state.token = "";
         localStorage.removeItem('token');
+        localStorage.removeItem('username');
         window.location.reload(false);
     }
 
     render() {
       if (this.state.token != null) {
-        return (<Typography>Hello, {this.state.username}!<Button color="inherit" component={Link} onClick={this.handleLogout}> Logout</Button></Typography> );
+        return (<Typography>Hello, <Button component={Link} to={"/profile/" + this.state.username}>{this.state.username}</Button>!<Button color="inherit" component={Link} onClick={this.handleLogout}> Logout</Button></Typography> );
       }
       else {
           return (<Button color="inherit" component={Link} to="/login">Login</Button>);
@@ -241,9 +242,16 @@ class SearchField extends React.Component
   export default function Header(props) {
     const classes = useStyles()
     const theme = useTheme()
-    const drawerIconList = [<AccountCircleIcon />, <MemoryIcon />, <FindInPageIcon />, <ForumIcon />, <SettingsIcon />]
-    const drawerLinkList = ["/profile", "/categories", "/experts", "/forums", "/account"]
+    var drawerIconList = [<AccountCircleIcon />, <MemoryIcon />, <FindInPageIcon />, <ForumIcon />, <SettingsIcon />]
+    var drawerLinkList = ["/login", "/search-components", "/experts"]
+    var drawerLinkListText = ["Login or Sign up", "Search Components", "Search Experts"]
     const [open, setOpen] = React.useState(false);
+
+    if (localStorage.getItem('username') != null) {
+      drawerIconList = [<AccountCircleIcon />, <MemoryIcon />, <FindInPageIcon />, <ForumIcon />, <SettingsIcon />]
+      drawerLinkList = ["/profile/" + localStorage.getItem('username'), "/search-components", "/experts","/edit-profile"]
+      drawerLinkListText = ["Your Profile", "Search Components", "Search Experts","Edit Your Profile"]
+    }
 
     const handleDrawerOpen = () => {
       setOpen(true);
@@ -310,7 +318,7 @@ class SearchField extends React.Component
             </div>
             <Divider />
             <List>
-              {['Profile', 'Categories', 'Find an Expert', 'Forum', 'Account Settings'].map((text, index) => (
+              {drawerLinkListText.map((text, index) => (
               <ListItem button key={text} component={Link} to={drawerLinkList[index]}>
                 <ListItemIcon>{drawerIconList[index]}</ListItemIcon>
                 <ListItemText primary={text} />

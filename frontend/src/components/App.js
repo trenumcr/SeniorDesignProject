@@ -11,11 +11,12 @@ import SignUp from "./ui/SignUp";
 import Search from "./ui/Search";
 import Profile from "./ui/Profile";
 import Footer from "./ui/Footer";
-import ExpertProfile from "./ui/ExpertProfile";
+import EditProfile from "./ui/EditProfile";
 import { ThemeProvider } from '@material-ui/styles';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import theme from './ui/Theme'
 import { makeStyles } from '@material-ui/styles';
+import { withRouter } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -30,7 +31,8 @@ function App() {
         <Header />
         <Switch>
           <Route exact path="/" component={() => <Home />} />
-          <Route exact path="/profile" component={() => <Profile />} />
+          <Route exact path="/profile/:username" render={({ match }) => <Profile match={match} mine={true} />} />
+          <Route exact path="/edit-profile" component={() => <EditProfile />}/>
           <Route exact path="/search-component" component={() => <Search />} />
           <Route path="/search-component/:componentName" component={() => <Search />} />
           <Route exact path="/categories" component={() => <Category />} />
@@ -41,7 +43,6 @@ function App() {
           <Route exact path="/account" component={() => <Account />} />
           <Route exact path="/forums" component={() => <Forum />} />
           <Route exact path="/experts" component={() => <ExpertList />} />
-          <Route exact path="/expert-profile" component={() => <ExpertProfile />} />
           <Route exact path="/add-component" component={() => <AddComponent />} />
         </Switch>
       </BrowserRouter>

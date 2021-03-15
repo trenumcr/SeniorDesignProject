@@ -146,6 +146,14 @@ handleRatingChange = (e) => {
   });
 };
 
+
+handleSelectComponent(obj,id) {
+  //window.location.href = "/component/"+this.state.value;
+  console.log("Component id: ",id);
+  //console.log("event Id: ",e.data.id);
+  //e.preventDefault();
+}
+
  componentDidMount() {
    
   var filters = {};
@@ -162,6 +170,7 @@ handleRatingChange = (e) => {
     })
     .then(results => {
       this.setState({ components: results.data });
+      //console.log("Comp1 _id: ",this.state.components[0]["_id"]);
     })
     .catch(function (error) {
         console.log(error);

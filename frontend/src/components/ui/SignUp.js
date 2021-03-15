@@ -12,8 +12,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import { Redirect } from 'react-router'
-
+import { Redirect } from 'react-router';
 import{ Component } from "react";
 import axiosInstance from "../../axiosApi";
 
@@ -65,14 +64,12 @@ class SignUp extends Component {
 
     console.log(data);
 
-    axiosInstance.create("accounts/auth/register/", data)
+    axiosInstance.post("accounts/auth/register/", data)
       .then(response => {
         this.setState({
-          id: response.data.id,
           username: response.data.username,
           email: response.data.email,
           password: response.data.password,
-
           registered: true,
         });
         console.log(response.data);

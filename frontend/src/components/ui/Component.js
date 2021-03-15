@@ -325,3 +325,13 @@ export default function LaunchProfile() {
     <ComponentProfile componentId={componentParam.componentId} classes={classes} />
   );
 }
+
+/*
+export default function PassSearchParam() {
+  const componentParam = useParams();
+  const classes = useStyles()
+  return(
+    <ComponentGrid searchParam={componentParam.componentName} classes={classes} />
+  );
+}
+*/
