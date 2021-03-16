@@ -77,6 +77,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         instance.about_me = validated_data.get('about_me', instance.about_me)
         instance.component_knowledge = validated_data.get('component_knowledge', instance.component_knowledge)
         instance.posts_made = validated_data.get('posts_made', instance.posts_made)
-
+        instance.firstname = validated_data.get('firstname', instance.firstname)
+        instance.lastname = validated_data.get('lastname', instance.lastname)
+        
         instance.save()
         return instance
