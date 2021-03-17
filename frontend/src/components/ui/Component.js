@@ -160,7 +160,15 @@ const useStyles = makeStyles((theme) => ({
 class ComponentProfile extends Component {
   constructor(props) {
     super(props);
-    this.state = { component: {features: [],documents: [],keyTerms: [],comments: []} }//{value:0, commentValue:""};
+    this.state = { 
+      component: {
+        features: [],
+        documents: [],
+        keyTerms: [],
+        comments: []
+      },
+      value:0,
+    }//{value:0, commentValue:""};
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -320,7 +328,7 @@ class ComponentProfile extends Component {
 
 export default function LaunchProfile() {
   const componentParam = useParams();
-  const classes = useStyles()
+  const classes = useStyles();
   return(
     <ComponentProfile componentId={componentParam.componentId} classes={classes} />
   );

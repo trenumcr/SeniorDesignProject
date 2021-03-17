@@ -110,134 +110,175 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function AddComponent() {
-  const classes = useStyles();
-  const [value, setValue] = React.useState(0);
-  const [commentValue, commentSetValue] = React.useState("");
+class AddComponentForm extends React.Component {
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  constructor(props) 
+  {
+    super(props);
+    this.state=
+    {
+      value: 0,
+      newComponent: 
+      {
+        name:"",
+        picture:"",
+        price:"",
+        description:"",
+        features:[],
+        documents:[],
+        tags:[],
+        rating:"",
+        review:""
+      },
+    }
+  }
+
+  handleChange = (event, newValue) => {
+    this.setState({value: newValue});
   };
 
-  return(
-    <Container component="main" maxWidth="md">
-      <form className={classes.form} noValidate>
-        <Grid container direction="row" justify="center" alignItems="flex-start">
-          <Grid container item xs={12} md={6} lg={6} direction="column">
-            <Grid item xs={12} className={classes.image}>
-              <Button variant="contained" component="label" className={classes.upload}>
-                Upload Image
-                <input type="file" hidden/>
-              </Button>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="h4" className={classes.rating}>
-                Your Rating:
-                <TextField margin="normal" required id="rating" label="rating" name="rating"/>/10
-              </Typography>
-            </Grid>
-          </Grid>
-          <Grid container item xs={12} md={6} lg={6} direction="column" className={classes.box}>
-            <Grid item xs={12}>
-              <Typography variant="h3" className={classes.rating}>
-                <TextField required fullWidth id="name" label="Component Name" name="rating" autoFocus/>
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="h5" className={classes.rating}>
-                Estimated Price: <TextField margin="normal" required id="price" label="Price"/>
-              </Typography>
-            </Grid>
-            <Grid item xs={12} className={classes.tabs}>
-              <Tabs value={value} onChange={handleChange} aria-label="tabs" indicatorColor="primary"
-      textColor="primary">
-                <Tab className={classes.tab} label="Description" {...a11yProps(0)} />
-                <Tab className={classes.tab} label="Features" {...a11yProps(1)} />
-                <Tab className={classes.tab} label="Documents" {...a11yProps(2)} />
-              </Tabs>
-              <TabPanel value={value} index={0} className={classes.tabPanel}>
-                <TextField fullWidth id="description" label="Description"/>
-              </TabPanel>
-              <TabPanel value={value} index={1} className={classes.tabPanel}>
-                <ul>
-                  <li>
-                    <TextField fullWidth id="feature1" label="Feature"/>
-                  </li>
-                  <li>
-                    <TextField fullWidth id="feature2" label="Feature"/>
-                  </li>
-                  <li>
-                    <TextField fullWidth id="feature3" label="Feature"/>
-                  </li>
-                </ul>
-              </TabPanel>
-              <TabPanel value={value} index={2} className={classes.tabPanel}>
-                <List className={classes.root}>
-                  <ListItem>
-                    <ListItemAvatar>
-                      <Avatar><DescriptionIcon/></Avatar>
-                    </ListItemAvatar>
-                    <Button variant="contained" component="label" className={classes.upload}>
-                      Upload Refrence Sheet
-                      <input type="file" hidden/>
-                    </Button>
-                    <ListItemText/>
-                  </ListItem>
-                  <ListItem>
-                    <ListItemAvatar>
-                      <Avatar><ImageIcon/></Avatar>
-                    </ListItemAvatar>
-                    <Button variant="contained" component="label" className={classes.upload}>
-                      Upload Additional Images
-                      <input type="file" hidden/>
-                    </Button>
-                    <ListItemText/>
-                  </ListItem>
-                  <ListItem>
-                    <ListItemAvatar>
-                      <Avatar><PictureAsPdfIcon/></Avatar>
-                    </ListItemAvatar>
-                    <Button variant="contained" component="label" className={classes.upload}>
-                      Upload Additional Documents
-                      <input type="file" hidden/>
-                    </Button>
-                    <ListItemText/>
-                  </ListItem>
-                </List>
-              </TabPanel>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="body2" className={classes.keyTerms} style={{paddingTop: 10}}>
-                Tags:
-              </Typography>
-              <TextField fullWidth id="tag1" label="Enter tags in a comma separated list"/>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid container direction="column" justify="center" alignItems="flex-start">
-          <Grid item xs={12}>
-            <Typography variant="body1">
+  handleNameChange = (event) => {
+    this.setState({ newComponent : { name:event.target.value }});
+  }
 
-            </Typography>
-          </Grid>
-          <Grid container item direction="column" xs={12} className={classes.comments}>
-            <Divider variant="middle" style={{marginTop: 20}}/>
-            <Grid item xs={12}>
-              <Typography variant="h4" style={{paddingTop: 20, paddingBottom: 10}}>
-                Your Review:
-              </Typography>
-              <TextField fullWidth id="review" label="Describe your experience"/>
-            </Grid>
-            <Grid container item xs={12} justify='flex-end'>
-              <Button variant="contained" className={classes.button}>
-                <Typography variant="button" align="center" className={classes.buttonText}>
-                  Post Component
+  handlePriceChange = (event) => {
+    this.setState({ newComponent : { price:event.target.value }});
+  }
+
+  // Inputs
+  //const estPrice = useRef<TextFieldProps>(null);
+
+  postComponent = (event) => {
+    console.log("estimated price Info: ",this.state.newComponent.price);
+  }
+  render(){
+    return(
+      <Container component="main" maxWidth="md">
+        <form className={this.props.classes.form} noValidate>
+          <Grid container direction="row" justify="center" alignItems="flex-start">
+            <Grid container item xs={12} md={6} lg={6} direction="column">
+              <Grid item xs={12} className={this.props.classes.image}>
+                <Button variant="contained" component="label" className={this.props.classes.upload}>
+                  Upload Image
+                  <input type="file" hidden/>
+                </Button>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="h4" className={this.props.classes.rating}>
+                  Your Rating:
+                  <TextField margin="normal" required id="rating" label="rating" name="rating"/>/10
                 </Typography>
-              </Button>
+              </Grid>
+            </Grid>
+            <Grid container item xs={12} md={6} lg={6} direction="column" className={this.props.classes.box}>
+              <Grid item xs={12}>
+                <Typography variant="h3" className={this.props.classes.rating}>
+                  <TextField required fullWidth id="name" label="Component Name" name="rating" autoFocus/>
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="h5" className={this.props.classes.rating}>
+                  Estimated Price: <TextField onChange={this.handlePriceChange} margin="normal" required id="price" label="Price"/>
+                </Typography>
+              </Grid>
+              <Grid item xs={12} className={this.props.classes.tabs}>
+                <Tabs value={this.state.value} onChange={this.handleChange} aria-label="tabs" indicatorColor="primary"
+        textColor="primary">
+                  <Tab className={this.props.classes.tab} label="Description" {...a11yProps(0)} />
+                  <Tab className={this.props.classes.tab} label="Features" {...a11yProps(1)} />
+                  <Tab className={this.props.classes.tab} label="Documents" {...a11yProps(2)} />
+                </Tabs>
+                <TabPanel value={this.state.value} index={0} className={this.props.classes.tabPanel}>
+                  <TextField fullWidth id="description" label="Description"/>
+                </TabPanel>
+                <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
+                  <ul>
+                    <li>
+                      <TextField fullWidth id="feature1" label="Feature"/>
+                    </li>
+                    <li>
+                      <TextField fullWidth id="feature2" label="Feature"/>
+                    </li>
+                    <li>
+                      <TextField fullWidth id="feature3" label="Feature"/>
+                    </li>
+                  </ul>
+                </TabPanel>
+                <TabPanel value={this.state.value} index={2} className={this.props.classes.tabPanel}>
+                  <List className={this.props.classes.root}>
+                    <ListItem>
+                      <ListItemAvatar>
+                        <Avatar><DescriptionIcon/></Avatar>
+                      </ListItemAvatar>
+                      <Button variant="contained" component="label" className={this.props.classes.upload}>
+                        Upload Refrence Sheet
+                        <input type="file" hidden/>
+                      </Button>
+                      <ListItemText/>
+                    </ListItem>
+                    <ListItem>
+                      <ListItemAvatar>
+                        <Avatar><ImageIcon/></Avatar>
+                      </ListItemAvatar>
+                      <Button variant="contained" component="label" className={this.props.classes.upload}>
+                        Upload Additional Images
+                        <input type="file" hidden/>
+                      </Button>
+                      <ListItemText/>
+                    </ListItem>
+                    <ListItem>
+                      <ListItemAvatar>
+                        <Avatar><PictureAsPdfIcon/></Avatar>
+                      </ListItemAvatar>
+                      <Button variant="contained" component="label" className={this.props.classes.upload}>
+                        Upload Additional Documents
+                        <input type="file" hidden/>
+                      </Button>
+                      <ListItemText/>
+                    </ListItem>
+                  </List>
+                </TabPanel>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="body2" className={this.props.classes.keyTerms} style={{paddingTop: 10}}>
+                  Tags:
+                </Typography>
+                <TextField fullWidth id="tag1" label="Enter tags in a comma separated list"/>
+              </Grid>
             </Grid>
           </Grid>
-        </Grid>
-      </form>
-    </Container>
+          <Grid container direction="column" justify="center" alignItems="flex-start">
+            <Grid item xs={12}>
+              <Typography variant="body1">
+
+              </Typography>
+            </Grid>
+            <Grid container item direction="column" xs={12} className={this.props.classes.comments}>
+              <Divider variant="middle" style={{marginTop: 20}}/>
+              <Grid item xs={12}>
+                <Typography variant="h4" style={{paddingTop: 20, paddingBottom: 10}}>
+                  Your Review:
+                </Typography>
+                <TextField fullWidth id="review" label="Describe your experience"/>
+              </Grid>
+              <Grid container item xs={12} justify='flex-end'>
+                <Button variant="contained" className={this.props.classes.button}>
+                  <Typography variant="button" align="center" onClick={this.postComponent} className={this.props.classes.buttonText}>
+                    Post Component
+                  </Typography>
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </form>
+      </Container>
+    )
+  }
+}
+
+export default function AddComponent() {
+  const classes = useStyles();
+  return(
+    <AddComponentForm classes={classes} />
   )
 }
