@@ -10,8 +10,13 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Container from '@material-ui/core/Container';
 import Link from '@material-ui/core/Link';
+import axios from 'axios';
 import { withStyles } from '@material-ui/core/styles';
 import axiosInstance from "../../axiosApi";
+
+const axiosComponentInstance = axios.create({
+  baseURL: 'http://127.0.0.1:8000/api',
+});
 
 const useStyles = theme => ({
   root: {
@@ -87,13 +92,25 @@ const useStyles = theme => ({
           this.setState({
             profile: response.data.user.username,
             posts: response.data.posts_made,
-            components: response.data.component_knowledge,
             school: response.data.school,
+            image: response.data.image,
             role: response.data.role,
+            fname: response.data.firstname,
+            lname: response.data.lastname,
             field: response.data.field_study,
             about: response.data.about_me,
+            component: [],
           });
-          console.log(this.state.username);
+
+          this.state.posts.forEach(component =>
+              axiosComponentInstance.get('/components/', {params:{_id:component}})
+              .then(component => {
+                this.setState(prevState => ({
+                  component: [...prevState.component, component.data]
+                }))
+                console.log(this.state.component);
+              })
+          )
         })
         .catch(e => {
           this.setState({
@@ -101,6 +118,18 @@ const useStyles = theme => ({
           });
           console.log(e);
         });
+    }
+
+    getPosts = (e) => {
+      this.state.posts.forEach(component =>
+          axiosComponentInstance.get('/components/', {params:{_id:component}})
+          .then(component => {
+            this.setState({
+              component: component.data,
+            });
+            console.log(this.state.component);
+          })
+      )
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -115,18 +144,19 @@ const useStyles = theme => ({
     render() {
       const { classes } = this.props;
       const isStudent = (this.state.role == "s")
+      const hasPost = (this.state.posts && this.state.posts.length > 0)
 
       if (localStorage.getItem('username') == this.state.profile) {
         return (<Container component="main" maxWidth="lg">
           <div className={classes.root}>
             <Grid container spacing={3}>
               <Grid item>
-                <img src="https://3.bp.blogspot.com/-DVs1Ugx8LDQ/Uhx6Ol5NrRI/AAAAAAAAX9k/JPfLOUDRPgg/s1600/Mountains+Wallpapers.jpg" alt="Profile Picture" width="250" height="250"></img>
+                <img src={this.state.image} alt="Profile Picture" width="250" height="250"></img>
               </Grid>
               <Grid item sm={3}>
                 <Card>
                     <CardHeader
-                    title = {this.state.profile}
+                    title = {this.state.fname + " " + this.state.lname + "\n(" + this.state.profile + ")"}
                     className={classes.cardHeader}
                     />
                   <CardContent>
@@ -167,29 +197,37 @@ const useStyles = theme => ({
             <Typography variant="h5" style={{paddingTop: 20}}>
               Posts Made
             </Typography>
-            <Grid container spacing={3} style={{paddingTop: 20}}>
-              {posts.map((post) => (
-                <Grid item sm={2}>
-                  <Card>
-                    <CardHeader
-                      title={post.componentName}
-                      titleTypographyProps={{ align: 'center' }}
-                      className={classes.cardHeader}
-                    />
-                    <CardContent>
-                      <div className={classes.cardContent}>
-                        <Typography variant="subtitle1">
-                          <b>Rating: {post.rating}</b>
+            {hasPost ? (
+              <Grid container spacing={3} style={{paddingTop: 20}}>
+                {this.state.component.map((post) => (
+                  <Grid item sm={2}>
+                    <Card>
+                      <CardHeader
+                        title={post.name}
+                        titleTypographyProps={{ align: 'center' }}
+                        className={classes.cardHeader}
+                      />
+                      <CardContent>
+                        <div className={classes.cardContent}>
+                          <Typography variant="subtitle1">
+                            <b>Rating: {post.rating.avg_rating}</b>
+                          </Typography>
+                        </div>
+                        <Typography variant="subtitle1" align="center">
+                          {post.review}
                         </Typography>
-                      </div>
-                      <Typography variant="subtitle1" align="center">
-                        {post.comment}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+
+              <Typography variant="h5" style={{paddingTop: 20}}>
+              No posts yet
+            </Typography>)
+            }
+
           </div>
         </Container>);
       }

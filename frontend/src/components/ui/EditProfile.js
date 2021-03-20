@@ -51,24 +51,6 @@ const useStyles = theme => ({
   },
 });
 
-  var posts = [
-    {
-    componentName: "IC Chip A",
-    rating: "5/10",
-    comment: "Had issues with A on..."
-    },
-    {
-      componentName: "IC Chip B",
-      rating: "5/10",
-      comment: "Had issues with B on..."
-    },
-    {
-      componentName: "IC Chip C",
-      rating: "5/10",
-      comment: "Had issues with C on..."
-    },
-  ]
-
   class EditProfile extends React.Component {
     constructor(props) {
       super(props);
@@ -96,6 +78,8 @@ const useStyles = theme => ({
             about: response.data.about_me,
             image: response.data.image,
             role: response.data.role,
+            fname: response.data.firstname,
+            lname: response.data.lastname,
             isUser: true,
           });
           console.log(this.state.username);
@@ -114,13 +98,14 @@ const useStyles = theme => ({
         field_study: this.state.field,
         about_me: this.state.about,
         role: this.state.role,
+        lastname: this.state.lname,
+        firstname: this.state.fname,
+        image: this.state.image,
       }
+      console.log(data.firstname + data.lastname);
 
       var url = "accounts/auth/user/profile/" + this.state.username +"/";
       var token = "Token " + this.state.token;
-      console.log(token);
-      console.log(data);
-      console.log(url);
 
       axiosInstance.patch(url, data, {
         headers: {
@@ -138,7 +123,7 @@ const useStyles = theme => ({
     }
 
     deleteAccount = (e) => {
-      var url = "accounts/auth/user/profile/" + this.state.username +"/";
+      var url = "accounts/auth/user/";
       var token = "Token " + this.state.token;
 
       axiosInstance.delete(url, {
@@ -156,6 +141,22 @@ const useStyles = theme => ({
         .catch(e => {
           console.log(e);
         });
+
+        axiosInstance.delete(url, {
+          headers: {
+            'Authorization': token
+          }})
+          .then(response => {
+            this.setState({
+              deleted: true,
+            });
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            window.location.reload(false);
+          })
+          .catch(e => {
+            console.log(e);
+          });
     }
 
     _handleSchoolChange = (e) => {
@@ -177,8 +178,31 @@ const useStyles = theme => ({
     }
 
     _handleRoleChange = (e) => {
+      console.log(e.target.value)
       this.setState({
         role: e.target.value
+      });
+      console.log(this.state.fname);
+    }
+
+    _handleLnameChange = (e) => {
+      console.log(e.target.value)
+      this.setState({
+        lname: e.target.value
+      });
+      console.log(this.state.lname);
+    }
+
+    _handleFnameChange = (e) => {
+      this.setState({
+        fname: e.target.value
+      });
+    }
+
+
+    _handleImageChange = (e) => {
+      this.setState({
+        image: e.target.files[0].name
       });
     }
 
@@ -207,17 +231,49 @@ const useStyles = theme => ({
             <div className={classes.root}>
               <Grid container spacing={3}>
                 <Grid item>
-                  <img src="https://3.bp.blogspot.com/-DVs1Ugx8LDQ/Uhx6Ol5NrRI/AAAAAAAAX9k/JPfLOUDRPgg/s1600/Mountains+Wallpapers.jpg" alt="Profile Picture" width="250" height="250"></img>
+                  <img src={this.state.image} alt="Profile Picture" width="250" height="250"></img>
+                  <label for="myfile">Select a file:</label>
+                  <input type="file" id="myfile" name="myfile" onClick={(e) =>{e.target.value = ''}} onChange={this._handleImageChange}/>
                 </Grid>
               <Grid item sm={3}>
                 <Card>
                     <CardHeader
-                    title = {this.state.profile}
+                    title = {this.state.username}
                     className={classes.cardHeader}
                     />
                   <CardContent>
                     <div className={classes.cardContent}>
                       <List>
+                      <ListItem>
+                        <Typography variant="body1"><b>First name:</b>
+                        <TextField
+                          variant="outlined"
+                          margin="normal"
+                          required
+                          fullWidth
+                          id="fname"
+                          value={this.state.fname}
+                          name="fname"
+                          autoFocus
+                          onChange={this._handleFnameChange}
+                        />
+                        </Typography>
+                      </ListItem>
+                      <ListItem>
+                        <Typography variant="body1"><b>Last name:</b>
+                        <TextField
+                          variant="outlined"
+                          margin="normal"
+                          required
+                          fullWidth
+                          id="lname"
+                          value={this.state.lname}
+                          name="lname"
+                          autoFocus
+                          onChange={this._handleLnameChange}
+                        />
+                        </Typography>
+                      </ListItem>
                         <ListItem>
                           <Typography variant="body1"><b>Location:</b>
                           <TextField
