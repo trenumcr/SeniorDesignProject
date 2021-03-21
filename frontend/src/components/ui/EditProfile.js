@@ -11,7 +11,8 @@ import ListItem from '@material-ui/core/ListItem';
 import Container from '@material-ui/core/Container';
 import TextField from '@material-ui/core/TextField';
 import { Link } from "react-router-dom";
-import { Redirect } from 'react-router'
+import { Redirect } from 'react-router';
+import Modal from '@material-ui/core/Modal';
 
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -49,25 +50,18 @@ const useStyles = theme => ({
   title: {
     paddingBottom: "20px",
   },
+  modal: {
+    position: 'absolute',
+    width: 400,
+    background: theme.palette.common.white,
+    border: '2px solid #000',
+    padding: theme.spacing(2, 4, 3),
+    boxShadow: theme.shadows[5],
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  },
 });
-
-  var posts = [
-    {
-    componentName: "IC Chip A",
-    rating: "5/10",
-    comment: "Had issues with A on..."
-    },
-    {
-      componentName: "IC Chip B",
-      rating: "5/10",
-      comment: "Had issues with B on..."
-    },
-    {
-      componentName: "IC Chip C",
-      rating: "5/10",
-      comment: "Had issues with C on..."
-    },
-  ]
 
   class EditProfile extends React.Component {
     constructor(props) {
@@ -96,41 +90,70 @@ const useStyles = theme => ({
             about: response.data.about_me,
             image: response.data.image,
             role: response.data.role,
+            fname: response.data.firstname,
+            lname: response.data.lastname,
             isUser: true,
           });
-          console.log(this.state.username);
+          if (this.state.about == 'null') {
+            this.setState({
+              about: '',
+            });
+          }
         })
         .catch(e => {
           this.setState({
-          isUser: false,
+            isUser: false,
           });
-          console.log(e);
+            console.log(e);
         });
     }
 
-    submitChanges = () => {
-      var data = {
-        school: this.state.school,
-        field_study: this.state.field,
-        about_me: this.state.about,
-        role: this.state.role,
+    submitChanges = (e) => {
+      e.preventDefault();
+
+      let data = new FormData();
+      if (this.state.uploadedImage !== undefined) {
+        data.append('image', this.state.uploadedImage, this.state.uploadedImage.name);
+        data.append('school', this.state.school);
+        data.append('field_study', this.state.field);
+        data.append('role', this.state.role);
+        data.append('lastname', this.state.lname);
+        data.append('firstname', this.state.fname);
+              console.log("Not undefined" + data);
+      }
+      else {
+          data.append('school', this.state.school);
+          data.append('field_study', this.state.field);
+          data.append('role', this.state.role);
+          data.append('lastname', this.state.lname);
+          data.append('firstname', this.state.fname);
+                console.log(data);
       }
 
+      if (this.state.about !== undefined && this.state.about !== "") {
+        data.append('about_me', this.state.about);
+              console.log("Not undefined" + data);
+      }
+      else {
+        data.append('about_me', null);
+              console.log(data);
+      }
+
+      console.log(data);
       var url = "accounts/auth/user/profile/" + this.state.username +"/";
       var token = "Token " + this.state.token;
-      console.log(token);
-      console.log(data);
-      console.log(url);
 
       axiosInstance.patch(url, data, {
         headers: {
-          'Authorization': token
+          'Authorization': token,
+          'Content-Type': 'multipart/form-data',
         }})
         .then(response => {
           this.setState({
             edited: true,
           });
           window.location.reload(false);
+                console.log(data);
         })
         .catch(e => {
           console.log(e);
@@ -138,7 +161,7 @@ const useStyles = theme => ({
     }
 
     deleteAccount = (e) => {
-      var url = "accounts/auth/user/profile/" + this.state.username +"/";
+      var url = "accounts/auth/user/";
       var token = "Token " + this.state.token;
 
       axiosInstance.delete(url, {
@@ -156,6 +179,22 @@ const useStyles = theme => ({
         .catch(e => {
           console.log(e);
         });
+
+        axiosInstance.delete(url, {
+          headers: {
+            'Authorization': token
+          }})
+          .then(response => {
+            this.setState({
+              deleted: true,
+            });
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            window.location.reload(false);
+          })
+          .catch(e => {
+            console.log(e);
+          });
     }
 
     _handleSchoolChange = (e) => {
@@ -177,15 +216,48 @@ const useStyles = theme => ({
     }
 
     _handleRoleChange = (e) => {
+      console.log(e.target.value)
       this.setState({
         role: e.target.value
+      });
+      console.log(this.state.fname);
+    }
+
+    _handleLnameChange = (e) => {
+      console.log(e.target.value)
+      this.setState({
+        lname: e.target.value
+      });
+      console.log(this.state.lname);
+    }
+
+    _handleFnameChange = (e) => {
+      this.setState({
+        fname: e.target.value
+      });
+    }
+
+    _handleOpen = (e) => {
+      this.setState({
+        open: true,
+      })
+    }
+
+    _handleClose = (e) => {
+        this.setState({
+          open: false,
+        })
+    }
+
+    _handleImageChange = (e) => {
+      this.setState({
+        uploadedImage: e.target.files[0]
       });
     }
 
     render() {
       const { classes } = this.props;
       const isStudent = (this.state.role == "s");
-      console.log(this.state);
 
       if (!this.state.isUser) {
         return (<Typography>Please login to edit your profile</Typography>)
@@ -205,104 +277,176 @@ const useStyles = theme => ({
           <Container component="main" maxWidth="lg">
           <form className={classes.form} onSubmit={this.login}>
             <div className={classes.root}>
-              <Grid container spacing={3}>
-                <Grid item>
-                  <img src="https://3.bp.blogspot.com/-DVs1Ugx8LDQ/Uhx6Ol5NrRI/AAAAAAAAX9k/JPfLOUDRPgg/s1600/Mountains+Wallpapers.jpg" alt="Profile Picture" width="250" height="250"></img>
+            <Grid container spacing={3} sm={12}>
+              <Grid container spacing={3} sm={12} md={5} direction="row">
+                <Grid item sm={12}>
+                  <img src={this.state.image} alt="Profile Picture" width="250" height="250"></img>
                 </Grid>
-              <Grid item sm={3}>
-                <Card>
-                    <CardHeader
-                    title = {this.state.profile}
-                    className={classes.cardHeader}
+                <Grid item sm={12}>
+                  <label for="myfile">Select a file:</label>
+                  <input type="file" id="myfile" name="myfile" onClick={(e) =>{e.target.value = ''}} onChange={this._handleImageChange}/>
+                </Grid>
+                <Grid item sm={6}>
+                  <InputLabel htmlFor="filled-age-native-simple">Occupation</InputLabel>
+                  <Select
+                    native
+                    value={this.state.role}
+                    onChange={this._handleRoleChange}
+                  >
+                    <option aria-label="None" value="s">Student</option>
+                    <option aria-label="None" value="p">Professor</option>
+                  </Select>
+                </Grid>
+                <Grid item sm={11}>
+                  <Typography variant="h3" className={classes.title}>
+                    <TextField
+                      variant="outlined"
+                      margin="normal"
+                      fullWidth
+                      id="about"
+                      value={this.state.about}
+                      name="about"
+                      label="Biography"
+                      onChange={this._handleAboutMeChange}
                     />
-                  <CardContent>
-                    <div className={classes.cardContent}>
-                      <List>
+                  </Typography>
+                </Grid>
+                <Grid item sm={6}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    onClick={this._handleOpen}
+                  >
+                    Delete Account
+                  </Button>
+                </Grid>
+              </Grid>
+              <Grid container spacing={3} sm={12} md={6}>
+                <Grid item sm={12}>
+                  <Card>
+                    <CardHeader
+                      title = {this.state.username}
+                      className={classes.cardHeader}
+                      />
+                    <CardContent>
+                      <div className={classes.cardContent}>
+                        <List>
                         <ListItem>
-                          <Typography variant="body1"><b>Location:</b>
+                          <Typography variant="body1"><b>First name:</b>
                           <TextField
                             variant="outlined"
                             margin="normal"
                             required
                             fullWidth
-                            id="school"
-                            value={this.state.school}
-                            name="school"
+                            id="fname"
+                            value={this.state.fname}
+                            name="fname"
                             autoFocus
-                            onChange={this._handleSchoolChange}
+                            onChange={this._handleFnameChange}
                           />
                           </Typography>
                         </ListItem>
                         <ListItem>
-                          <Typography variant="body1">
-                          {isStudent ? (<b>Major:</b>) : (<b>Field:</b>)}
+                          <Typography variant="body1"><b>Last name:</b>
+                          <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="lname"
+                            value={this.state.lname}
+                            name="lname"
+                            autoFocus
+                            onChange={this._handleLnameChange}
+                          />
+                          </Typography>
+                        </ListItem>
+                          <ListItem>
+                            <Typography variant="body1"><b>Location:</b>
                             <TextField
                               variant="outlined"
                               margin="normal"
                               required
                               fullWidth
-                              id="major"
-                              value={this.state.field}
-                              name="major"
+                              id="school"
+                              value={this.state.school}
+                              name="school"
                               autoFocus
-                              onChange={this._handleFieldChange}
+                              onChange={this._handleSchoolChange}
                             />
-                          </Typography>
-                        </ListItem>
-                      </List>
-                    </div>
+                            </Typography>
+                          </ListItem>
+                          <ListItem>
+                            <Typography variant="body1">
+                            {isStudent ? (<b>Major:</b>) : (<b>Field:</b>)}
+                              <TextField
+                                variant="outlined"
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="major"
+                                value={this.state.field}
+                                name="major"
+                                autoFocus
+                                onChange={this._handleFieldChange}
+                              />
+                            </Typography>
+                          </ListItem>
+                        </List>
+                      </div>
                     </CardContent>
-                </Card>
+                  </Card>
+                </Grid>
               </Grid>
-              <Grid item sm={6}>
-                <Typography variant="h3" className={classes.title}>
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
+              <Grid container spacing={3} sm={12}  direction="row" justify="flex-start" alignItems="flex-end">
+                <Grid item sm={3}>
+                  <Button
                     fullWidth
-                    id="about"
-                    value={this.state.about}
-                    name="about"
-                    autoFocus
-                    onChange={this._handleAboutMeChange}
-                  />
-                </Typography>
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    onClick={this.submitChanges}
+                  >
+                    Submit Profile Changes
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item sm={6}>
-                <InputLabel htmlFor="filled-age-native-simple">University</InputLabel>
-                <Select
-                  native
-                  value={this.state.role}
-                  onChange={this._handleRoleChange}
-                >
-                  <option aria-label="None" value="s">Student</option>
-                  <option aria-label="None" value="p">Professor</option>
-                </Select>
-              </Grid>
-              <Grid item sm={6}>
+            </Grid>
+            </div>
+            </form>
+            <Modal
+              open={this.state.open}
+              onClose={this._handleClose}
+              aria-labelledby="simple-modal-title"
+              aria-describedby="simple-modal-description"
+            >
+            <div className={classes.modal}>
+              <h2 id="simple-modal-title">Delete account?</h2>
+              <p id="simple-modal-description">
+                Clicking confirm will permanently delete your account.
+              </p>
                 <Button
                   fullWidth
                   variant="contained"
                   color="primary"
                   className={classes.submit}
-                  onClick={this.deleteAccount}
+                  onClick={this._handleClose}
                 >
-                  Delete Account
+                  Cancel
                 </Button>
-              </Grid>
-              <Button
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={classes.submit}
-                onClick={this.submitChanges}
-              >
-                Submit
-              </Button>
-              </Grid>
-            </div>
-            </form>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    onClick={this.deleteAccount}
+                  >
+                    Confirm
+                  </Button>
+              </div>
+            </Modal>
           </Container>);
       }
     }

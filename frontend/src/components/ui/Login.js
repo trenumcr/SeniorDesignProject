@@ -14,7 +14,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import{ Component } from "react";
 import axiosInstance from "../../axiosApi";
-import { Redirect } from 'react-router'
+import { Redirect } from 'react-router';
+import Modal from '@material-ui/core/Modal';
 
 const useStyles = theme => ({
   paper: {
@@ -39,7 +40,18 @@ const useStyles = theme => ({
     '&:hover': {
         backgroundColor: theme.palette.secondary.dark,
         color: '#FFF'
-    }
+    },
+  },
+  modal: {
+    position: 'absolute',
+    width: 400,
+    background: theme.palette.common.white,
+    border: '2px solid #000',
+    padding: theme.spacing(2, 4, 3),
+    boxShadow: theme.shadows[5],
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
   },
 });
 
@@ -52,6 +64,7 @@ class Login extends Component {
       password: "",
       token: "",
       login: false,
+      open: false,
     };
   }
 
@@ -61,8 +74,6 @@ class Login extends Component {
       password: this.state.password,
       username: this.state.username,
     }
-
-    console.log(data);
 
     axiosInstance.post("accounts/auth/login/", data)
       .then(response => {
@@ -95,6 +106,49 @@ class Login extends Component {
     this.setState({
       password: e.target.value
     });
+  }
+
+  _handleEmailChange = (e) => {
+    this.setState({
+      email: e.target.value
+    });
+  }
+
+  _handlePasswordReset = (e) => {
+    var data = {
+      email: this.state.email,
+    }
+
+    var url = 'accounts/auth/password_reset/';
+
+    axiosInstance.post(url, data)
+      .then(response => {
+        this.setState({
+
+        });
+
+        console.log(this.state.token + " " + this.state.login);
+        window.location.reload(false);
+      })
+      .catch(e => {
+        this.setState({
+          login: false,
+        });
+        console.log(this.state.token + " " + this.state.login);
+        console.log(e);
+      });
+  }
+
+  _handleOpen = (e) => {
+    this.setState({
+      open: true,
+    })
+  }
+
+  _handleClose = (e) => {
+      this.setState({
+        open: false,
+      })
   }
 
   render() {
@@ -154,9 +208,10 @@ class Login extends Component {
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
+                <Link onClick={this._handleOpen} variant="body2">
                   Forgot password?
                 </Link>
+
               </Grid>
               <Grid item>
                 <Link href="/sign-up" variant="body2">
@@ -165,6 +220,43 @@ class Login extends Component {
               </Grid>
             </Grid>
           </form>
+
+          <Modal
+            open={this.state.open}
+            onClose={this._handleClose}
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+          >
+          <div className={classes.modal}>
+            <h2 id="simple-modal-title">Text in a modal</h2>
+            <p id="simple-modal-description">
+              Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+            </p>
+            <form className={classes.form} onSubmit={this._handlePasswordReset}>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                name="email"
+                label="Email"
+                type="email"
+                id="email"
+                onChange={this._handleEmailChange}
+              />
+              </form>
+              <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+                onClick={this._handlePasswordReset}
+              >
+                Reset password
+              </Button>
+            </div>
+          </Modal>
+
         </div>
       </Container>
     );
