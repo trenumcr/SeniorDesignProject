@@ -10,6 +10,9 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Container from '@material-ui/core/Container';
 import Link from '@material-ui/core/Link';
+import Rating from '@material-ui/lab/Rating';
+import TextField from '@material-ui/core/TextField';
+import Modal from '@material-ui/core/Modal';
 import axios from 'axios';
 import { withStyles } from '@material-ui/core/styles';
 import axiosInstance from "../../axiosApi";
@@ -48,25 +51,26 @@ const useStyles = theme => ({
   title: {
     paddingBottom: "20px",
   },
+  cardHeader: {
+    backgroundColor: theme.palette.grey[200],
+  },
+  cardContent: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: theme.spacing(2),
+  },
+  modal: {
+    position: 'absolute',
+    width: 400,
+    background: theme.palette.common.white,
+    border: '2px solid #000',
+    padding: theme.spacing(2, 4, 3),
+    boxShadow: theme.shadows[5],
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  },
 });
-
-  var posts = [
-    {
-    componentName: "IC Chip A",
-    rating: "5/10",
-    comment: "Had issues with A on..."
-    },
-    {
-      componentName: "IC Chip B",
-      rating: "5/10",
-      comment: "Had issues with B on..."
-    },
-    {
-      componentName: "IC Chip C",
-      rating: "5/10",
-      comment: "Had issues with C on..."
-    },
-  ]
 
   class Profile extends React.Component {
     constructor(props) {
@@ -91,6 +95,7 @@ const useStyles = theme => ({
         .then(response => {
           this.setState({
             profile: response.data.user.username,
+            email: response.data.user.email,
             posts: response.data.posts_made,
             school: response.data.school,
             image: response.data.image,
@@ -132,6 +137,62 @@ const useStyles = theme => ({
       )
     }
 
+    handleViewComponent = (e) => {
+      window.location.href = "/component/" + this.state.component[e.currentTarget.id]._id.$oid;
+      e.preventDefault();
+    }
+
+    _handleContactMe = (e) => {
+      var data = {
+        subject: this.state.subject,
+        message: this.state.body,
+        to: this.state.email,
+      }
+
+      var token = "Token " + this.state.token;
+      var url = "accounts/email/";
+
+      axiosInstance.post(url, data, {
+        headers: {
+          'Authorization': token,
+        }})
+        .then(response => {
+          this.setState({
+            open: false,
+          })
+        })
+        .catch(e => {
+          console.log(e);
+          this.setState({
+            open: false,
+          })
+        });
+    }
+    _handleSubjectChange = (e) => {
+        this.setState({
+          subject: this.state.value,
+        })
+    }
+
+    _handleBodyChange = (e) => {
+        this.setState({
+          body: this.state.value
+        })
+    }
+
+    _handleOpen = (e) => {
+      this.setState({
+        open: true,
+      })
+    }
+
+    _handleClose = (e) => {
+        this.setState({
+          open: false,
+        })
+    }
+
+
     static getDerivedStateFromProps(nextProps, prevState) {
        if (nextProps.match.params.username !== prevState.profile){
          return {
@@ -143,111 +204,35 @@ const useStyles = theme => ({
 
     render() {
       const { classes } = this.props;
-      const isStudent = (this.state.role == "s")
-      const hasPost = (this.state.posts && this.state.posts.length > 0)
+      const isStudent = (this.state.role == "s");
+      const hasPost = (this.state.posts && this.state.posts.length > 0);
+      const aboutNotBlank = (this.state.about !== 'null');
+      const loggedIn = (localStorage.getItem('username') == this.state.profile);
 
-      if (localStorage.getItem('username') == this.state.profile) {
-        return (<Container component="main" maxWidth="lg">
-          <div className={classes.root}>
-            <Grid container spacing={3}>
-              <Grid item>
-                <img src={this.state.image} alt="Profile Picture" width="250" height="250"></img>
-              </Grid>
-              <Grid item sm={3}>
-                <Card>
-                    <CardHeader
-                    title = {this.state.fname + " " + this.state.lname + "\n(" + this.state.profile + ")"}
-                    className={classes.cardHeader}
-                    />
-                  <CardContent>
-                    <div className={classes.cardContent}>
-                      <List /*dense={dense}*/>
-                        <ListItem>
-                          <Typography variant="body1"><b>Location:</b> {this.state.school}</Typography>
-                        </ListItem>
-                        <ListItem>
-                          <Typography variant="body1">
-                          {isStudent ? (<b>Major:</b>) : (<b>Field:</b>)}
-                          {this.state.field}</Typography>
-                        </ListItem>
-                      </List>
-                    </div>
-                    </CardContent>
-                </Card>
-              </Grid>
-              <Grid item sm={6}>
-                <Typography variant="h3" className={classes.title}>Biography</Typography>
-                <Typography variant="body1">{this.state.about}</Typography>
-              </Grid>
-              <Grid item sm={12}>
-                {isStudent ? (<b></b>) : (
-                  <Button variant="contained" className={classes.button}>
-                    Contact me
-                  </Button>)
-                }
-              </Grid>
-              <Grid item sm={12}>
-                <Button variant="contained" className={classes.button}>
-                  <Link href="/edit-profile" variant="body2">
-                    {"Edit Profile"}
-                  </Link>
-                </Button>
-              </Grid>
+      return (<Container component="main" maxWidth="lg">
+        <div className={classes.root}>
+          <Grid container spacing={3}>
+            <Grid item>
+              <img src={this.state.image} alt="Profile Picture" width="250" height="250"></img>
             </Grid>
-            <Typography variant="h5" style={{paddingTop: 20}}>
-              Posts Made
-            </Typography>
-            {hasPost ? (
-              <Grid container spacing={3} style={{paddingTop: 20}}>
-                {this.state.component.map((post) => (
-                  <Grid item sm={2}>
-                    <Card>
-                      <CardHeader
-                        title={post.name}
-                        titleTypographyProps={{ align: 'center' }}
-                        className={classes.cardHeader}
-                      />
-                      <CardContent>
-                        <div className={classes.cardContent}>
-                          <Typography variant="subtitle1">
-                            <b>Rating: {post.rating.avg_rating}</b>
-                          </Typography>
-                        </div>
-                        <Typography variant="subtitle1" align="center">
-                          {post.review}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            ) : (
-
-              <Typography variant="h5" style={{paddingTop: 20}}>
-              No posts yet
-            </Typography>)
-            }
-
-          </div>
-        </Container>);
-      }
-      else {
-        return (<Container component="main" maxWidth="lg">
-        <Typography>View Profile</Typography>
-          <div className={classes.root}>
-            <Grid container spacing={3}>
-              <Grid item>
-                <img src="https://3.bp.blogspot.com/-DVs1Ugx8LDQ/Uhx6Ol5NrRI/AAAAAAAAX9k/JPfLOUDRPgg/s1600/Mountains+Wallpapers.jpg" alt="Profile Picture" width="250" height="250"></img>
-              </Grid>
             <Grid item sm={3}>
               <Card>
                   <CardHeader
-                  title = {this.state.profile}
+                  title = {this.state.fname + " " + this.state.lname + "\n(" + this.state.profile + ")"}
                   className={classes.cardHeader}
                   />
                 <CardContent>
                   <div className={classes.cardContent}>
                     <List /*dense={dense}*/>
+                      {isStudent ? (
+                        <ListItem>
+                          <Typography variant="body1"><b>Occupation:</b> Student</Typography>
+                        </ListItem>
+                      ) : (
+                        <ListItem>
+                          <Typography variant="body1"><b>Occupation:</b> Professor</Typography>
+                        </ListItem>
+                      )}
                       <ListItem>
                         <Typography variant="body1"><b>Location:</b> {this.state.school}</Typography>
                       </ListItem>
@@ -263,44 +248,142 @@ const useStyles = theme => ({
             </Grid>
             <Grid item sm={6}>
               <Typography variant="h3" className={classes.title}>Biography</Typography>
-              <Typography variant="body1">{this.state.about}
-              </Typography>
+              {aboutNotBlank ? (
+                <Typography variant="body1">{this.state.about}</Typography>
+              ) : (
+                <Typography variant="body1">This user does not have a bio</Typography>
+              )}
             </Grid>
-            <Grid item sm={12}> {isStudent ? (<b>Major:</b>) : (
+            {loggedIn ? (
+            <Grid item sm={2}>
               <Button variant="contained" className={classes.button}>
-              Contact me
-              </Button>)}
-                </Grid>
-              </Grid>
-              <Typography variant="h5" style={{paddingTop: 20}}>
-                Posts Made
-              </Typography>
-              <Grid container spacing={3} style={{paddingTop: 20}}>
-                {posts.map((post) => (
-                <Grid item sm={2}>
+                <Link href="/edit-profile" className={classes.button}>
+                  {"Edit Profile"}
+                </Link>
+              </Button>
+            </Grid>
+            ) : (
+            <Grid item sm={2}>
+              <Button variant="contained" className={classes.button} onClick={this._handleOpen}>
+                Contact me
+              </Button>
+            </Grid>)}
+          </Grid>
+          <Typography variant="h5" style={{paddingTop: 20}}>
+            Posts Made
+          </Typography>
+          {hasPost ? (
+            <Grid container spacing={3} style={{paddingTop: 20}}>
+              {this.state.component.map((post, index) => (
+                  <Grid item md={4}>
                   <Card>
                     <CardHeader
-                      title={post.componentName}
+                      title={post.name}
                       titleTypographyProps={{ align: 'center' }}
                       className={classes.cardHeader}
                     />
                     <CardContent>
                       <div className={classes.cardContent}>
                         <Typography variant="subtitle1">
-                          <b>Rating: {post.rating}</b>
+                          <b>{post.name}</b>
                         </Typography>
                       </div>
-                      <Typography variant="subtitle1" align="center">
-                        {post.comment}
-                      </Typography>
+                          <Typography variant="subtitle1" align="center">
+                            Rating:
+                            <Rating
+                              name="read-only"
+                              value={post.avg_rating}
+                              precision={0.5}
+                              readOnly
+                            />
+                          </Typography>
+                          <Typography variant="subtitle1" align="center">
+                            Manufacturer: {post.manufacture_name == undefined ? "N/A" : post.manufacture_name}
+                          </Typography>
+                          <Typography variant="subtitle1" align="center">
+                            Price: {post.price == undefined ? "N/A" : "$ " + post.price}
+                          </Typography>
+                          <Typography variant="subtitle1" align="center">
+                            Hardware Category: {post.category == undefined ? "N/A" : post.category}
+                          </Typography>
+                          <Button  id={index} align="center" variant="contained" color="primary" onClick={this.handleViewComponent}>
+                            View
+                          </Button>
                     </CardContent>
                   </Card>
                 </Grid>
               ))}
             </Grid>
+          ) : (
+
+            <Typography variant="h5" style={{paddingTop: 20}}>
+            No posts yet
+          </Typography>)
+          }
+        </div>
+        <Modal
+          open={this.state.open}
+          onClose={this._handleClose}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+        >
+        <div className={classes.modal}>
+          <h2 id="simple-modal-title">Contact user</h2>
+          <p id="simple-modal-description">
+            Send this user an email
+          </p>
+          <form className={classes.form} onSubmit={this._handleContactMe}>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            name="subject"
+            label="Subject"
+            type="subject"
+            id="subject"
+            onChange={this._handleSubjectChange}
+          />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="body"
+              label="Body"
+              type="body"
+              id="body"
+              multiline
+              onChange={this._handleBodyChange}
+            />
+            </form>
+            <Grid container sm={12} spacing={3}>
+              <Grid item sm={6}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  className={classes.submit}
+                  onClick={this._handleClose}
+                >
+                  Cancel
+                </Button>
+              </Grid>
+              <Grid item sm={6}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  className={classes.submit}
+                  onClick={this._handleContactMe}
+                >
+                  Send
+                </Button>
+              </Grid>
+            </Grid>
           </div>
-        </Container>);
-      }
+        </Modal>
+      </Container>);
     }
   }
 

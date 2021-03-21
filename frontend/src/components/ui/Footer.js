@@ -25,6 +25,8 @@ const useStyles = makeStyles(theme => ({
     height: "4em",
     marginTop: "1em",
     paddingTop: "1.5em",
+    position: "absolute",
+    bottom: "0",
   }
 }))
 
