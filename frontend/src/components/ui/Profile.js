@@ -157,12 +157,14 @@ const useStyles = theme => ({
           'Authorization': token,
         }})
         .then(response => {
+          console.log(url);
+          console.log(data);
+          console.log(token);
           this.setState({
             open: false,
           })
         })
         .catch(e => {
-          console.log(e);
           this.setState({
             open: false,
           })
@@ -170,13 +172,13 @@ const useStyles = theme => ({
     }
     _handleSubjectChange = (e) => {
         this.setState({
-          subject: this.state.value,
+          subject: e.target.value,
         })
     }
 
     _handleBodyChange = (e) => {
         this.setState({
-          body: this.state.value
+          body: e.target.value
         })
     }
 
@@ -238,7 +240,7 @@ const useStyles = theme => ({
                       </ListItem>
                       <ListItem>
                         <Typography variant="body1">
-                        {isStudent ? (<b>Major:</b>) : (<b>Field:</b>)}
+                        {isStudent ? (<b>Major: </b>) : (<b>Field: </b>)}
                         {this.state.field}</Typography>
                       </ListItem>
                     </List>
