@@ -24,36 +24,6 @@ import axiosInstance from './../../axiosApi.js';
 
 const axiosI = axiosInstance;
 
-const componentInfo =
-  {
-    name: "ComponentName",
-    priceHigh: "15.00",
-    priceLow: "10.00",
-    rating: "8",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed venenatis mi sit amet purus rhoncus, sed eleifend neque imperdiet. Integer at nisl et erat venenatis fermentum non eu lectus. Donec ut tortor iaculis, consectetur est vel, venenatis elit. Sed at ultrices mi. Aliquam sed justo magna. Nulla accumsan nec nisi sed ullamcorper. Suspendisse et velit fermentum, interdum ante et, consequat ipsum. Sed ullamcorper lectus in egestas dignissim. Nullam sodales in sapien viverra convallis. Integer mauris lorem, scelerisque a consectetur sit amet, faucibus nec dui.",
-    features: ["feature 1", "feature 2", "feature 3", "feature 4"],
-    documents:[
-      {
-        name: "User Submitted Photos",
-        date: "January 9, 2014",
-        icon: <ImageIcon />
-      },
-      {
-        name: "Data sheet",
-        date: "January 7, 2014",
-        icon: <PictureAsPdfIcon />
-      },
-      {
-        name: "Other documentation",
-        date: "July 20, 2014",
-        icon: <PictureAsPdfIcon />
-      }
-    ],
-    keyTerms: ["Type", "Voltage", "Power"],
-    user: "User",
-    userText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed venenatis mi sit amet purus rhoncus, sed eleifend neque imperdiet. Integer at nisl et erat venenatis fermentum non eu lectus. Donec ut tortor iaculis, consectetur est vel, venenatis elit. Sed at ultrices mi. Aliquam sed justo magna. Nulla accumsan nec nisi sed ullamcorper."
-  }
-
   var comments = [
     {
     userName: "UserName1",
@@ -160,13 +130,18 @@ const useStyles = makeStyles((theme) => ({
 class ComponentProfile extends Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      component: {
-        features: [],
-        documents: [],
-        keyTerms: [],
-        comments: []
-      },
+    this.state = {
+      user : {},
+      picture : "",
+      rating : {},
+      description : "",
+      features : {},
+      datasheet : "",
+      name : "",
+      price : "",
+      documents : {},
+      keyTerms: [],
+      comments: [],
       value:0,
     }//{value:0, commentValue:""};
     this.handleChange = this.handleChange.bind(this);
@@ -177,7 +152,22 @@ class ComponentProfile extends Component {
       params: { "_id": this.props.componentId }
     })
     .then(component => {
-      this.setState({ component: component.data });
+      // Convert documents object to array
+      this.setState(
+          { 
+            user: component.data.user,
+            picture: component.data.picture,
+            rating: component.data.rating,
+            description: component.data.description,
+            features: component.data.features,
+            datasheet: component.data.datasheets,
+            name: component.data.name,
+            price: component.data.price,
+            documents: component.data.documents,
+            keyTerms: component.data.tags,
+            comments: component.data.comments,
+          }
+        );
     })
     .catch(function (error) {
         console.log(error);
@@ -194,11 +184,11 @@ class ComponentProfile extends Component {
         <Grid container direction="row" justify="center" alignItems="flex-start">
           <Grid container item xs={12} md={6} lg={6} direction="column">
             <Grid item xs={12} className={this.props.classes.image}>
-              {this.state.component.picture}
+              {this.state.picture}
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h4" className={this.props.classes.rating}>
-                Rating: {this.state.component.rating}/5
+                Rating: {this.state.rating.avg_rating}/5
               </Typography>
             </Grid>
             <Grid item xs={12}>
@@ -212,12 +202,12 @@ class ComponentProfile extends Component {
           <Grid container item xs={12} md={6} lg={6} direction="column" className={this.props.classes.box}>
             <Grid item xs={12}>
               <Typography variant="h3" className={this.props.classes.rating}>
-                {this.state.component.name}
+                {this.state.name}
               </Typography>
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h5" className={this.props.classes.rating}>
-                Estimated Price: ${this.state.component.price} {/*${componentInfo.priceLow} - ${componentInfo.priceHigh} No Price Estimate Yet*/}
+                Estimated Price: ${this.state.price}
               </Typography>
             </Grid>
             <Grid item xs={12} className={this.props.classes.tabs}>
@@ -228,18 +218,19 @@ class ComponentProfile extends Component {
                 <Tab className={this.props.classes.tab} label="Documents" {...a11yProps(2)} />
               </Tabs>
               <TabPanel value={this.state.value} index={0} className={this.props.classes.tabPanel}>
-                {this.state.component.description}
+                {this.state.description}
               </TabPanel>
               <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
                 <ul>
-                  {this.state.component.features.map((feature) => (
-                    <li>{feature}</li>
-                  ))}
+                  <li>{this.state.features.feature1}</li>
+                  <li>{this.state.features.feature2}</li>
+                  <li>{this.state.features.feature3}</li>
                 </ul>
               </TabPanel>
               <TabPanel value={this.state.value} index={2} className={this.props.classes.tabPanel}>
                 <List className={this.props.classes.root}>
-                  {this.state.component.documents.map((document) => (
+                  
+                  {/*this.state.documents.map((document) => (
                     <ListItem>
                       <ListItemAvatar>
                         <Avatar>
@@ -248,7 +239,8 @@ class ComponentProfile extends Component {
                       </ListItemAvatar>
                       <ListItemText primary={document.name} secondary={document.date} />
                     </ListItem>
-                  ))}
+                  ))*/}
+
                 </List>
               </TabPanel>
             </Grid>
@@ -256,7 +248,7 @@ class ComponentProfile extends Component {
               <Typography variant="body2" className={this.props.classes.keyTerms} style={{paddingTop: 10}}>
                 Key Terms:
               </Typography>
-              {this.state.component.keyTerms.map((term) => (
+              {this.state.keyTerms.map((term) => (
                 <Button color="secondary"><u>{term}</u></Button>
               ))}
             </Grid>
@@ -265,12 +257,12 @@ class ComponentProfile extends Component {
         <Grid container direction="column" justify="center" alignItems="flex-start">
           <Grid item xs={12}>
             <Typography variant="h5" style={{paddingTop: 20, paddingBottom: 10}}>
-              Posted by: {this.state.component.user}
+              Posted by: {this.state.user.username}
             </Typography>
           </Grid>
           <Grid item xs={12}>
             <Typography variant="body1">
-              {this.state.component.userText}
+              {this.state.userText}
             </Typography>
           </Grid>
           <Grid container item direction="column" xs={12} className={this.props.classes.comments}>
@@ -301,7 +293,7 @@ class ComponentProfile extends Component {
                 </Button>
               </Grid>
             </Grid>
-            {this.state.component.comments.map((comment) => (
+            {this.state.comments.map((comment) => (
               <Grid container item direction="row" xs={12} className={this.props.classes.commentWrap}>
                 <Avatar xs={1}></Avatar>
                 <Grid container item direction="column" xs={10} s={11} className={this.props.classes.text}>
@@ -333,13 +325,3 @@ export default function LaunchProfile() {
     <ComponentProfile componentId={componentParam.componentId} classes={classes} />
   );
 }
-
-/*
-export default function PassSearchParam() {
-  const componentParam = useParams();
-  const classes = useStyles()
-  return(
-    <ComponentGrid searchParam={componentParam.componentName} classes={classes} />
-  );
-}
-*/

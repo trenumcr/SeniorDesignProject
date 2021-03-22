@@ -56,7 +56,7 @@ class ComponentBox extends Component {
   }
 
   handleViewComponent(event) {
-    window.location.href = "/component/"+this.props.component._id;
+    window.location.href = "/component/"+this.props.component._id.$oid;
     event.preventDefault();
   }
 
@@ -146,14 +146,6 @@ handleRatingChange = (e) => {
   });
 };
 
-
-handleSelectComponent(obj,id) {
-  //window.location.href = "/component/"+this.state.value;
-  console.log("Component id: ",id);
-  //console.log("event Id: ",e.data.id);
-  //e.preventDefault();
-}
-
  componentDidMount() {
    
   var filters = {};
@@ -170,7 +162,7 @@ handleSelectComponent(obj,id) {
     })
     .then(results => {
       this.setState({ components: results.data });
-      //console.log("Comp1 _id: ",this.state.components[0]["_id"]);
+      //console.log("first result: id",results.data[0]._id.$oid);
     })
     .catch(function (error) {
         console.log(error);

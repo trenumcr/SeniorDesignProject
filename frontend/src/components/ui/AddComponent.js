@@ -20,6 +20,9 @@ import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import DescriptionIcon from '@material-ui/icons/Description';
 import ImageIcon from '@material-ui/icons/Image';
 import Button from '@material-ui/core/Button';
+import axiosInstance from './../../axiosApi.js';
+
+const axiosI = axiosInstance;
 
 
 function TabPanel(props) {
@@ -117,6 +120,8 @@ class AddComponentForm extends React.Component {
     super(props);
     this.state=
     {
+      token: localStorage.getItem('token') ? "Token "+localStorage.getItem('token') : "",
+      username: localStorage.getItem('username') ? localStorage.getItem('username') : "",
       value: 0,
       newComponent: 
       {
@@ -124,8 +129,16 @@ class AddComponentForm extends React.Component {
         picture:"",
         price:"",
         description:"",
-        features:[],
-        documents:[],
+        features:{
+          feature1: "",
+          feature2: "",
+          feature3: ""
+        },
+        documents:{
+          referenceSheet:"",
+          additionalImages:[],
+          additionalDocuments:[]
+        },
         tags:[],
         rating:"",
         review:""
@@ -133,24 +146,117 @@ class AddComponentForm extends React.Component {
     }
   }
 
+  componentDidMount() {
+    console.log("token: ",this.state.token);
+  }
+
   handleChange = (event, newValue) => {
     this.setState({value: newValue});
   };
 
   handleNameChange = (event) => {
-    this.setState({ newComponent : { name:event.target.value }});
+    //this.setState({ newComponent : { name:event.target.value }});
+    this.state.newComponent.name = event.target.value;
   }
 
   handlePriceChange = (event) => {
-    this.setState({ newComponent : { price:event.target.value }});
+    //this.setState({ newComponent : { price:event.target.value }});
+    this.state.newComponent.price = event.target.value;
+  }
+
+  handlePictureChange = (event) => {
+    //this.setState({ newComponent : { picture:event.target.value }});
+    this.state.newComponent.picture = event.target.value;
+  }
+
+  handleDescriptionChange = (event) => {
+    //this.setState({ newComponent : { description:event.target.value }});
+    this.state.newComponent.description = event.target.value;
+  }
+
+  handleFeature1Change = (event) => {
+    //this.setState({ newComponent : { features : { feature1:event.target.value }}});
+    this.state.newComponent.features.feature1 = event.target.value;
+  }
+  handleFeature2Change = (event) => {
+    //this.setState({ newComponent : { features : { feature2:event.target.value }}});
+    this.state.newComponent.features.feature2 = event.target.value;
+  }
+  handleFeature3Change = (event) => {
+    //this.setState({ newComponent : { features : { feature3:event.target.value }}});
+    this.state.newComponent.features.feature3 = event.target.value;
+  }
+
+  handleReferenceSheetChange = (event) => {
+    //this.setState({ newComponent : { documents : { referenceSheet:event.target.value }}});
+    this.state.newComponent.documents.referenceSheet = event.target.value;
+  }
+
+  handleAdditionalImagesChange = (event) => {
+    //this.setState({ newComponent : { documents : { additionalImages:event.target.value }}});
+    this.state.newComponent.documents.additionalImages = event.target.value;
+  }
+
+  handleAdditionalDocumentsChange = (event) => {
+    //this.setState({ newComponent : { documents : { additionalDocuments:event.target.value }}});
+    this.state.newComponent.documents.additionalDocuments = event.target.value;
+  }
+
+  handleTagsChange = (event) => {
+    var tags = event.target.value.split(",");
+    this.state.newComponent.tags = tags;
+  }
+
+  handleRatingChange = (event) => {
+    if (!(isNaN(event.target.value))) // Make sure field value is a number
+      this.state.newComponent.rating = event.target.value;
+      //this.setState({ newComponent : { rating:event.target.value }});
+  }
+
+  handleReviewChange = (event) => {
+    //this.setState({ newComponent : { review:event.target.value }});
+    this.state.newComponent.review = event.target.value;
   }
 
   // Inputs
   //const estPrice = useRef<TextFieldProps>(null);
 
   postComponent = (event) => {
-    console.log("estimated price Info: ",this.state.newComponent.price);
+    event.preventDefault();
+    axiosI.post('/components/auth/', 
+      {
+        user: {
+          'username' : this.state.username
+        },
+        name:this.state.newComponent.name,
+        picture:this.state.newComponent.picture,
+        price:this.state.newComponent.price,
+        description:this.state.newComponent.description,
+        features:{
+          feature1: this.state.newComponent.features.feature1,
+          feature2: this.state.newComponent.features.feature2,
+          feature3: this.state.newComponent.features.feature3
+        },
+        documents:{
+          referenceSheet:this.state.newComponent.documents.referenceSheet,
+          additionalImages:this.state.newComponent.documents.additionalImages,
+          additionalDocuments:this.state.newComponent.documents.additionalDocuments
+        },
+        tags:this.state.newComponent.tags,
+        rating:this.state.newComponent.rating,
+        review:this.state.newComponent.review
+      },
+      {
+        headers: {
+          'Authorization': this.state.token
+        },
+      }
+    )
+      .then(res => {
+        console.log(res);
+    })
   }
+
   render(){
     return(
       <Container component="main" maxWidth="md">
@@ -160,20 +266,20 @@ class AddComponentForm extends React.Component {
               <Grid item xs={12} className={this.props.classes.image}>
                 <Button variant="contained" component="label" className={this.props.classes.upload}>
                   Upload Image
-                  <input type="file" hidden/>
+                  <input type="file" onChange={this.handlePictureChange} hidden/>
                 </Button>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="h4" className={this.props.classes.rating}>
                   Your Rating:
-                  <TextField margin="normal" required id="rating" label="rating" name="rating"/>/10
+                  <TextField margin="normal" required id="rating" label="rating" name="rating" onChange={this.handleRatingChange} />/10
                 </Typography>
               </Grid>
             </Grid>
             <Grid container item xs={12} md={6} lg={6} direction="column" className={this.props.classes.box}>
               <Grid item xs={12}>
                 <Typography variant="h3" className={this.props.classes.rating}>
-                  <TextField required fullWidth id="name" label="Component Name" name="rating" autoFocus/>
+                  <TextField required fullWidth id="name" label="Component Name" name="rating" onChange={this.handleNameChange} autoFocus/>
                 </Typography>
               </Grid>
               <Grid item xs={12}>
@@ -189,18 +295,18 @@ class AddComponentForm extends React.Component {
                   <Tab className={this.props.classes.tab} label="Documents" {...a11yProps(2)} />
                 </Tabs>
                 <TabPanel value={this.state.value} index={0} className={this.props.classes.tabPanel}>
-                  <TextField fullWidth id="description" label="Description"/>
+                  <TextField fullWidth id="description" label="Description" onChange={this.handleDescriptionChange}/>
                 </TabPanel>
                 <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
                   <ul>
                     <li>
-                      <TextField fullWidth id="feature1" label="Feature"/>
+                      <TextField fullWidth id="feature1" label="Feature" onChange={this.handleFeature1Change} />
                     </li>
                     <li>
-                      <TextField fullWidth id="feature2" label="Feature"/>
+                      <TextField fullWidth id="feature2" label="Feature" onChange={this.handleFeature2Change} />
                     </li>
                     <li>
-                      <TextField fullWidth id="feature3" label="Feature"/>
+                      <TextField fullWidth id="feature3" label="Feature" onChange={this.handleFeature3Change} />
                     </li>
                   </ul>
                 </TabPanel>
@@ -212,7 +318,7 @@ class AddComponentForm extends React.Component {
                       </ListItemAvatar>
                       <Button variant="contained" component="label" className={this.props.classes.upload}>
                         Upload Refrence Sheet
-                        <input type="file" hidden/>
+                        <input onChange={this.handleReferenceSheetChange} type="file" hidden/>
                       </Button>
                       <ListItemText/>
                     </ListItem>
@@ -222,7 +328,7 @@ class AddComponentForm extends React.Component {
                       </ListItemAvatar>
                       <Button variant="contained" component="label" className={this.props.classes.upload}>
                         Upload Additional Images
-                        <input type="file" hidden/>
+                        <input type="file" onChange={this.handleAdditionalImagesChange} hidden/>
                       </Button>
                       <ListItemText/>
                     </ListItem>
@@ -232,7 +338,7 @@ class AddComponentForm extends React.Component {
                       </ListItemAvatar>
                       <Button variant="contained" component="label" className={this.props.classes.upload}>
                         Upload Additional Documents
-                        <input type="file" hidden/>
+                        <input type="file" onChange={this.handleAdditionalDocumentsChange} hidden/>
                       </Button>
                       <ListItemText/>
                     </ListItem>
@@ -243,7 +349,7 @@ class AddComponentForm extends React.Component {
                 <Typography variant="body2" className={this.props.classes.keyTerms} style={{paddingTop: 10}}>
                   Tags:
                 </Typography>
-                <TextField fullWidth id="tag1" label="Enter tags in a comma separated list"/>
+                <TextField fullWidth id="tag1" label="Enter tags in a comma separated list" onChange={this.handleTagsChange} />
               </Grid>
             </Grid>
           </Grid>
@@ -259,7 +365,7 @@ class AddComponentForm extends React.Component {
                 <Typography variant="h4" style={{paddingTop: 20, paddingBottom: 10}}>
                   Your Review:
                 </Typography>
-                <TextField fullWidth id="review" label="Describe your experience"/>
+                <TextField fullWidth id="review" label="Describe your experience" onChange={this.handleReviewChange} />
               </Grid>
               <Grid container item xs={12} justify='flex-end'>
                 <Button variant="contained" className={this.props.classes.button}>

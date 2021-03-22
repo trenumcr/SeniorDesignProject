@@ -51,13 +51,10 @@ def get_file(request):
 def get_component(request):
     client = pymongo.MongoClient('mongodb://localhost:27017')
     db = client['ComponentReviewDB']
-    if ObjectId().is_valid(request.query_params['_id']): # Validate Object ID
-        doc = db.components.find_one({'_id': request.query_params['_id'] }) #Query Parameter
-        content = dumps(doc)
-        resp = json.loads(content)
-        return Response(resp, status=status.HTTP_200_OK)
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST) # If ID is invalid
+    doc = db.components.find_one({'_id': ObjectId(request.query_params['_id']) })
+    content = dumps(doc)
+    resp = json.loads(content)
+    return Response(resp, status=status.HTTP_200_OK)
 
 def get_categories(request):
     client = pymongo.MongoClient('mongodb://localhost:27017')
