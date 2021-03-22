@@ -9,6 +9,7 @@ import Forum from "./ui/Forum";
 import Login from "./ui/Login";
 import SignUp from "./ui/SignUp";
 import Search from "./ui/Search";
+import PasswordReset from "./ui/PasswordReset";
 import Profile from "./ui/Profile";
 import Footer from "./ui/Footer";
 import EditProfile from "./ui/EditProfile";
@@ -32,6 +33,7 @@ function App() {
         <Switch>
           <Route exact path="/" component={() => <Home />} />
           <Route exact path="/profile/:username" render={({ match }) => <Profile match={match} mine={true} />} />
+          <Route exact path="/password-reset/:token" render={({ match }) => <PasswordReset match={match} mine={true} />} />
           <Route exact path="/edit-profile" component={() => <EditProfile />}/>
           <Route exact path="/search-component" component={() => <Search />} />
           <Route path="/search-component/:componentName" component={() => <Search />} />

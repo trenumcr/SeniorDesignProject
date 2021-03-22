@@ -71,6 +71,7 @@ const useStyles = theme => ({
         username: localStorage.getItem('username'),
         edited: false,
         deleted: false,
+        match: true,
       };
     }
 
@@ -99,6 +100,7 @@ const useStyles = theme => ({
               about: '',
             });
           }
+          console.log(this.state.token)
         })
         .catch(e => {
           this.setState({
@@ -249,6 +251,88 @@ const useStyles = theme => ({
         })
     }
 
+    _handlePasswordUpdate = (e) => {
+      if (this.state.new_password1 == this.state.new_password2) {
+        var data = {
+          old_password: this.state.old_password,
+          new_password: this.state.new_password1,
+        }
+
+        var url = 'accounts/auth/change-password/';
+        var token = "Token " + this.state.token;
+
+        axiosInstance.patch(url, data, {
+          headers: {
+            'Authorization': token
+        }})
+        .then(response => {
+          this.setState({
+            done: true,
+          });
+          window.location.reload(false);
+        })
+        .catch(e => {
+          this.setState({
+            match: false,
+          });
+          console.log(this.state.token + " " + this.state.login);
+          console.log(e);
+        });
+      }
+        else {
+          this.setState({
+            match: false,
+          });
+        }
+    }
+
+    _handlePasswordOpen = (e) => {
+      this.setState({
+        password_open: true,
+      })
+    }
+
+    _handlePasswordClose = (e) => {
+        this.setState({
+          password_open: false,
+        })
+    }
+
+    _handlePasswordMatchOpen = (e) => {
+      this.setState({
+        passwordmatch_open: true,
+        match: true,
+      })
+    }
+
+    _handlePasswordMatchClose = (e) => {
+        this.setState({
+          passwordmatch_open: false,
+          match: true,
+        })
+    }
+
+    _handleOldPasswordChange = (e) => {
+      this.setState({
+        old_password: e.target.value,
+        match: true,
+      })
+    }
+
+    _handleNewPassword1Change = (e) => {
+      this.setState({
+        new_password1: e.target.value,
+        match: true,
+      })
+    }
+
+    _handleNewPassword2Change = (e) => {
+      this.setState({
+        new_password2: e.target.value,
+        match: true,
+      })
+    }
+
     _handleImageChange = (e) => {
       this.setState({
         uploadedImage: e.target.files[0]
@@ -258,6 +342,7 @@ const useStyles = theme => ({
     render() {
       const { classes } = this.props;
       const isStudent = (this.state.role == "s");
+      const passwordMatch = (this.state.match);
 
       if (!this.state.isUser) {
         return (<Typography>Please login to edit your profile</Typography>)
@@ -283,7 +368,7 @@ const useStyles = theme => ({
                   <img src={this.state.image} alt="Profile Picture" width="250" height="250"></img>
                 </Grid>
                 <Grid item sm={12}>
-                  <label for="myfile">Select a file:</label>
+                  <label for="myfile"><Typography variant="body1">Upload a new profile picture:</Typography></label>
                   <input type="file" id="myfile" name="myfile" onClick={(e) =>{e.target.value = ''}} onChange={this._handleImageChange}/>
                 </Grid>
                 <Grid item sm={6}>
@@ -311,23 +396,34 @@ const useStyles = theme => ({
                     />
                   </Typography>
                 </Grid>
-                <Grid item sm={6}>
+                <Grid item sm={5}>
                   <Button
                     fullWidth
                     variant="contained"
-                    color="primary"
+                    style={{background: "#918455", color: "#FFF"}}
                     className={classes.submit}
                     onClick={this._handleOpen}
                   >
                     Delete Account
                   </Button>
                 </Grid>
+                <Grid item sm={5}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    onClick={this._handlePasswordOpen}
+                  >
+                    Change Password
+                  </Button>
+                </Grid>
               </Grid>
               <Grid container spacing={3} sm={12} md={6}>
                 <Grid item sm={12}>
                   <Card>
-                    <CardHeader
-                      title = {this.state.username}
+                    <CardHeader style={{paddingLeft: "50px"}}
+                      title = {"Username: " + this.state.username}
                       className={classes.cardHeader}
                       />
                     <CardContent>
@@ -400,11 +496,12 @@ const useStyles = theme => ({
                   </Card>
                 </Grid>
               </Grid>
-              <Grid container spacing={3} sm={12}  direction="row" justify="flex-start" alignItems="flex-end">
-                <Grid item sm={3}>
+              <Grid container spacing={3} sm={10}  direction="row" justify="flex-end" alignItems="flex-end">
+                <Grid item sm={6}>
                   <Button
                     fullWidth
                     variant="contained"
+                    style={{background: "#668f72", color: "#FFF", marginTop: "20px"}}
                     color="primary"
                     className={classes.submit}
                     onClick={this.submitChanges}
@@ -416,38 +513,137 @@ const useStyles = theme => ({
             </Grid>
             </div>
             </form>
+            <div>
+              <Modal
+                open={this.state.open}
+                onClose={this._handleClose}
+                aria-labelledby="simple-modal-title"
+                aria-describedby="simple-modal-description"
+              >
+                <div className={classes.modal}>
+                  <Typography variant="h4" id="simple-modal-title">Delete account?</Typography>
+                  <Typography variant="body1" style={{paddingBottom: "20px"}} id="simple-modal-description">
+                    Clicking confirm will permanently delete your account.
+                  </Typography>
+                  <Grid container sm={12} spacing={3}>
+                  <Grid item sm={6}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      className={classes.submit}
+                      onClick={this._handleClose}
+                    >
+                      Cancel
+                    </Button>
+                    </Grid>
+                    <Grid item sm={6}>
+                      <Button
+                        fullWidth
+                        variant="contained"
+                        style={{background: "#918455", color: "#FFF"}}
+                        color="primary"
+                        className={classes.submit}
+                        onClick={this.deleteAccount}
+                      >
+                        Confirm
+                      </Button>
+                      </Grid>
+                      </Grid>
+                </div>
+              </Modal>
+            </div>
+            <div>
+              <Modal
+                open={this.state.password_open}
+                onClose={this._handlePasswordClose}
+                aria-labelledby="simple-modal-title"
+                aria-describedby="simple-modal-description"
+              >
+              <div className={classes.modal}>
+                <Typography variant="h4" id="simple-modal-title">Change Password</Typography>
+                <form className={classes.form} onSubmit={this._handlePasswordUpdate}>
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="old_password"
+                    label="Current password"
+                    type="password"
+                    id="oldPassword"
+                    onChange={this._handleOldPasswordChange}
+                  />
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="new_password1"
+                    label="New password"
+                    id="newPassword1"
+                    onChange={this._handleNewPassword1Change}
+                  />
+                  <TextField
+                    style={{paddingBottom: "20px"}}
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="new_password2"
+                    label="Re-enter new password"
+                    type="email"
+                    id="newPassword2"
+                    onChange={this._handleNewPassword2Change}
+                  />
+                </form>
+                <Grid container sm={12} spacing={3}>
+                  <Grid item sm={6}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      className={classes.submit}
+                      onClick={this._handlePasswordClose}
+                    >
+                      Cancel
+                    </Button>
+                  </Grid>
+                  <Grid item sm={6}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      className={classes.submit}
+                      onClick={this._handlePasswordUpdate}
+                    >
+                      Reset password
+                    </Button>
+                  </Grid>
+                </Grid>
+              </div>
+            </Modal>
             <Modal
-              open={this.state.open}
-              onClose={this._handleClose}
+              open={!this.state.match}
+              onClose={this._handlePasswordMatchClose}
               aria-labelledby="simple-modal-title"
               aria-describedby="simple-modal-description"
             >
-            <div className={classes.modal}>
-              <h2 id="simple-modal-title">Delete account?</h2>
-              <p id="simple-modal-description">
-                Clicking confirm will permanently delete your account.
-              </p>
+              <div className={classes.modal}>
+                <Typography>Incorrect current password or new passwords do not match</Typography>
                 <Button
                   fullWidth
                   variant="contained"
                   color="primary"
                   className={classes.submit}
-                  onClick={this._handleClose}
+                  onClick={this._handlePasswordMatchClose}
                 >
-                  Cancel
+                  Close
                 </Button>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={classes.submit}
-                    onClick={this.deleteAccount}
-                  >
-                    Confirm
-                  </Button>
               </div>
             </Modal>
-          </Container>);
+          </div>
+        </Container>);
       }
     }
 

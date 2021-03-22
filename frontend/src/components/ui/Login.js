@@ -228,9 +228,9 @@ class Login extends Component {
             aria-describedby="simple-modal-description"
           >
           <div className={classes.modal}>
-            <h2 id="simple-modal-title">Text in a modal</h2>
+            <h2 id="simple-modal-title">Reset password</h2>
             <p id="simple-modal-description">
-              Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+              Enter the email address associated with your account and a link to reset your password will be sent to you.
             </p>
             <form className={classes.form} onSubmit={this._handlePasswordReset}>
               <TextField
