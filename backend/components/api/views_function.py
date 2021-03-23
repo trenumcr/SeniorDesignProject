@@ -77,7 +77,6 @@ def post_component(request):
     client = pymongo.MongoClient('mongodb://localhost:27017')
     db = client['ComponentReviewDB']
     collection = db['components']
-    fs = gridfs.GridFS(db)
     doc = request.data
     doc['price'] = float(doc['price'])
     doc['who'] = request.user.username
@@ -140,8 +139,12 @@ def update_component(request):
         collection.update({'_id': ObjectId(doc['id'])}, {'$push': {'datasheet': {"id": pdf_obj["id"], "filename": pdf_obj["filename"]}}})
         change_occured = True
 
+    if "tags" in request.data:
+        collection.update({'_id': ObjectId(doc['id']) }, {'$push': {'tags': doc["tags"]}})
+        change_occured = True
+
     if "specifications" in request.data:
-        collection.update({'_id': ObjectId(doc['id']) }, {'$push': {'datasheet': doc["specifications"]}})
+        collection.update({'_id': ObjectId(doc['id']) }, {'$push': {'specifications': doc["specifications"]}})
         change_occured = True
 
     if "review" in request.data:
