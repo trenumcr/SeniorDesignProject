@@ -2,6 +2,7 @@ import Header from "./ui/Header";
 import Home from "./ui/Home";
 import Account from "./ui/Account";
 import AddComponent from "./ui/AddComponent";
+import EditComponent from "./ui/EditComponent";
 import Category from "./ui/Category";
 import Component from "./ui/Component";
 import ExpertList from "./ui/ExpertList";
@@ -17,13 +18,6 @@ import { ThemeProvider } from '@material-ui/styles';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import theme from './ui/Theme'
 import { makeStyles } from '@material-ui/styles';
-import { withRouter } from 'react-router-dom';
-
-const useStyles = makeStyles((theme) => ({
-  content: {
-    flexGrow: 1,
-  },
-}));
 
 function App() {
   return (
@@ -34,6 +28,7 @@ function App() {
           <Route exact path="/" component={() => <Home />} />
           <Route exact path="/profile/:username" render={({ match }) => <Profile match={match} mine={true} />} />
           <Route exact path="/password-reset/:token" render={({ match }) => <PasswordReset match={match} mine={true} />} />
+          <Route exact path="/edit-component/:componentId" component={() => <EditComponent />} />
           <Route exact path="/edit-profile" component={() => <EditProfile />}/>
           <Route exact path="/search-component" component={() => <Search />} />
           <Route path="/search-component/:componentName" component={() => <Search />} />

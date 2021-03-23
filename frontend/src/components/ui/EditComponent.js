@@ -27,8 +27,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import { Redirect } from 'react-router';
 import axiosInstance from './../../axiosApi.js';
+import { withStyles } from '@material-ui/core/styles';
 
 const axiosI = axiosInstance;
 
@@ -66,7 +66,7 @@ function a11yProps(index) {
   };
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = theme => ({
   root: {
     flexGrow: 1,
   },
@@ -126,9 +126,9 @@ const useStyles = makeStyles((theme) => ({
     selectEmpty: {
       marginTop: theme.spacing(2),
     },
-}));
+});
 
-class AddComponentForm extends React.Component {
+class EditComponent extends React.Component {
 
   constructor(props)
   {
@@ -155,17 +155,12 @@ class AddComponentForm extends React.Component {
         manufacture_name:"",
         category:"",
       },
-      added: false,
-      isUser: false,
-    };
-    if (this.state.username == "" || this.state.token == "") {
-        this.setState({
-          isUser: false,
-        });
+      isUser: true,
     }
-    else {
-        this.state.isUser = true;
-    }
+  }
+
+  componentDidMount = (e) => {
+
   }
 
   handleChange = (event, newValue) => {
@@ -269,29 +264,14 @@ class AddComponentForm extends React.Component {
       }
     )
       .then(res => {
-        this.setState({
-          id: res.data._id.$oid,
-          added: true,
-        })
+        console.log(res);
+        window.location.reload();
     })
-    .catch(e => {
-      this.setState({
-        added: false,
-      });
-      console.log(e);
-    });
   }
 
   render(){
-
-
-    if (this.state.added) {
-      // redirect to home if signed up
-      return <Redirect to = {{ pathname: "/component/" + this.state.id }} />;
-    }
-
     if (!this.state.isUser) {
-      return (<Typography variant="h4" style={{padding: '20px'}}>Please login to add a component</Typography>)
+      return (<Typography variant="h4" style={{padding: '20px'}}>Please login to edit this component</Typography>)
     }
 
     return(
@@ -363,7 +343,7 @@ class AddComponentForm extends React.Component {
                   <Tab className={this.props.classes.tab} label="Documents" {...a11yProps(2)} />
                 </Tabs>
                 <TabPanel value={this.state.value} index={0} className={this.props.classes.tabPanel}>
-                  <TextField fullWidth multiline rows={8} id="description" defaultValue={this.state.newComponent.description} variant="outlined" label="Description" onChange={this.handleDescriptionChange}/>
+                  <TextField fullWidth multiline rows={8} id="description" variant="outlined" label="Description" onChange={this.handleDescriptionChange}/>
                 </TabPanel>
                 <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
                   <ul>
@@ -371,7 +351,7 @@ class AddComponentForm extends React.Component {
                       <li>
                         <Grid container sm={12}>
                           <Grid container sm={8}>
-                            <TextField fullWidth id={index}  defaultValue={this.state.newComponent.features[index]} label="Feature" onChange={this.handleFeatureChange} />
+                            <TextField fullWidth id={index} label="Feature" onChange={this.handleFeatureChange} />
                           </Grid>
                         </Grid>
                       </li>
@@ -447,7 +427,7 @@ class AddComponentForm extends React.Component {
               <Grid container item xs={12} justify='flex-end'>
                 <Button variant="contained" className={this.props.classes.button} style={{marginTop: '20px'}}>
                   <Typography variant="button" align="center" onClick={this.postComponent} className={this.props.classes.buttonText}>
-                    Add Component
+                    Update Component
                   </Typography>
                 </Button>
               </Grid>
@@ -459,9 +439,4 @@ class AddComponentForm extends React.Component {
   }
 }
 
-export default function AddComponent() {
-  const classes = useStyles();
-  return(
-    <AddComponentForm classes={classes} />
-  )
-}
+export default withStyles(useStyles)(EditComponent)

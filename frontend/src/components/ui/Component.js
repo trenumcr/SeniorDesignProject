@@ -18,6 +18,7 @@ import Avatar from '@material-ui/core/Avatar';
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import DescriptionIcon from '@material-ui/icons/Description';
 import ImageIcon from '@material-ui/icons/Image';
+import Carousel from 'react-material-ui-carousel'
 import Button from '@material-ui/core/Button';
 import { useParams } from 'react-router-dom';
 import axiosInstance from './../../axiosApi.js';
@@ -132,10 +133,10 @@ class ComponentProfile extends Component {
     super(props);
     this.state = {
       user : {},
-      picture : "",
+      picture : [""],
       rating : {},
       description : "",
-      features : {},
+      features : [],
       datasheet : "",
       name : "",
       price : "",
@@ -154,11 +155,21 @@ class ComponentProfile extends Component {
       params: { "_id": this.props.componentId }
     })
     .then(component => {
+      if (component.data.user.username == localStorage.getItem('username')) {
+        this.setState({
+          isUser: true,
+        })
+      }
+      else {
+        this.setState({
+          isUser: false,
+        })
+      }
       // Convert documents object to array
       this.setState(
-          { 
+          {
             user: component.data.user,
-            picture: component.data.picture,
+            picture: [""],
             rating: component.data.rating,
             description: component.data.description,
             features: component.data.features,
@@ -177,18 +188,23 @@ class ComponentProfile extends Component {
         console.log(error);
     })
   }
-  
+
   handleChange = (event, newValue) => {
     this.setState({value: newValue});
   };
 
   render() {
+    var isUser = this.state.isUser;
     return(
       <Container component="main" maxWidth="md">
         <Grid container direction="row" justify="center" alignItems="flex-start">
           <Grid container item xs={12} md={6} lg={6} direction="column">
             <Grid item xs={12} className={this.props.classes.image}>
-              {this.state.picture}
+              <Carousel>
+                {this.state.picture.map((feature, index) => (
+                  <img src="../../static/images/electronicComponent.png"/>
+                ))}
+              </Carousel>
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h4" className={this.props.classes.rating}>
@@ -201,6 +217,14 @@ class ComponentProfile extends Component {
                   <a className={this.props.classes.buttonText} href="/experts">Find an Expert</a>
                 </Typography>
               </Button>
+              {isUser ? (
+                <Button variant="contained" className={this.props.classes.button}>
+                  <Typography variant="button" align="center">
+                    <a className={this.props.classes.buttonText} href={"/edit-component/" + this.props.componentId}>Edit Component</a>
+                  </Typography>
+                </Button>
+              ) : (<div></div>)}
+
             </Grid>
           </Grid>
           <Grid container item xs={12} md={6} lg={6} direction="column" className={this.props.classes.box}>
@@ -226,14 +250,20 @@ class ComponentProfile extends Component {
               </TabPanel>
               <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
                 <ul>
-                  <li>{this.state.features.feature1}</li>
-                  <li>{this.state.features.feature2}</li>
-                  <li>{this.state.features.feature3}</li>
+                  {this.state.features.map((feature, index) => (
+                    <li>
+                      <Grid container sm={12}>
+                        <Grid container sm={8}>
+                          <Typography>feature</Typography>
+                        </Grid>
+                      </Grid>
+                    </li>
+                  ))}
                 </ul>
               </TabPanel>
               <TabPanel value={this.state.value} index={2} className={this.props.classes.tabPanel}>
                 <List className={this.props.classes.root}>
-                  
+
                   {/*this.state.documents.map((document) => (
                     <ListItem>
                       <ListItemAvatar>
