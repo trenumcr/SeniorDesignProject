@@ -50,7 +50,7 @@ const useStyles = makeStyles(theme => ({
 class ComponentBox extends Component {
   constructor(props) {
     super(props);
-  
+    
     
     this.handleViewComponent = this.handleViewComponent.bind(this);
   }
@@ -79,7 +79,7 @@ class ComponentBox extends Component {
                 Rating:                       
                 <Rating
                   name="read-only"
-                  value={this.props.component.rating}
+                  value={this.props.component.rating.avg_rating}
                   precision={0.5}
                   readOnly
                 />
@@ -111,6 +111,14 @@ class ComponentGrid extends Component {
     this.state = 
     {
       components: [],
+      manufacturers: [],
+      categories: [],
+      filters: {
+        price:'',
+        manufacture_name:'',
+        category:'',
+        rating:'',
+      },
     };
     this.componentDidMount = this.componentDidMount.bind(this);
 
@@ -123,35 +131,27 @@ class ComponentGrid extends Component {
  //Filter Functions
 
 handlePriceChange(e) {
-  this.setState({
-    price: e.target.value
-  });
+    this.state.filters.price = e.target.value
 }
 
 handleManufacturerChange(e){
-  this.setState({
-    manufacture_name: e.target.value
-  });
+    this.state.filters.manufacture_name= e.target.value
 }
 
 handleHardwareCategoryChange = (e) => {
-  this.setState({
-    category: e.target.value
-  });
+    this.state.filters.category= e.target.value
 };
 
 handleRatingChange = (e) => {
-  this.setState({
-    rating: e.target.value
-  });
+    this.state.filters.rating= e.target.value
 };
 
  componentDidMount() {
    
   var filters = {};
-  for (const filter in this.state) {
-      if (`${filter}`!= 'components' && `${this.state[filter]}` != '') {
-          filters[`${filter}`] = this.state[filter];
+  for (const filter in this.state.filters) {
+      if (`${this.state.filters[filter]}` != '') {
+          filters[`${filter}`] = this.state.filters[filter];
       }
   }
   filters["name"] = this.props.searchParam;
@@ -161,10 +161,31 @@ handleRatingChange = (e) => {
       params: filters
     })
     .then(results => {
-      this.setState({ components: results.data });
-      //console.log("first result: id",results.data[0]._id.$oid);
+      var categories = [];
+      var manufacturers = [];
+      var manlookup = {};
+      var catlookup = {};
+      for (var component, i = 0; component = results.data[i++];) {
+        var man = component.manufacture_name;
+        if (man != "") {
+          if (!(man in manlookup)) {
+            manlookup[man] = 1;
+            manufacturers.push(man);
+          }
+        }
+        var cat = component.category;
+        if (cat != "") {
+          if (!(cat in catlookup)) {
+            catlookup[cat] = 1;
+            categories.push(cat);
+          }
+        }
+      }
+      this.setState({ components: results.data, manufacturers : manufacturers, categories : categories });
     })
     .catch(function (error) {
+        if (error.status == 404)
+          this.setState({ components: [] });
         console.log(error);
     })
   }
@@ -191,13 +212,13 @@ handleRatingChange = (e) => {
                     <Select
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
-                        value={this.state.manufacturer}
+                        value={this.state.manufacture_name}
                         onChange={this.handleManufacturerChange}
                       >
                         <MenuItem value={""}>---</MenuItem>
-                        <MenuItem value={"MGM Electronics"}>MGM Electronics</MenuItem>
-                        <MenuItem value={"Adaptec"}>Adaptec</MenuItem>
-                        <MenuItem value={"Aereo"}>Aereo</MenuItem>
+                        {this.state.manufacturers.map((manufacturer) => (
+                          <MenuItem value={manufacturer}>{manufacturer}</MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
               </Grid>
@@ -211,9 +232,9 @@ handleRatingChange = (e) => {
                         onChange={this.handleHardwareCategoryChange}
                       >
                         <MenuItem value={""}>---</MenuItem>
-                        <MenuItem value={"Active"}>Active</MenuItem>
-                        <MenuItem value={"Passive"}>Passive</MenuItem>
-                        <MenuItem value={"Op Amps"}>Op Amps</MenuItem>
+                        {this.state.categories.map((category) => (
+                          <MenuItem value={category}>{category}</MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
               </Grid>

@@ -141,13 +141,11 @@ class AddComponentForm extends React.Component {
         },
         tags:[],
         rating:"",
-        review:""
+        review:"",
+        manufacture_name:"",
+        category:"",
       },
     }
-  }
-
-  componentDidMount() {
-    console.log("token: ",this.state.token);
   }
 
   handleChange = (event, newValue) => {
@@ -155,50 +153,40 @@ class AddComponentForm extends React.Component {
   };
 
   handleNameChange = (event) => {
-    //this.setState({ newComponent : { name:event.target.value }});
     this.state.newComponent.name = event.target.value;
   }
 
   handlePriceChange = (event) => {
-    //this.setState({ newComponent : { price:event.target.value }});
     this.state.newComponent.price = event.target.value;
   }
 
   handlePictureChange = (event) => {
-    //this.setState({ newComponent : { picture:event.target.value }});
     this.state.newComponent.picture = event.target.value;
   }
 
   handleDescriptionChange = (event) => {
-    //this.setState({ newComponent : { description:event.target.value }});
     this.state.newComponent.description = event.target.value;
   }
 
   handleFeature1Change = (event) => {
-    //this.setState({ newComponent : { features : { feature1:event.target.value }}});
     this.state.newComponent.features.feature1 = event.target.value;
   }
   handleFeature2Change = (event) => {
-    //this.setState({ newComponent : { features : { feature2:event.target.value }}});
     this.state.newComponent.features.feature2 = event.target.value;
   }
   handleFeature3Change = (event) => {
-    //this.setState({ newComponent : { features : { feature3:event.target.value }}});
     this.state.newComponent.features.feature3 = event.target.value;
   }
 
   handleReferenceSheetChange = (event) => {
-    //this.setState({ newComponent : { documents : { referenceSheet:event.target.value }}});
     this.state.newComponent.documents.referenceSheet = event.target.value;
   }
 
   handleAdditionalImagesChange = (event) => {
-    //this.setState({ newComponent : { documents : { additionalImages:event.target.value }}});
     this.state.newComponent.documents.additionalImages = event.target.value;
   }
 
   handleAdditionalDocumentsChange = (event) => {
-    //this.setState({ newComponent : { documents : { additionalDocuments:event.target.value }}});
     this.state.newComponent.documents.additionalDocuments = event.target.value;
   }
 
@@ -210,12 +198,18 @@ class AddComponentForm extends React.Component {
   handleRatingChange = (event) => {
     if (!(isNaN(event.target.value))) // Make sure field value is a number
       this.state.newComponent.rating = event.target.value;
-      //this.setState({ newComponent : { rating:event.target.value }});
   }
 
   handleReviewChange = (event) => {
-    //this.setState({ newComponent : { review:event.target.value }});
     this.state.newComponent.review = event.target.value;
+  }
+
+  handleManufacturerChange = (event) => {
+    this.state.newComponent.manufacture_name = event.target.value;
+  }
+
+  handleHardwareCategoryChange = (event) => {
+    this.state.newComponent.category = event.target.value;
   }
 
   // Inputs
@@ -244,7 +238,9 @@ class AddComponentForm extends React.Component {
         },
         tags:this.state.newComponent.tags,
         rating:this.state.newComponent.rating,
-        review:this.state.newComponent.review
+        review:this.state.newComponent.review,
+        manufacture_name:this.state.newComponent.manufacture_name,
+        category:this.state.newComponent.category,
       },
       {
         headers: {
@@ -254,6 +250,7 @@ class AddComponentForm extends React.Component {
     )
       .then(res => {
         console.log(res);
+        window.location.reload(); 
     })
   }
 
@@ -272,7 +269,7 @@ class AddComponentForm extends React.Component {
               <Grid item xs={12}>
                 <Typography variant="h4" className={this.props.classes.rating}>
                   Your Rating:
-                  <TextField margin="normal" required id="rating" label="rating" name="rating" onChange={this.handleRatingChange} />/10
+                  <TextField margin="normal" required id="rating" label="rating" name="rating" onChange={this.handleRatingChange} />/5
                 </Typography>
               </Grid>
             </Grid>
@@ -350,6 +347,20 @@ class AddComponentForm extends React.Component {
                   Tags:
                 </Typography>
                 <TextField fullWidth id="tag1" label="Enter tags in a comma separated list" onChange={this.handleTagsChange} />
+              </Grid>
+            </Grid>
+            <Grid container item md={12} spacing={4} justify="center" >
+              <Grid item xs={4} >
+                <Typography className={this.props.classes.manufacturer} style={{paddingTop: 10}}>
+                  Manufacturer:
+                </Typography>
+                <TextField fullWidth id="manufacturer" onChange={this.handleManufacturerChange} />
+              </Grid>
+              <Grid item xs={4} >
+                <Typography className={this.props.classes.hardwareCategory} style={{paddingTop: 10}}>
+                  Hardware Category:
+                </Typography>
+                <TextField fullWidth id="hardwareCategory" onChange={this.handleHardwareCategoryChange} />
               </Grid>
             </Grid>
           </Grid>

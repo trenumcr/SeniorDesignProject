@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
     height: "3em",
     marginTop: "2em",
     paddingTop: "1.5em",
-    position: "absolute",
+    position: "relative",
     bottom: "0",
   }
 }))
@@ -39,7 +39,7 @@ export default function Footer() {
           <Box mt={8} className={classes.footer}>
             <Copyright />
           </Box>
-        < /Typography>
-      < /footer>
+        </Typography>
+      </footer>
   )
 }

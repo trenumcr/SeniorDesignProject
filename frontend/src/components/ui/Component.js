@@ -142,6 +142,8 @@ class ComponentProfile extends Component {
       documents : {},
       keyTerms: [],
       comments: [],
+      manufacture_name:"",
+      category:"",
       value:0,
     }//{value:0, commentValue:""};
     this.handleChange = this.handleChange.bind(this);
@@ -166,6 +168,8 @@ class ComponentProfile extends Component {
             documents: component.data.documents,
             keyTerms: component.data.tags,
             comments: component.data.comments,
+            manufacture_name: component.data.manufacture_name,
+            category: component.data.category,
           }
         );
     })
@@ -264,6 +268,24 @@ class ComponentProfile extends Component {
             <Typography variant="body1">
               {this.state.userText}
             </Typography>
+          </Grid>
+          <Grid container item md={12} spacing={4} justify="center" >
+            <Grid item xs={4} >
+              <Typography variant="h6"  className={this.props.classes.manufacturer} style={{paddingTop: 10}}>
+                Manufacturer
+              </Typography>
+              <Typography className={this.props.classes.hardwareCategory} style={{paddingTop: 5}}>
+                {this.state.manufacture_name}
+              </Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="h6" className={this.props.classes.hardwareCategory} style={{paddingTop: 10}}>
+                Hardware Category
+              </Typography>
+              <Typography className={this.props.classes.hardwareCategory} style={{paddingTop: 5}}>
+                {this.state.category}
+              </Typography>
+            </Grid>
           </Grid>
           <Grid container item direction="column" xs={12} className={this.props.classes.comments}>
             <Divider variant="middle" style={{marginTop: 20}}/>
