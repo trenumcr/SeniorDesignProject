@@ -136,7 +136,7 @@ def update_component(request):
 
     if "datasheet" in request.data:
         pdf_obj = write_new_file(request, db)
-        collection.update({'_id': ObjectId(doc['id'])}, {'$push': {'datasheet': {"id": pdf_obj["id"], "filename": pdf_obj["filename"]}}})
+        collection.update({'_id': ObjectId(doc['id'])}, {'$push': {'datasheets': {"id": pdf_obj["id"], "filename": pdf_obj["filename"]}}})
         change_occured = True
 
     if "tags" in request.data:
