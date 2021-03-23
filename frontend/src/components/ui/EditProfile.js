@@ -345,7 +345,7 @@ const useStyles = theme => ({
       const passwordMatch = (this.state.match);
 
       if (!this.state.isUser) {
-        return (<Typography>Please login to edit your profile</Typography>)
+        return (<Typography variant="h4" style={{padding: '20px'}}>Please login to edit your profile</Typography>)
       }
 
       if (this.state.edited) {

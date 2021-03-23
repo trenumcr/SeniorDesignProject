@@ -15,4 +15,3 @@ urlpatterns = [
     path('auth/user/profile/<str:user__username>/',UserProfileView.as_view(), name="profile"),
     path('auth/view/profile/<str:user__username>/',OtherUserProfileView.as_view(), name="profile"),
 ]
-
