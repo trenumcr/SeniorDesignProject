@@ -243,13 +243,13 @@ class SearchField extends React.Component
     const classes = useStyles()
     const theme = useTheme()
     var drawerIconList = [<AccountCircleIcon />, <MemoryIcon />, <FindInPageIcon />, <ForumIcon />, <SettingsIcon />]
-    var drawerLinkList = ["/login", "/search-components", "/experts"]
+    var drawerLinkList = ["/login", "/search-component", "/experts"]
     var drawerLinkListText = ["Login or Sign up", "Search Components", "Search Experts"]
     const [open, setOpen] = React.useState(false);
 
     if (localStorage.getItem('username') != null) {
       drawerIconList = [<AccountCircleIcon />, <MemoryIcon />, <FindInPageIcon />, <ForumIcon />, <SettingsIcon />]
-      drawerLinkList = ["/profile/" + localStorage.getItem('username'), "/search-components", "/experts","/edit-profile"]
+      drawerLinkList = ["/profile/" + localStorage.getItem('username'), "/search-component", "/experts","/edit-profile"]
       drawerLinkListText = ["Your Profile", "Search Components", "Search Experts","Edit Your Profile"]
     }
 
