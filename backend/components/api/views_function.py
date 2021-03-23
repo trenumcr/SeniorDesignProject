@@ -79,11 +79,12 @@ def post_component(request):
     collection = db['components']
     fs = gridfs.GridFS(db)
     doc = request.data
+    doc['price'] = float(doc['price'])
     doc['who'] = request.user.username
     doc["rating"] = {
-                        "total": request.data["rating"],
+                        "total": float(request.data["rating"]),
                         "votes": 1,
-                        "avg_rating": request.data["rating"]
+                        "avg_rating": float(request.data["rating"])
                     }
     doc["datasheets"] = []
     doc["picture"] = []
@@ -148,6 +149,7 @@ def update_component(request):
         change_occured = True
 
     if "rating" in request.data:
+        doc["rating"] = float(doc["rating"])
         collection.update({'_id': ObjectId(doc['id']) }, {'$inc': {'rating.total': doc["rating"]}})
         collection.update({'_id': ObjectId(doc['id']) }, {'$inc': {'rating.votes': 1}})
         data = collection.find_one({'_id': ObjectId(doc['id']) })
