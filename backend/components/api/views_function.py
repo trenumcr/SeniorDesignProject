@@ -112,6 +112,10 @@ def update_component(request):
         collection.update({'_id': ObjectId(doc['id']) }, {'$set': {'name': doc["name"]}})
         change_occured = True
 
+    if "description" in request.data:
+        collection.update({'_id': ObjectId(doc['id']) }, {'$set': {'description': doc["description"]}})
+        change_occured = True
+
     if "pictures" in request.data:
         img_obj = write_new_file(request, db)
         collection.update({'_id': ObjectId(doc['id'])},
@@ -140,7 +144,7 @@ def update_component(request):
         change_occured = True
 
     if "tags" in request.data:
-        collection.update({'_id': ObjectId(doc['id']) }, {'$push': {'tags': doc["tags"]}})
+        collection.update({'_id': ObjectId(doc['id']) }, {'$set': {'tags': doc["tags"]}})
         change_occured = True
 
     if "specifications" in request.data:
