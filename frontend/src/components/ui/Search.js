@@ -187,10 +187,10 @@ handleRatingChange = (e) => {
       }
       this.setState({ components: results.data, manufacturers : manufacturers, categories : categories });
     })
-    .catch(function (error) {
-        if (error.status == 404)
-          this.setState({ components: [] });
-        console.log(error);
+    .catch(e => {
+        if (e.response.status == 404)
+          this.setState({ components: [],manufacturers : [], categories : []  });
+        console.log(e);
     })
   }
 
