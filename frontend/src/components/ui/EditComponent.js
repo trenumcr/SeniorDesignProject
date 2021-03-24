@@ -28,6 +28,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import axiosInstance from './../../axiosApi.js';
+import { useParams } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 
 const axiosI = axiosInstance;
@@ -66,7 +67,7 @@ function a11yProps(index) {
   };
 }
 
-const useStyles = theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
   },
@@ -126,41 +127,42 @@ const useStyles = theme => ({
     selectEmpty: {
       marginTop: theme.spacing(2),
     },
-});
+}));
 
 class EditComponent extends React.Component {
 
   constructor(props)
   {
     super(props);
+    
     this.state=
     {
       token: localStorage.getItem('token') ? "Token "+localStorage.getItem('token') : "",
       username: localStorage.getItem('username') ? localStorage.getItem('username') : "",
+      id:'',
       value: 0,
-      newComponent:
-      {
-        name:"",
-        picture:[""],
-        price:"",
-        description:"",
-        features: [""],
-        documents:{
-          referenceSheet:"",
-          additionalDocuments:[""]
-        },
-        tags:[""],
-        rating:"",
-        review:"",
-        manufacture_name:"",
-        category:"",
-      },
-      isUser: true,
+      name:"",
+      picture:[""],
+      price:"",
+      description:"",
+      features: [""],
+      datasheets:[""],
+      tags:[""],
+      rating:"",
+      review:"",
+      manufacture_name:"",
+      category:"",
+      added: false,
+      isUser: false,
+    };
+    if (this.state.username == "" || this.state.token == "") {
+        this.setState({
+          isUser: false,
+        });
     }
-  }
-
-  componentDidMount = (e) => {
-
+    else {
+        this.state.isUser = true;
+    }
   }
 
   handleChange = (event, newValue) => {
@@ -168,71 +170,76 @@ class EditComponent extends React.Component {
   };
 
   handleNameChange = (event) => {
-    this.state.newComponent.name = event.target.value;
+    this.state.name = event.target.value;
   }
 
   handlePriceChange = (event) => {
-    this.state.newComponent.price = event.target.value;
+    this.state.price = event.target.value;
   }
 
-  handlePictureChange = (event) => {
-    this.state.newComponent.picture = event.target.value;
+  handlePictureChange = (e) => {
+    this.state.picture[e.currentTarget.attributes[1].nodeValue] = e.target.value;
   }
 
-  handleDescriptionChange = (event) => {
-    this.state.newComponent.description = event.target.value;
+  handleDescriptionChange = (e) => {
+    this.state.description = e.target.value;
   }
 
   handleFeatureChange = (e) => {
-    this.state.newComponent.features[e.currentTarget.attributes[1].nodeValue] = e.target.value;
+    this.state.features[e.currentTarget.attributes[1].nodeValue] = e.target.value;
   }
 
-  handleReferenceSheetChange = (event) => {
-    this.state.newComponent.documents.referenceSheet = event.target.value;
-  }
-
-  handleAdditionalImagesChange = (event) => {
-    this.state.newComponent.documents.additionalImages = event.target.value;
-  }
-
-  handleAdditionalDocumentsChange = (event) => {
-    this.state.newComponent.documents.additionalDocuments = event.target.value;
+  handleDatasheetChange = (e) => {
+    this.state.datasheets[e.currentTarget.attributes[1].nodeValue] = e.target.value;
   }
 
   handleTagsChange = (event) => {
     var tags = event.target.value.split(",");
-    this.state.newComponent.tags = tags;
+    this.setState({
+      tags: tags
+    })
   }
 
   handleRatingChange = (event) => {
-    this.state.newComponent.rating = event.target.value;
+    this.setState({
+      rating: event.target.value
+    })
   }
 
   handleReviewChange = (event) => {
-    this.state.newComponent.review = event.target.value;
+    this.setState({
+      review: event.target.value
+    })
+    this.state.review = event.target.value;
   }
 
   handleManufacturerChange = (event) => {
-    this.state.newComponent.manufacture_name = event.target.value;
+    this.setState({
+      manufacture_name: event.target.value
+    })
   }
 
   handleHardwareCategoryChange = (event) => {
-    this.state.newComponent.category = event.target.value;
+    this.setState({
+      category: event.target.value
+    })
   }
 
-  addImageUpload = (e) => {
+  addDatasheetUpload = (e) => {
     this.setState({
-      newComponent: {
-        image: this.state.newComponent.features.concat("")
-      }
+      datasheets: this.state.datasheets.concat("")
+    })
+  }
+
+  addPictureUpload = (e) => {
+    this.setState({
+      pictures: this.state.pictures.concat("")
     })
   }
 
   addFeature = (e) => {
     this.setState({
-      newComponent: {
-        features: this.state.newComponent.features.concat("")
-      }
+      features: this.state.features.concat("")
     })
   }
 
@@ -240,22 +247,36 @@ class EditComponent extends React.Component {
   //const estPrice = useRef<TextFieldProps>(null);
 
   postComponent = (event) => {
+    if (this.state.tags.length == 0) {
+      this.state.tags = [""];
+    }
+
+    if (this.state.features.length == 0) {
+      this.state.features = [""];
+    }
+
+    if (this.state.features.length == 0) {
+      this.state.picture = [""];
+    }
+
     event.preventDefault();
-    axiosI.post('/components/auth/',
+    axiosI.patch('/components/auth/',
       {
         user: {
           'username' : this.state.username
         },
-        name:this.state.newComponent.name,
-        picture:this.state.newComponent.picture,
-        price:this.state.newComponent.price,
-        description:this.state.newComponent.description,
-        features:this.state.newComponent.features,
-        tags:this.state.newComponent.tags,
-        rating:this.state.newComponent.rating,
-        review:this.state.newComponent.review,
-        manufacture_name:this.state.newComponent.manufacture_name,
-        category:this.state.newComponent.category,
+        name:this.state.name,
+        picture:this.state.picture,
+        price:this.state.price,
+        description:this.state.description,
+        datasheets: this.state.datasheet,
+        features:this.state.features,
+        tags:this.state.tags,
+        rating:this.state.rating,
+        review:this.state.review,
+        manufacture_name:this.state.manufacture_name,
+        category:this.state.category,
+        id:this.props.componentId,
       },
       {
         headers: {
@@ -264,9 +285,17 @@ class EditComponent extends React.Component {
       }
     )
       .then(res => {
-        console.log(res);
-        window.location.reload();
+        this.setState({
+          id: res.data._id.$oid,
+          added: true,
+        })
     })
+    .catch(e => {
+      this.setState({
+        added: false,
+      });
+      console.log(e);
+    });
   }
 
   render(){
@@ -329,7 +358,7 @@ class EditComponent extends React.Component {
             <Grid container item xs={12} md={6} lg={6} direction="column" className={this.props.classes.box}>
               <Grid item xs={12}>
                 <Typography variant="h3" className={this.props.classes.rating}>
-                  <TextField required fullWidth id="name" label="Component Name" variant="outlined" name="rating" onChange={this.handleNameChange} autoFocus/>
+                  <TextField required defaultValue={this.state.name} fullWidth id="name" label="Component Name" variant="outlined" name="rating" onChange={this.handleNameChange} autoFocus/>
                 </Typography>
               </Grid>
               <Grid container item xs={12}>
@@ -347,7 +376,7 @@ class EditComponent extends React.Component {
                 </TabPanel>
                 <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
                   <ul>
-                    {this.state.newComponent.features.map((feature, index) => (
+                    {this.state.features.map((feature, index) => (
                       <li>
                         <Grid container sm={12}>
                           <Grid container sm={8}>
@@ -439,4 +468,8 @@ class EditComponent extends React.Component {
   }
 }
 
-export default withStyles(useStyles)(EditComponent)
+export default function LaunchEditComponent() {
+  return(
+    <EditComponent componentId={useParams().componentId} classes={useStyles()} />
+  );
+}
