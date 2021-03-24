@@ -271,7 +271,7 @@ class ComponentProfile extends Component {
 
   postComment = () => {
 	if(this.state.username == "" || this.state.token == "")
-      alert("Must login to comment!");
+	{ alert("Must login to comment!"); }
     else {
         axiosI.post('components/auth/comment/', 
           {
@@ -290,7 +290,6 @@ class ComponentProfile extends Component {
         })
       }
    }
-  }
 
   render() {
     var isUser = this.state.isUser;
