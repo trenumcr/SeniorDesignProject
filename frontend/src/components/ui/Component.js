@@ -267,25 +267,29 @@ class ComponentProfile extends Component {
   }
 
   postComment = () => {
+    if(!this.state.isUser)
+      alert('Must sign in to comment!');
+    else {
     if(!(this.state.isUser)) 
       alert("Must login to comment!");
     else {
-      axiosI.post('components/auth/comment/', 
-        {
-          "id": this.props.componentId,
-          "comments": this.state.userComment,
-          "user": this.state.username
-        },
-        {
-          headers: {
-            'Authorization': this.state.token
+        axiosI.post('components/auth/comment/', 
+          {
+            "id": this.props.componentId,
+            "comments": this.state.userComment,
+            "user": this.state.username
+          },
+          {
+            headers: {
+              'Authorization': this.state.token
+            }
           }
-        }
-      )
-      .then(doc => {
-        return
-      })
-    }
+        )
+        .then(doc => {
+          window.location.reload();
+        })
+      }
+   }
   }
 
   render() {
