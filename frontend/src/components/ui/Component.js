@@ -21,6 +21,8 @@ import ImageIcon from '@material-ui/icons/Image';
 import Carousel from 'react-material-ui-carousel'
 import Button from '@material-ui/core/Button';
 import Link from '@material-ui/core/Link';
+import Rating from '@material-ui/lab/Rating';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { useParams } from 'react-router-dom';
 import axiosInstance from './../../axiosApi.js';
 
@@ -105,26 +107,16 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 10,
     paddingBottom: 20,
   },
-  '*::-webkit-scrollbar': {
-      width: '0.4em'
-    },
-    '*::-webkit-scrollbar-track': {
-      '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)'
-    },
-    '*::-webkit-scrollbar-thumb': {
-      backgroundColor: 'rgba(0,0,0,.1)',
-      outline: '1px solid slategrey'
-    },
-    button: {
-      background: theme.palette.secondary.main,
-      '&:hover': {
-        background: theme.palette.secondary.dark,
-      }
-    },
-    buttonText: {
-      color: theme.palette.common.white,
-      textDecoration: 'none',
-    },
+  button: {
+    background: theme.palette.secondary.main,
+    '&:hover': {
+      background: theme.palette.secondary.dark,
+    }
+  },
+  buttonText: {
+    color: theme.palette.common.white,
+    textDecoration: 'none',
+  },
 }));
 
 class ComponentProfile extends Component {
