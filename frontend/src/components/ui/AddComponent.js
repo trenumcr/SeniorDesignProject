@@ -257,18 +257,6 @@ class AddComponentForm extends React.Component {
       this.state.features = [""];
     }
 
-    if (this.state.features.length == 0) {
-      this.state.pictures = [""];
-    }
-
-    if (this.state.features.length == 0) {
-      this.setState({
-        newComponent: {
-          pictures: [""],
-        }
-      })
-    }
-
     event.preventDefault();
     axiosI.post('/components/auth/',
       {
