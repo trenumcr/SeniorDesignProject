@@ -414,6 +414,7 @@ class AddComponentForm extends React.Component {
                       value={this.state.newRating}
                       onChange={this.handleRatingChange}
                       emptyIcon={<StarBorderIcon fontSize="inherit" />}
+                      onChange={this.handleRatingChange}
                     />
                 </Grid>
               </Grid>

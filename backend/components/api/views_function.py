@@ -47,6 +47,32 @@ def get_file(request):
         resp = json.loads(content)
         return Response(resp, status=status.HTTP_200_OK)
 
+def delete_file(request):
+    client = pymongo.MongoClient('mongodb://localhost:27017/')
+    db = client['ComponentReviewDB']
+    collection = db["components"]
+    fs = gridfs.GridFS(db)
+
+    if request.query_params["fileType"] == "picture":
+        collection.update(
+            {'_id': ObjectId(request.query_params["compID"])},
+            { "$pull": {"picture": {"id": ObjectId(request.query_params["fileID"])}}},
+            False,
+            True,
+        )
+    if request.query_params["fileType"] == "datasheets":
+        collection.update(
+            {'_id': ObjectId(request.data["compID"])},
+            {"$pull": {"datasheets": {"id": ObjectId(request.query_params["fileID"])}}},
+            False,
+            True,
+        )
+
+
+    fs.delete(ObjectId(request.query_params["fileID"]))
+
+    return Response(status=status.HTTP_200_OK)
+
 
 def get_component(request):
     client = pymongo.MongoClient('mongodb://localhost:27017')
@@ -178,6 +204,26 @@ def delete_component(request):
     db = client['ComponentReviewDB']
     collection = db['components']
     doc = collection.find_one({'_id': ObjectId(request.query_params['_id']) })
+    fs = gridfs.GridFS(db)
+
+    if doc["picture"]:
+        for object in doc["picture"]:
+            collection.update(
+                {'_id': ObjectId(request.query_params["_id"])},
+                {"$pull": {"picture": {"id": ObjectId(object["id"])}}},
+                False,
+                True,
+            )
+            fs.delete(ObjectId(object["id"]))
+    if doc["datasheets"]:
+        for object in doc["datasheets"]:
+            collection.update(
+                {'_id': ObjectId(request.query_params["_id"])},
+                {"$pull": {"picture": {"id": ObjectId(object["id"])}}},
+                False,
+                True,
+            )
+            fs.delete(ObjectId(object["id"]))
 
     user = UserProfile.objects.get(user__username=doc["who"])
     user.posts_made.remove(request.query_params['_id'])

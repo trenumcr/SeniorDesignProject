@@ -155,7 +155,6 @@ class EditComponent extends React.Component {
       added: false,
       isUser: false,
       open: false,
-      result: "",
       imageData: [""],
     };
 
@@ -395,16 +394,12 @@ class EditComponent extends React.Component {
       }
     )
       .then(res => {
-        this.setState({ result: "Success" })
-
         this.setState({
           id: res.data._id.$oid,
           edited: true,
         })
     })
     .catch(e => {
-      this.setState({ result: "Failure" })
-
       this.setState({
         edited: false,
       });
@@ -416,22 +411,18 @@ class EditComponent extends React.Component {
     let wantToDelete = window.confirm('Are you sure you want to delete?');
     if (wantToDelete)
     {
-      axios.delete('/components/auth/',
-        {
-          "id":this.props.componentId
-        },
-        {
-          headers: {
-            'Authorization': this.state.token
-          },
-        })
+      axiosInstance.delete('/components/auth/',
+          {
+            headers: {
+                'Authorization': this.state.token
+            },
+            params : { "_id":this.props.componentId }, 
+          })
         .then(res => {
-          this.setState({ result: "Deleted Successfully" })
-          this.handleOpenResultModal();
+          alert("Deleted Successfully")
         })
       .catch(e => {
-        this.setState({ result: "Failure" })
-        this.handleOpenResultModal();
+        alert("Failure to Delete")
       });
     }
   }

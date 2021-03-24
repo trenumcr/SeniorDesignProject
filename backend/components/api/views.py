@@ -75,11 +75,14 @@ class AuthVoteView(APIView):
 
 class FileView(APIView):
     '''
-    An endpoint to retrieve datasheet
+    An endpoint to retrieve and delete single datasheet
     '''
 
     def get(self, requests, *args, **kwargs):
         return get_file(requests)
+    
+    def delete(self, requests, *args, **kwargs):
+        return delete_file(requests)
 
 class CategoryListView(APIView):
     '''
