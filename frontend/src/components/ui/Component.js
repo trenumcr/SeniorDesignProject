@@ -119,10 +119,38 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+class CommentSection extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return(
+      <Grid container item direction="row" xs={12} className={this.props.classes.commentWrap}>
+      <Avatar xs={1}></Avatar>
+      <Grid container item direction="column" xs={10} s={11} className={this.props.classes.text}>
+        <Grid item className={this.props.classes.username}>
+          <Typography variant="body1">
+            <b>{this.props.comment.user}</b> <span style={{fontWeight: 100}}>{this.props.comment.created.$date}</span>
+          </Typography>
+        </Grid>
+        <Grid item className={this.props.classes.commentText}>
+          <Typography variant="body1">
+            {this.props.comment.comment}
+          </Typography>
+        </Grid>
+      </Grid>
+    </Grid>
+    )
+  }
+
+}
+
 class ComponentProfile extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      token: localStorage.getItem('token') ? "Token "+localStorage.getItem('token') : "",
+      username: localStorage.getItem('username') ? localStorage.getItem('username') : "",
       user : "",
       pictures : [""],
       rating : {},
@@ -132,14 +160,24 @@ class ComponentProfile extends Component {
       name : "",
       price : "",
       keyTerms: [],
-      comments: [""],
+      comments: [ { created : { $date : "" } } ],
       manufacture_name:"",
       category:"",
       value:0,
       imageData: [""],
-      docData: [""]
+      docData: [""],
+      userComment: [''],
+      isUser: false,
     }//{value:0, commentValue:""};
     this.handleChange = this.handleChange.bind(this);
+    if (this.state.username == "" || this.state.token == "") {
+        this.setState({
+          isUser: false,
+        });
+    }
+    else {
+        this.state.isUser = true;
+    }
   }
 
   componentDidMount() {
@@ -156,6 +194,24 @@ class ComponentProfile extends Component {
         this.setState({
           isUser: false,
         })
+      }
+      // Format comment times
+      for (const comment in component.data.comments)
+      {
+        var date = new Date(component.data.comments[comment].created.$date)
+        var halfOfDay = "am";
+        var hours = (date.getHours() + 4) % 23
+        var minutes = date.getMinutes();
+        if(hours > 12) {
+          halfOfDay = "pm";
+          hours = hours - 12;
+        }
+        if(minutes < 10)
+        {
+          minutes = "0"+minutes.toString();
+        }
+        var formattedDate = hours + ":" + minutes + halfOfDay + " " + (date.getMonth() + 1) +  "-"  + date.getDate() + "-" + date.getFullYear()
+        component.data.comments[comment].created.$date = formattedDate;
       }
       // Convert documents object to array
       this.setState(
@@ -204,6 +260,32 @@ class ComponentProfile extends Component {
     .then(doc => {
       return
     })
+  }
+
+  handleCommentChange = (e) => {
+    this.setState({ userComment: e.target.value });
+  }
+
+  postComment = () => {
+    if(!(this.state.isUser)) 
+      alert("Must login to comment!");
+    else {
+      axiosI.post('components/auth/comment/', 
+        {
+          "id": this.props.componentId,
+          "comments": this.state.userComment,
+          "user": this.state.username
+        },
+        {
+          headers: {
+            'Authorization': this.state.token
+          }
+        }
+      )
+      .then(doc => {
+        return
+      })
+    }
   }
 
   render() {
@@ -368,33 +450,20 @@ class ComponentProfile extends Component {
                     fullWidth
                     rowsMax={4}
                     variant="standard"
+                    onChange={this.handleCommentChange}
                   />
                 </Grid>
               </Grid>
               <Grid container item xs={12} justify='flex-end'>
                 <Button variant="contained" className={this.props.classes.button}>
-                  <Typography variant="button" align="center" className={this.props.classes.buttonText}>
+                  <Typography variant="button" align="center" className={this.props.classes.buttonText} onClick={this.postComment}>
                     Post Comment
                   </Typography>
                 </Button>
               </Grid>
             </Grid>
             {this.state.comments.map((comment) => (
-              <Grid container item direction="row" xs={12} className={this.props.classes.commentWrap}>
-                <Avatar xs={1}></Avatar>
-                <Grid container item direction="column" xs={10} s={11} className={this.props.classes.text}>
-                  <Grid item className={this.props.classes.username}>
-                    <Typography variant="body1">
-                      <b>{comment.user}</b> <span style={{fontWeight: 100}}>{comment.date}</span>
-                    </Typography>
-                  </Grid>
-                  <Grid item className={this.props.classes.commentText}>
-                    <Typography variant="body1">
-                      {comment.text}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Grid>
+              <CommentSection comment={comment} classes={this.props.classes} />
             ))}
           </Grid>
         </Grid>

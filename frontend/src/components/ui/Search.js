@@ -93,9 +93,13 @@ class ComponentBox extends Component {
               <Typography variant="subtitle1" align="center">
                 Hardware Category: {this.props.component.category == undefined ? "N/A" : this.props.component.category}
               </Typography>
-              <Button align="center" variant="contained" color="primary" onClick={this.handleViewComponent}>
-                View
-              </Button>
+              <Typography align="center">
+                <Button variant="contained" className={this.props.classes.button} onClick={this.handleViewComponent} color="primary" style={{marginTop: '20px'}}>
+                  <Typography variant="button" align="center" className={this.props.classes.buttonText}>
+                    View
+                  </Typography>
+                </Button>
+              </Typography>
         </CardContent>
       </Card>
     </Grid>
