@@ -15,10 +15,10 @@ from accounts.models import UserProfile
 def write_new_file(request, db):
     resp = {"id": None, "filename": ""}
     fs = gridfs.GridFS(db)
-    if "datasheet" in request.data:
+    if "datasheets" in request.data:
         data = request.FILES['datasheet'].file.read()
         in_file = fs.put(data, filename=request.FILES['datasheet'].name)
-    if "picture" in request.data:
+    if "pictures" in request.data:
         data = request.FILES['picture'].file.read()
         in_file = fs.put(data, filename=request.FILES['picture'].name)
 

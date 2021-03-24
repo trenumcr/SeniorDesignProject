@@ -126,23 +126,26 @@ const useStyles = makeStyles((theme) => ({
       color: theme.palette.common.white,
       textDecoration: 'none',
     },
+    keyTerms: {
+
+    }
 }));
 
 class ComponentProfile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      user : {},
-      picture : [""],
+      user : "",
+      pictures : [""],
       rating : {},
       description : "",
-      features : [],
+      features : [""],
       datasheet : "",
       name : "",
       price : "",
       documents : {},
       keyTerms: [],
-      comments: [],
+      comments: [""],
       manufacture_name:"",
       category:"",
       value:0,
@@ -155,7 +158,7 @@ class ComponentProfile extends Component {
       params: { "_id": this.props.componentId }
     })
     .then(component => {
-      if (component.data.user.username == localStorage.getItem('username')) {
+      if (component.data.who == localStorage.getItem('username')) {
         this.setState({
           isUser: true,
         })
@@ -168,21 +171,21 @@ class ComponentProfile extends Component {
       // Convert documents object to array
       this.setState(
           {
-            user: component.data.user,
-            picture: [""],
+            user: component.data.who,
+            pictures: component.data.pictures,
             rating: component.data.rating,
             description: component.data.description,
             features: component.data.features,
-            datasheet: component.data.datasheets,
+            datasheets: component.data.datasheets,
             name: component.data.name,
             price: component.data.price,
-            documents: component.data.documents,
             keyTerms: component.data.tags,
             comments: component.data.comments,
             manufacture_name: component.data.manufacture_name,
             category: component.data.category,
           }
         );
+        console.log(this.state);
     })
     .catch(function (error) {
         console.log(error);
@@ -195,16 +198,19 @@ class ComponentProfile extends Component {
 
   render() {
     var isUser = this.state.isUser;
+    var hasTags = true;
+    var hasFeatures = true;
+    var hasImage = false;
+
+    //hasFeatures = !(this.state.features.length > 1 && this.state.features[0] != "");
+    hasTags = (this.state.keyTerms.length > 0);
+
     return(
       <Container component="main" maxWidth="md">
         <Grid container direction="row" justify="center" alignItems="flex-start">
           <Grid container item xs={12} md={6} lg={6} direction="column">
             <Grid item xs={12} className={this.props.classes.image}>
-              <Carousel>
-                {this.state.picture.map((feature, index) => (
                   <img src="../../static/images/electronicComponent.png"/>
-                ))}
-              </Carousel>
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h4" className={this.props.classes.rating}>
@@ -250,15 +256,16 @@ class ComponentProfile extends Component {
               </TabPanel>
               <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
                 <ul>
-                  {this.state.features.map((feature, index) => (
+                  {hasFeatures ? (
+                    this.state.features.map((feature, index) => (
                     <li>
                       <Grid container sm={12}>
                         <Grid container sm={8}>
-                          <Typography>feature</Typography>
+                          <Typography>{feature}</Typography>
                         </Grid>
                       </Grid>
                     </li>
-                  ))}
+                  ))) : (<div></div>)}
                 </ul>
               </TabPanel>
               <TabPanel value={this.state.value} index={2} className={this.props.classes.tabPanel}>
@@ -279,19 +286,23 @@ class ComponentProfile extends Component {
               </TabPanel>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="body2" className={this.props.classes.keyTerms} style={{paddingTop: 10}}>
-                Key Terms:
-              </Typography>
-              {this.state.keyTerms.map((term) => (
-                <Button color="secondary"><u>{term}</u></Button>
-              ))}
+              {hasTags ? (
+                <Typography variant="body2" className={this.props.classes.keyTerms} style={{paddingTop: 10}}>
+                  Key Terms:
+                </Typography>) : (<div></div>
+              )}
+              {hasTags ? (
+                this.state.keyTerms.map((term) => (
+                  <Button color="secondary"><u>{term}</u></Button>))
+                ) : (<div></div>
+              )}
             </Grid>
           </Grid>
         </Grid>
         <Grid container direction="column" justify="center" alignItems="flex-start">
           <Grid item xs={12}>
             <Typography variant="h5" style={{paddingTop: 20, paddingBottom: 10}}>
-              Posted by: {this.state.user.username}
+              Posted by: {this.state.user}
             </Typography>
           </Grid>
           <Grid item xs={12}>

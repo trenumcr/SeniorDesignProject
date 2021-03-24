@@ -138,23 +138,17 @@ class AddComponentForm extends React.Component {
       token: localStorage.getItem('token') ? "Token "+localStorage.getItem('token') : "",
       username: localStorage.getItem('username') ? localStorage.getItem('username') : "",
       value: 0,
-      newComponent:
-      {
-        name:"",
-        picture:[""],
-        price:"",
-        description:"",
-        features: [""],
-        documents:{
-          referenceSheet:"",
-          additionalDocuments:[""]
-        },
-        tags:[""],
-        rating:"",
-        review:"",
-        manufacture_name:"",
-        category:"",
-      },
+      name:"",
+      picture:[""],
+      price:"",
+      description:"",
+      features: [""],
+      datasheets:[""],
+      tags:[""],
+      rating:"",
+      review:"",
+      manufacture_name:"",
+      category:"",
       added: false,
       isUser: false,
     };
@@ -173,71 +167,76 @@ class AddComponentForm extends React.Component {
   };
 
   handleNameChange = (event) => {
-    this.state.newComponent.name = event.target.value;
+    this.state.name = event.target.value;
   }
 
   handlePriceChange = (event) => {
-    this.state.newComponent.price = event.target.value;
+    this.state.price = event.target.value;
   }
 
-  handlePictureChange = (event) => {
-    this.state.newComponent.picture = event.target.value;
+  handlePictureChange = (e) => {
+    this.state.picture[e.currentTarget.attributes[1].nodeValue] = e.target.value;
   }
 
-  handleDescriptionChange = (event) => {
-    this.state.newComponent.description = event.target.value;
+  handleDescriptionChange = (e) => {
+    this.state.description = e.target.value;
   }
 
   handleFeatureChange = (e) => {
-    this.state.newComponent.features[e.currentTarget.attributes[1].nodeValue] = e.target.value;
+    this.state.features[e.currentTarget.attributes[1].nodeValue] = e.target.value;
   }
 
-  handleReferenceSheetChange = (event) => {
-    this.state.newComponent.documents.referenceSheet = event.target.value;
-  }
-
-  handleAdditionalImagesChange = (event) => {
-    this.state.newComponent.documents.additionalImages = event.target.value;
-  }
-
-  handleAdditionalDocumentsChange = (event) => {
-    this.state.newComponent.documents.additionalDocuments = event.target.value;
+  handleDatasheetChange = (e) => {
+    this.state.datasheets[e.currentTarget.attributes[1].nodeValue] = e.target.value;
   }
 
   handleTagsChange = (event) => {
     var tags = event.target.value.split(",");
-    this.state.newComponent.tags = tags;
+    this.setState({
+      tags: tags
+    })
   }
 
   handleRatingChange = (event) => {
-    this.state.newComponent.rating = event.target.value;
+    this.setState({
+      rating: event.target.value
+    })
   }
 
   handleReviewChange = (event) => {
-    this.state.newComponent.review = event.target.value;
+    this.setState({
+      review: event.target.value
+    })
+    this.state.review = event.target.value;
   }
 
   handleManufacturerChange = (event) => {
-    this.state.newComponent.manufacture_name = event.target.value;
+    this.setState({
+      manufacture_name: event.target.value
+    })
   }
 
   handleHardwareCategoryChange = (event) => {
-    this.state.newComponent.category = event.target.value;
+    this.setState({
+      category: event.target.value
+    })
   }
 
-  addImageUpload = (e) => {
+  addDatasheetUpload = (e) => {
     this.setState({
-      newComponent: {
-        image: this.state.newComponent.features.concat("")
-      }
+      datasheets: this.state.datasheets.concat("")
+    })
+  }
+
+  addPictureUpload = (e) => {
+    this.setState({
+      pictures: this.state.pictures.concat("")
     })
   }
 
   addFeature = (e) => {
     this.setState({
-      newComponent: {
-        features: this.state.newComponent.features.concat("")
-      }
+      features: this.state.features.concat("")
     })
   }
 
@@ -245,22 +244,43 @@ class AddComponentForm extends React.Component {
   //const estPrice = useRef<TextFieldProps>(null);
 
   postComponent = (event) => {
+    if (this.state.tags.length == 0) {
+      this.state.tags = [""];
+    }
+
+    if (this.state.features.length == 0) {
+      this.state.features = [""];
+    }
+
+    if (this.state.features.length == 0) {
+      this.state.picture = [""];
+    }
+
+    if (this.state.features.length == 0) {
+      this.setState({
+        newComponent: {
+          picture: [""],
+        }
+      })
+    }
+
     event.preventDefault();
     axiosI.post('/components/auth/',
       {
         user: {
           'username' : this.state.username
         },
-        name:this.state.newComponent.name,
-        picture:this.state.newComponent.picture,
-        price:this.state.newComponent.price,
-        description:this.state.newComponent.description,
-        features:this.state.newComponent.features,
-        tags:this.state.newComponent.tags,
-        rating:this.state.newComponent.rating,
-        review:this.state.newComponent.review,
-        manufacture_name:this.state.newComponent.manufacture_name,
-        category:this.state.newComponent.category,
+        name:this.state.name,
+        picture:this.state.picture,
+        price:this.state.price,
+        description:this.state.description,
+        datasheets: this.state.datasheet,
+        features:this.state.features,
+        tags:this.state.tags,
+        rating:this.state.rating,
+        review:this.state.review,
+        manufacture_name:this.state.manufacture_name,
+        category:this.state.category,
       },
       {
         headers: {
@@ -363,15 +383,15 @@ class AddComponentForm extends React.Component {
                   <Tab className={this.props.classes.tab} label="Documents" {...a11yProps(2)} />
                 </Tabs>
                 <TabPanel value={this.state.value} index={0} className={this.props.classes.tabPanel}>
-                  <TextField fullWidth multiline rows={8} id="description" defaultValue={this.state.newComponent.description} variant="outlined" label="Description" onChange={this.handleDescriptionChange}/>
+                  <TextField fullWidth multiline rows={8} id="description" defaultValue={this.state.description} variant="outlined" label="Description" onChange={this.handleDescriptionChange}/>
                 </TabPanel>
                 <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
                   <ul>
-                    {this.state.newComponent.features.map((feature, index) => (
+                    {this.state.features.map((feature, index) => (
                       <li>
                         <Grid container sm={12}>
                           <Grid container sm={8}>
-                            <TextField fullWidth id={index}  defaultValue={this.state.newComponent.features[index]} label="Feature" onChange={this.handleFeatureChange} />
+                            <TextField fullWidth id={index}  defaultValue={this.state.features[index]} label="Feature" onChange={this.handleFeatureChange} />
                           </Grid>
                         </Grid>
                       </li>
@@ -387,38 +407,26 @@ class AddComponentForm extends React.Component {
                   </ul>
                 </TabPanel>
                 <TabPanel value={this.state.value} index={2} className={this.props.classes.tabPanel}>
-                  <List className={this.props.classes.root}>
-                    <ListItem>
-                      <ListItemAvatar>
-                        <Avatar><DescriptionIcon/></Avatar>
-                      </ListItemAvatar>
-                      <Button variant="contained" component="label" className={this.props.classes.upload}>
-                        Upload Refrence Sheet
-                        <input onChange={this.handleReferenceSheetChange} type="file" hidden/>
+                  <ul>
+                    {this.state.datasheets.map((document, index) => (
+                      <li>
+                        <Grid container sm={12}>
+                          <Grid container sm={8}>
+                            <label for="myfile"><Typography variant="body1">Upload document:</Typography></label>
+                            <input type="file" id={index} name="myfile" onClick={(e) =>{e.target.value = ''}} onChange={this.handleDatasheetChange}/>
+                          </Grid>
+                        </Grid>
+                      </li>
+                    ))}
+                    <Grid container sm={2}>
+                      <Button style={{color: "#235a33", paddingTop: '20px', paddingLeft: '20px', float: 'right'}}/>
+                    </Grid>
+                      <Button variant="contained" className={this.props.classes.button}  style={{color: "#235a33", paddingLeft: '20px'}} onClick={this.addDatasheetUpload}>
+                        <Typography variant="button" align="center" className={this.props.classes.buttonText}>
+                          Add document
+                        </Typography>
                       </Button>
-                      <ListItemText/>
-                    </ListItem>
-                    <ListItem>
-                      <ListItemAvatar>
-                        <Avatar><ImageIcon/></Avatar>
-                      </ListItemAvatar>
-                      <Button variant="contained" component="label" className={this.props.classes.upload}>
-                        Upload Additional Images
-                        <input type="file" onChange={this.handleAdditionalImagesChange} hidden/>
-                      </Button>
-                      <ListItemText/>
-                    </ListItem>
-                    <ListItem>
-                      <ListItemAvatar>
-                        <Avatar><PictureAsPdfIcon/></Avatar>
-                      </ListItemAvatar>
-                      <Button variant="contained" component="label" className={this.props.classes.upload}>
-                        Upload Additional Documents
-                        <input type="file" onChange={this.handleAdditionalDocumentsChange} hidden/>
-                      </Button>
-                      <ListItemText/>
-                    </ListItem>
-                  </List>
+                  </ul>
                 </TabPanel>
               </Grid>
               <Grid item xs={12}>
