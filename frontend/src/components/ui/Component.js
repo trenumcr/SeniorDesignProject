@@ -175,8 +175,17 @@ class ComponentProfile extends Component {
       imageData: [""],
       docData: [""],
       userComment: [''],
+      isUser: false,
     }//{value:0, commentValue:""};
     this.handleChange = this.handleChange.bind(this);
+    if (this.state.username == "" || this.state.token == "") {
+        this.setState({
+          isUser: false,
+        });
+    }
+    else {
+        this.state.isUser = true;
+    }
   }
 
   componentDidMount() {
@@ -266,21 +275,25 @@ class ComponentProfile extends Component {
   }
 
   postComment = () => {
-    axiosI.post('components/auth/comment/', 
-      {
-        "id": this.props.componentId,
-        "comments": this.state.userComment,
-        "user": this.state.username
-      },
-      {
-        headers: {
-          'Authorization': this.state.token
+    if(!(this.state.isUser)) 
+      alert("Must login to comment!");
+    else {
+      axiosI.post('components/auth/comment/', 
+        {
+          "id": this.props.componentId,
+          "comments": this.state.userComment,
+          "user": this.state.username
+        },
+        {
+          headers: {
+            'Authorization': this.state.token
+          }
         }
-      }
-    )
-    .then(doc => {
-      return
-    })
+      )
+      .then(doc => {
+        return
+      })
+    }
   }
 
   render() {
