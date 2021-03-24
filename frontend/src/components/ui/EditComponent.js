@@ -156,7 +156,6 @@ class EditComponent extends React.Component {
       isUser: false,
       open: false,
       imageData: [""],
-      docData: [""],
     };
 
 
@@ -244,11 +243,6 @@ class EditComponent extends React.Component {
     formData.append("pictures", imagefile);
     formData.append("id", this.props.componentId);
 
-    var data = {
-      id: this.props.componentId,
-      pictures: formData
-    }
-    console.log(data.id + " " + data.pictures + " " + this.state.token);
     axiosI.patch(url, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -415,7 +409,7 @@ class EditComponent extends React.Component {
 
   deleteComponent = () => {
     let wantToDelete = window.confirm('Are you sure you want to delete?');
-    if (wantToDelete) 
+    if (wantToDelete)
     {
       axiosInstance.delete('/components/auth/',
           {
