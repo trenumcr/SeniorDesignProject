@@ -28,24 +28,6 @@ import axiosInstance from './../../axiosApi.js';
 
 const axiosI = axiosInstance;
 
-  var comments = [
-    {
-    userName: "UserName1",
-    date: "December 4, 2020",
-    text: "Had issues with A on..."
-    },
-    {
-      userName: "UserName2",
-      date: "April 23, 2020",
-      text: "Had issues with B on..."
-    },
-    {
-      userName: "UserName3",
-      date: "February 10, 2020",
-      text: "Had issues with C on..."
-    },
-  ]
-
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
