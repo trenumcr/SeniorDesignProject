@@ -15,12 +15,12 @@ from accounts.models import UserProfile
 def write_new_file(request, db):
     resp = {"id": None, "filename": ""}
     fs = gridfs.GridFS(db)
-    if "datasheet" in request.data:
-        data = request.FILES['datasheet'].file.read()
-        in_file = fs.put(data, filename=request.FILES['datasheet'].name)
-    if "picture" in request.data:
-        data = request.FILES['picture'].file.read()
-        in_file = fs.put(data, filename=request.FILES['picture'].name)
+    if "datasheets" in request.data:
+        data = request.FILES['datasheets'].file.read()
+        in_file = fs.put(data, filename=request.FILES['datasheets'].name)
+    if "pictures" in request.data:
+        data = request.FILES['pictures'].file.read()
+        in_file = fs.put(data, filename=request.FILES['pictures'].name)
 
     file_data = fs.get(in_file)
 
@@ -119,7 +119,7 @@ def update_component(request):
     if "pictures" in request.data:
         img_obj = write_new_file(request, db)
         collection.update({'_id': ObjectId(doc['id'])},
-                          {'$push': {'picture': {"id": img_obj["id"], "filename": img_obj["filename"]}}})
+                          {'$push': {'pictures': {"id": img_obj["id"], "filename": img_obj["filename"]}}})
         change_occured = True
 
     if "category" in request.data:
@@ -138,7 +138,7 @@ def update_component(request):
         collection.update({'_id': ObjectId(doc['id']) }, {'$set': {'price': doc["price"]}})
         change_occured = True
 
-    if "datasheet" in request.data:
+    if "datasheets" in request.data:
         pdf_obj = write_new_file(request, db)
         collection.update({'_id': ObjectId(doc['id'])}, {'$push': {'datasheets': {"id": pdf_obj["id"], "filename": pdf_obj["filename"]}}})
         change_occured = True

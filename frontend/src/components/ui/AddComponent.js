@@ -26,10 +26,10 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
+import Modal from '@material-ui/core/Modal';
 import Select from '@material-ui/core/Select';
 import Rating from '@material-ui/lab/Rating';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
-import { Redirect } from 'react-router';
 import axiosInstance from './../../axiosApi.js';
 
 const axiosI = axiosInstance;
@@ -74,6 +74,9 @@ const useStyles = makeStyles((theme) => ({
   },
   image: {
       maxHeight: '500px',
+      minHeight: '500px',
+      maxWidth: '500px',
+      maxWidth: '500px',
   },
   box: {
     paddingLeft: 20,
@@ -116,6 +119,17 @@ const useStyles = makeStyles((theme) => ({
   selectEmpty: {
     marginTop: theme.spacing(2),
   },
+  modal: {
+    position: 'absolute',
+    width: 400,
+    background: theme.palette.common.white,
+    border: '2px solid #000',
+    padding: theme.spacing(2, 4, 3),
+    boxShadow: theme.shadows[5],
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  },
 }));
 
 class AddComponentForm extends React.Component {
@@ -127,6 +141,7 @@ class AddComponentForm extends React.Component {
     {
       token: localStorage.getItem('token') ? "Token "+localStorage.getItem('token') : "",
       username: localStorage.getItem('username') ? localStorage.getItem('username') : "",
+      id: this.props.componentId,
       value: 0,
       name:"",
       pictures:[""],
@@ -135,12 +150,14 @@ class AddComponentForm extends React.Component {
       features: [""],
       datasheets:[""],
       tags:[""],
-      rating:"",
+      rating:{},
       review:"",
       manufacture_name:"",
       category:"",
       added: false,
       isUser: false,
+      imageData: [""],
+      newRating: "5",
     };
     console.log(this.state);
     if (this.state.username == "" || this.state.token == "") {
@@ -191,7 +208,11 @@ class AddComponentForm extends React.Component {
   }
 
   handleDatasheetChange = (e) => {
-    this.state.datasheets[e.currentTarget.attributes[1].nodeValue] = e.target.value;
+      this.state.datasheets[e.currentTarget.attributes[1].nodeValue] = e.target.files[0];
+      this.setState({
+        datasheets: this.state.datasheets
+      })
+      console.log(this.state);
   }
 
   handleTagsChange = (event) => {
@@ -203,7 +224,7 @@ class AddComponentForm extends React.Component {
 
   handleRatingChange = (event) => {
     this.setState({
-      rating: event.target.value
+      newRating: event.target.value
     })
   }
 
@@ -232,18 +253,30 @@ class AddComponentForm extends React.Component {
     })
   }
 
-  addPictureUpload = (e) => {
-    this.setState({
-      pictures: this.state.pictures.concat("")
-    })
-  }
-
   addFeature = (e) => {
     this.setState({
       features: this.state.features.concat("")
     })
   }
 
+  addPictureUpload = (e) => {
+    this.setState({
+      pictures: this.state.pictures.concat("")
+    })
+  }
+
+
+  _handleOpen = (e) => {
+    this.setState({
+      added: true,
+    })
+  }
+
+  _handleClose = (e) => {
+      this.setState({
+        added: false,
+      })
+  }
   // Inputs
   //const estPrice = useRef<TextFieldProps>(null);
 
@@ -263,13 +296,11 @@ class AddComponentForm extends React.Component {
           'username' : this.state.username
         },
         name:this.state.name,
-        pictures:this.state.pictures,
         price:this.state.price,
         description:this.state.description,
-        datasheets: this.state.datasheets,
         features:this.state.features,
         tags:this.state.tags,
-        rating:this.state.rating,
+        rating:this.state.newRating,
         review:this.state.review,
         manufacture_name:this.state.manufacture_name,
         category:this.state.category,
@@ -279,11 +310,42 @@ class AddComponentForm extends React.Component {
           'Authorization': this.state.token
         },
       }
-    )
-      .then(res => {
+    ).then(res => {
         this.setState({
           id: res.data._id.$oid,
           added: true,
+        })
+        var types = [1, 2];
+        return types.forEach(type => {
+          if (type == 1) {
+            this.state.pictures.forEach((picture, index) => {
+              if (picture != null && picture != "") {
+                var formData = new FormData();
+                formData.append("id", this.state.id);
+                formData.append("pictures", picture);
+                axiosI.patch('/components/auth/', formData,  {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                    'Authorization': this.state.token
+                  }
+                }).then(res => {
+                  console.log(this.state);
+                  console.log(res)
+                })
+              }
+            })
+          }
+          else {
+              this.state.datasheets.forEach((datasheet, index) => {
+                if (datasheet != null && datasheet != "") {
+                  var formData = new FormData();
+                  formData.append("id", this.state.id);
+                  formData.append("datasheets", datasheet);
+                  this.getData(formData);
+
+                }
+              })
+          }
         })
     })
     .catch(e => {
@@ -292,65 +354,52 @@ class AddComponentForm extends React.Component {
       });
       console.log(e);
     });
-
-    if (this.state.added == true) {
-      axiosI.patch('/components/auth/',
-        {
-          pictures:this.state.picture,
-          datasheets: this.state.datasheet,
-        },
-        {
-          headers: {
-            'Authorization': this.state.token
-          },
+  }
+  async getData(formData) {
+    try {
+      let res =
+      await axiosI.patch('/components/auth/', formData,  {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          'Authorization': this.state.token
         }
-      )
-        .then(res => {
-          this.setState({
-            id: res.data._id.$oid,
-            added: true,
-          })
       })
-      .catch(e => {
-        this.setState({
-          added: false,
-        });
-        console.log(e);
-      });
+      return res.data;
+    }catch(e) {
+      console.log(e);
     }
   }
 
   render(){
-    if (this.state.added) {
-      // redirect to home if signed up
-      return <Redirect to = {{ pathname: "/component/" + this.state.id }} />;
-    }
-
     if (!this.state.isUser) {
       return (<Typography variant="h4" style={{padding: '20px'}}>Please login to add a component</Typography>)
     }
+
+    var hasFeatures = (this.state.features.length > 1 || this.state.features[0] != "");
+    var hasImage = !(this.state.pictures.length == 0 || this.state.pictures[0] == "");
+    var hasDocs = !(this.state.datasheets.length == 0 || this.state.datasheets[0] == "");
+    var tagString = this.state.tags.toString();
 
     return(
       <Container component="main" maxWidth="md">
         <form className={this.props.classes.form} noValidate>
           <Grid container direction="row" justify="center" alignItems="flex-start">
             <Grid container item xs={12} md={6} lg={6} direction="column">
-              <Grid item xs={12} className={this.props.classes.image}>
-                <Carousel>
-                  {this.state.pictures.map((picture, index) => {
-                    if (picture != "")
-                      return <img src={picture.name} className="w3-left w3-circle w3-margin-right" width="60px" height="40px" />
-                    return <div></div>
-                  })}
-                </Carousel>
+              <Grid item xs={12}>
                 {this.state.pictures.map((picture, index) => (
-                    <Grid container sm={12}>
+                    <Grid container sm={12} style={{marginTop: '20px'}}>
                       <Grid container sm={8}>
                         <label for="myfile"><Typography variant="body1">Upload image:</Typography></label>
                         <input type="file" id={index} name="myfile" onClick={(e) =>{e.target.value = ''}} onChange={this.handlePictureChange}/>
                       </Grid>
                     </Grid>
                 ))}
+
+                  <Button variant="contained" className={this.props.classes.button}  style={{marginTop: '20px', color: "#235a33", paddingLeft: '20px'}} onClick={this.addPictureUpload}>
+                    <Typography variant="button" align="center" className={this.props.classes.buttonText}>
+                      Add Image
+                    </Typography>
+                  </Button>
               </Grid>
               <Grid container item xs={12} style={{paddingTop: '20px', paddingBottom: '20px'}}>
                 <Grid item xs={3}>
@@ -359,8 +408,11 @@ class AddComponentForm extends React.Component {
                 <Grid item xs={4}>
                     <Rating
                       name="customized-empty"
+                      key={`slider-${this.state.newRating}`} /* fixed issue */
                       defaultValue={5}
                       precision={0.5}
+                      value={this.state.newRating}
+                      onChange={this.handleRatingChange}
                       emptyIcon={<StarBorderIcon fontSize="inherit" />}
                     />
                 </Grid>
@@ -476,6 +528,48 @@ class AddComponentForm extends React.Component {
             </Grid>
           </Grid>
         </form>
+        <div>
+          <Modal
+            open={this.state.added}
+            onClose={this._handleClose}
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+          >
+            <div className={this.props.classes.modal}>
+              <Typography variant="h4" id="simple-modal-title">Add component</Typography>
+              <Typography variant="body1" style={{paddingBottom: "20px"}} id="simple-modal-description">
+                Component added successfully
+              </Typography>
+              <Grid container sm={12} spacing={3}>
+                <Grid item sm={6}>
+                  <a href="/add-component/">
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      className={this.props.classes.submit}
+                      onClick={this._handleClose}
+                    >
+                      Add another
+                    </Button>
+                  </a>
+                </Grid>
+                <Grid item sm={6}>
+                  <a href={"/component/" + this.state.id}><Button
+                    fullWidth
+                    variant="contained"
+                    style={{background: "#918455", color: "#FFF"}}
+                    color="primary"
+                    className={this.props.classes.submit}
+                    onClick={this.deleteAccount}
+                  >
+                    Go to component page
+                  </Button></a>
+                  </Grid>
+                  </Grid>
+            </div>
+          </Modal>
+        </div>
       </Container>
     )
   }

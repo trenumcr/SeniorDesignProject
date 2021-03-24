@@ -213,15 +213,35 @@ class ComponentProfile extends Component {
         var formattedDate = hours + ":" + minutes + halfOfDay + " " + (date.getMonth() + 1) +  "-"  + date.getDate() + "-" + date.getFullYear()
         component.data.comments[comment].created.$date = formattedDate;
       }
+
+      if (!component.data.pictures) {
+        this.setState({
+          pictures: [""],
+        })
+      }
+      else {
+          this.setState({
+            pictures: component.data.pictures,
+          })
+      }
+
+      if (!component.data.datasheets) {
+        this.setState({
+          datasheets: [""],
+        })
+      }
+      else {
+          this.setState({
+            datasheets: component.data.datasheets,
+          })
+      }
       // Convert documents object to array
       this.setState(
           {
             user: component.data.who,
-            pictures: component.data.pictures,
             rating: component.data.rating,
             description: component.data.description,
             features: component.data.features,
-            datasheets: component.data.datasheets,
             name: component.data.name,
             price: component.data.price,
             keyTerms: component.data.tags,
@@ -231,18 +251,19 @@ class ComponentProfile extends Component {
             category: component.data.category,
           }
         );
-        console.log(this.state);
 
         return this.state.pictures.forEach((picture, index) => {
-              axiosI.get('/components/file/', {
-                params: { "id": picture.id.$oid }
+          if (picture != "") {
+            axiosI.get('/components/file/', {
+              params: { "id": picture.id.$oid }
+            })
+            .then(image => {
+              this.setState({
+                imageData: this.state.imageData.concat(image.data[0].$binary),
               })
-              .then(image => {
-                this.setState({
-                  imageData: this.state.imageData.concat(image.data[0].$binary),
-                })
-              })
-            });
+            })
+          }
+        });
     })
     .catch(function (error) {
         console.log(error);
@@ -267,10 +288,10 @@ class ComponentProfile extends Component {
   }
 
   postComment = () => {
-    if(!(this.state.isUser)) 
+    if(!(this.state.isUser))
       alert("Must login to comment!");
     else {
-      axiosI.post('components/auth/comment/', 
+      axiosI.post('components/auth/comment/',
         {
           "id": this.props.componentId,
           "comments": this.state.userComment,
@@ -290,15 +311,11 @@ class ComponentProfile extends Component {
 
   render() {
     var isUser = this.state.isUser;
-    var hasTags = true;
-    var hasFeatures = true;
-    var hasImage = false;
-    var hasDocs = false;
 
-    hasFeatures = (this.state.features.length > 1 && this.state.features[0] != "");
-    hasImage = (this.state.pictures.length > 1 && this.state.pictures[0] != "" && this.state.imageData[1] != "");
-    hasDocs = (this.state.datasheets.length > 1 && this.state.datasheets[0] != "");
-    hasTags = (this.state.keyTerms.length > 0);
+    var hasFeatures = (this.state.features.length > 1 || this.state.features[0] != "");
+    var hasImage = !(this.state.pictures.length == 0 || this.state.pictures[0] == "");
+    var hasDocs = !(this.state.datasheets.length == 0 || this.state.datasheets[0] == "");
+    var hasTags = (this.state.keyTerms.length > 0);
 
     return(
       <Container component="main" maxWidth="lg">
