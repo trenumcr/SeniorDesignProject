@@ -33,6 +33,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
+import axios from 'axios';
 
 const axiosI = axiosInstance;
 
@@ -335,6 +336,30 @@ class EditComponent extends React.Component {
     });
   }
 
+  deleteComponent = () => {
+    let wantToDelete = window.confirm('Are you sure you want to delete?');
+    if (wantToDelete) 
+    {
+      axios.delete('/components/auth/',
+        {
+          "id":this.props.componentId
+        },      
+        {
+          headers: {
+            'Authorization': this.state.token
+          },
+        })
+        .then(res => {
+          this.setState({ result: "Deleted Successfully" })
+          this.handleOpenResultModal();
+        })
+      .catch(e => {
+        this.setState({ result: "Failure" })
+        this.handleOpenResultModal();
+      });
+    }
+  }
+
   render(){
     if (!this.state.isUser) {
       return (<Typography variant="h4" style={{padding: '20px'}}>Please login to edit this component</Typography>)
@@ -490,12 +515,21 @@ class EditComponent extends React.Component {
                 </Typography>
                 <TextField fullWidth id="review" multiline rows={4} variant="outlined" label="Describe your experience" onChange={this.handleReviewChange} />
               </Grid>
-              <Grid container item xs={12} justify='flex-end'>
-                <Button variant="contained" className={this.props.classes.button} style={{marginTop: '20px'}}>
-                  <Typography variant="button" align="center" onClick={this.postComponent} className={this.props.classes.buttonText}>
-                    Update Component
-                  </Typography>
-                </Button>
+              <Grid container item xs={12} justify='flex-end' spacing={3}>
+                <Grid item>
+                  <Button variant="contained" className={this.props.classes.button} style={{marginTop: '20px'}}>
+                    <Typography variant="button" align="center" onClick={this.postComponent} className={this.props.classes.buttonText}>
+                      Update Component
+                    </Typography>
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <Button variant="contained" className={this.props.classes.button} color="secondary" style={{marginTop: '20px'}}>
+                    <Typography variant="button" align="center" onClick={this.deleteComponent} className={this.props.classes.buttonText}>
+                      Delete Component
+                    </Typography>
+                  </Button>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
