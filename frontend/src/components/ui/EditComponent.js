@@ -30,6 +30,9 @@ import Select from '@material-ui/core/Select';
 import axiosInstance from './../../axiosApi.js';
 import { useParams } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
+import Modal from '@material-ui/core/Modal';
+import Backdrop from '@material-ui/core/Backdrop';
+import Fade from '@material-ui/core/Fade';
 
 const axiosI = axiosInstance;
 
@@ -68,6 +71,18 @@ function a11yProps(index) {
 }
 
 const useStyles = makeStyles((theme) => ({
+  modal: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  paper: {
+    backgroundColor: theme.palette.background.paper,
+    border: '2px solid #000',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
+
   root: {
     flexGrow: 1,
   },
@@ -142,7 +157,7 @@ class EditComponent extends React.Component {
       id:'',
       value: 0,
       name:"",
-      picture:[""],
+      picture:[],
       price:"",
       description:"",
       features: [""],
@@ -154,7 +169,11 @@ class EditComponent extends React.Component {
       category:"",
       added: false,
       isUser: false,
+      open: false,
+      result: "",
     };
+
+
     if (this.state.username == "" || this.state.token == "") {
         this.setState({
           isUser: false,
@@ -164,6 +183,14 @@ class EditComponent extends React.Component {
         this.state.isUser = true;
     }
   }
+
+  handleOpenResultModal = () => {
+    this.setState({ open:true });
+  };
+
+  handleCloseResultModal = () => {
+    this.setState({ open:false });
+  };
 
   handleChange = (event, newValue) => {
     this.setState({value: newValue});
@@ -247,6 +274,7 @@ class EditComponent extends React.Component {
   //const estPrice = useRef<TextFieldProps>(null);
 
   postComponent = (event) => {
+    event.preventDefault();
     if (this.state.tags.length == 0) {
       this.state.tags = [""];
     }
@@ -259,25 +287,30 @@ class EditComponent extends React.Component {
       this.state.picture = [""];
     }
 
-    event.preventDefault();
+    var editFields = {
+      name:this.state.name,
+      picture:this.state.picture,
+      price:this.state.price,
+      description:this.state.description,
+      datasheets: this.state.datasheet,
+      features:this.state.features,
+      tags:this.state.tags,
+      rating:this.state.rating,
+      review:this.state.review,
+      manufacture_name:this.state.manufacture_name,
+      category:this.state.category,
+    };
+
+    var updates = {};
+    for (const field in editFields) {
+        if (`${editFields[field]}` != '' && `${editFields[field]}` != ['']) {
+          updates[`${field}`] = editFields[field];
+        }
+    }
+    updates['id'] = this.props.componentId;
+
     axiosI.patch('/components/auth/',
-      {
-        user: {
-          'username' : this.state.username
-        },
-        name:this.state.name,
-        picture:this.state.picture,
-        price:this.state.price,
-        description:this.state.description,
-        datasheets: this.state.datasheet,
-        features:this.state.features,
-        tags:this.state.tags,
-        rating:this.state.rating,
-        review:this.state.review,
-        manufacture_name:this.state.manufacture_name,
-        category:this.state.category,
-        id:this.props.componentId,
-      },
+      updates,
       {
         headers: {
           'Authorization': this.state.token
@@ -285,12 +318,16 @@ class EditComponent extends React.Component {
       }
     )
       .then(res => {
+        this.setState({ result: "Success" })
+        this.handleOpenResultModal();
         this.setState({
           id: res.data._id.$oid,
           added: true,
         })
     })
     .catch(e => {
+      this.setState({ result: "Failure" })
+      this.handleOpenResultModal();
       this.setState({
         added: false,
       });
@@ -463,6 +500,26 @@ class EditComponent extends React.Component {
             </Grid>
           </Grid>
         </form>
+        <div>
+          <Modal
+          aria-labelledby="transition-modal-title"
+          aria-describedby="transition-modal-description"
+          className={this.props.classes.modal}
+          open={this.state.open}
+          onClose={this.handleCloseResultModal}
+          closeAfterTransition
+          BackdropComponent={Backdrop}
+          BackdropProps={{
+            timeout: 500,
+          }}
+        >
+          <Fade in={this.state.open}>
+            <div className={this.props.classes.paper}>
+              <h2 id="transition-modal-title">Update {this.state.result}</h2>
+            </div>
+          </Fade>
+        </Modal>
+        </div>
       </Container>
     )
   }
