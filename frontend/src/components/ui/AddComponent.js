@@ -139,7 +139,7 @@ class AddComponentForm extends React.Component {
       username: localStorage.getItem('username') ? localStorage.getItem('username') : "",
       value: 0,
       name:"",
-      picture:[""],
+      pictures:[""],
       price:"",
       description:"",
       features: [""],
@@ -152,6 +152,7 @@ class AddComponentForm extends React.Component {
       added: false,
       isUser: false,
     };
+    console.log(this.state);
     if (this.state.username == "" || this.state.token == "") {
         this.setState({
           isUser: false,
@@ -175,7 +176,11 @@ class AddComponentForm extends React.Component {
   }
 
   handlePictureChange = (e) => {
-    this.state.picture[e.currentTarget.attributes[1].nodeValue] = e.target.value;
+    this.state.pictures[e.currentTarget.attributes[1].nodeValue] = e.target.files[0];
+    this.setState({
+      pictures: this.state.pictures
+    })
+    console.log(this.state);
   }
 
   handleDescriptionChange = (e) => {
@@ -253,13 +258,13 @@ class AddComponentForm extends React.Component {
     }
 
     if (this.state.features.length == 0) {
-      this.state.picture = [""];
+      this.state.pictures = [""];
     }
 
     if (this.state.features.length == 0) {
       this.setState({
         newComponent: {
-          picture: [""],
+          pictures: [""],
         }
       })
     }
@@ -271,10 +276,10 @@ class AddComponentForm extends React.Component {
           'username' : this.state.username
         },
         name:this.state.name,
-        picture:this.state.picture,
+        pictures:this.state.pictures,
         price:this.state.price,
         description:this.state.description,
-        datasheets: this.state.datasheet,
+        datasheets: this.state.datasheets,
         features:this.state.features,
         tags:this.state.tags,
         rating:this.state.rating,
@@ -300,11 +305,35 @@ class AddComponentForm extends React.Component {
       });
       console.log(e);
     });
+
+    if (this.state.added == true) {
+      axiosI.patch('/components/auth/',
+        {
+          pictures:this.state.picture,
+          datasheets: this.state.datasheet,
+        },
+        {
+          headers: {
+            'Authorization': this.state.token
+          },
+        }
+      )
+        .then(res => {
+          this.setState({
+            id: res.data._id.$oid,
+            added: true,
+          })
+      })
+      .catch(e => {
+        this.setState({
+          added: false,
+        });
+        console.log(e);
+      });
+    }
   }
 
   render(){
-
-
     if (this.state.added) {
       // redirect to home if signed up
       return <Redirect to = {{ pathname: "/component/" + this.state.id }} />;
@@ -320,10 +349,21 @@ class AddComponentForm extends React.Component {
           <Grid container direction="row" justify="center" alignItems="flex-start">
             <Grid container item xs={12} md={6} lg={6} direction="column">
               <Grid item xs={12} className={this.props.classes.image}>
-                <Button variant="contained" component="label" className={this.props.classes.upload}>
-                  Upload Image
-                  <input type="file" onChange={this.handlePictureChange} hidden/>
-                </Button>
+                <Carousel>
+                  {this.state.pictures.map((picture, index) => {
+                    if (picture != "")
+                      return <img src={picture.name} className="w3-left w3-circle w3-margin-right" width="60px" height="40px" />
+                    return <div></div>
+                  })}
+                </Carousel>
+                {this.state.pictures.map((picture, index) => (
+                    <Grid container sm={12}>
+                      <Grid container sm={8}>
+                        <label for="myfile"><Typography variant="body1">Upload image:</Typography></label>
+                        <input type="file" id={index} name="myfile" onClick={(e) =>{e.target.value = ''}} onChange={this.handlePictureChange}/>
+                      </Grid>
+                    </Grid>
+                ))}
               </Grid>
               <Grid container item xs={12}>
                 <Grid item xs={4}>

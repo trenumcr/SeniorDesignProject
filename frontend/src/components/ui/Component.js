@@ -20,6 +20,7 @@ import DescriptionIcon from '@material-ui/icons/Description';
 import ImageIcon from '@material-ui/icons/Image';
 import Carousel from 'react-material-ui-carousel'
 import Button from '@material-ui/core/Button';
+import Link from '@material-ui/core/Link';
 import { useParams } from 'react-router-dom';
 import axiosInstance from './../../axiosApi.js';
 
@@ -81,9 +82,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   image: {
-    backgroundColor: '#e5e5e5',
-    width: '100%',
-    paddingTop: '100%',
+    maxHeight: '500px',
   },
   box: {
     paddingLeft: 20,
@@ -126,9 +125,6 @@ const useStyles = makeStyles((theme) => ({
       color: theme.palette.common.white,
       textDecoration: 'none',
     },
-    keyTerms: {
-
-    }
 }));
 
 class ComponentProfile extends Component {
@@ -140,15 +136,16 @@ class ComponentProfile extends Component {
       rating : {},
       description : "",
       features : [""],
-      datasheet : "",
+      datasheets : [""],
       name : "",
       price : "",
-      documents : {},
       keyTerms: [],
       comments: [""],
       manufacture_name:"",
       category:"",
       value:0,
+      imageData: [""],
+      docData: [""]
     }//{value:0, commentValue:""};
     this.handleChange = this.handleChange.bind(this);
   }
@@ -180,12 +177,24 @@ class ComponentProfile extends Component {
             name: component.data.name,
             price: component.data.price,
             keyTerms: component.data.tags,
+            review: component.data.review,
             comments: component.data.comments,
             manufacture_name: component.data.manufacture_name,
             category: component.data.category,
           }
         );
         console.log(this.state);
+
+        return this.state.pictures.forEach((picture, index) => {
+              axiosI.get('/components/file/', {
+                params: { "id": picture.id.$oid }
+              })
+              .then(image => {
+                this.setState({
+                  imageData: this.state.imageData.concat(image.data[0].$binary),
+                })
+              })
+            });
     })
     .catch(function (error) {
         console.log(error);
@@ -196,21 +205,39 @@ class ComponentProfile extends Component {
     this.setState({value: newValue});
   };
 
+  _handleDocDownload = (e) => {
+    axiosI.get('/components/file/', {
+      params: { "id": this.state.datasheets[e.currentTarget.attributes[1].nodeValue].id.$oid }
+    })
+    .then(doc => {
+      return
+    })
+  }
+
   render() {
     var isUser = this.state.isUser;
     var hasTags = true;
     var hasFeatures = true;
     var hasImage = false;
+    var hasDocs = false;
 
-    //hasFeatures = !(this.state.features.length > 1 && this.state.features[0] != "");
+    hasFeatures = (this.state.features.length > 1 && this.state.features[0] != "");
+    hasImage = (this.state.pictures.length > 1 && this.state.pictures[0] != "" && this.state.imageData[1] != "");
+    hasDocs = (this.state.datasheets.length > 1 && this.state.datasheets[0] != "");
     hasTags = (this.state.keyTerms.length > 0);
 
     return(
-      <Container component="main" maxWidth="md">
+      <Container component="main" maxWidth="lg">
         <Grid container direction="row" justify="center" alignItems="flex-start">
           <Grid container item xs={12} md={6} lg={6} direction="column">
-            <Grid item xs={12} className={this.props.classes.image}>
-                  <img src="../../static/images/electronicComponent.png"/>
+            <Grid item xs={12} style={{marginTop: '20px', marginRight: '20px', borderStyle: 'solid'}}>
+            <Carousel>
+            {hasImage ? (
+              this.state.pictures.map((picture, index) => (
+                <img  className={this.props.classes.image} src={`data:image/jpeg;base64,${this.state.imageData[index+1]}`}/>
+              ))) : (<div></div>)}
+
+              </Carousel>
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h4" className={this.props.classes.rating}>
@@ -224,7 +251,7 @@ class ComponentProfile extends Component {
                 </Typography>
               </Button>
               {isUser ? (
-                <Button variant="contained" className={this.props.classes.button}>
+                <Button variant="contained" className={this.props.classes.button} style={{marginLeft: '20px'}}>
                   <Typography variant="button" align="center">
                     <a className={this.props.classes.buttonText} href={"/edit-component/" + this.props.componentId}>Edit Component</a>
                   </Typography>
@@ -271,16 +298,19 @@ class ComponentProfile extends Component {
               <TabPanel value={this.state.value} index={2} className={this.props.classes.tabPanel}>
                 <List className={this.props.classes.root}>
 
-                  {/*this.state.documents.map((document) => (
-                    <ListItem>
+                  {hasDocs ? (
+                    this.state.datasheets.map((datasheet, index) => (
+                    <ListItem id={index}>
                       <ListItemAvatar>
-                        <Avatar>
-                          {document.icon}
-                        </Avatar>
+                        <DescriptionIcon>
+                        </DescriptionIcon>
                       </ListItemAvatar>
-                      <ListItemText primary={document.name} secondary={document.date} />
+                      <ListItemText primary={datasheet.filename} />
+                        <Link target="_blank" rel="noopener" href={"http://localhost:8000/api/components/file?id=" + datasheet.id.$oid}>
+                          Download
+                        </Link>
                     </ListItem>
-                  ))*/}
+                  ))) : (<div></div>)}
 
                 </List>
               </TabPanel>
@@ -297,6 +327,25 @@ class ComponentProfile extends Component {
                 ) : (<div></div>
               )}
             </Grid>
+            <Divider variant="middle" />
+            <Grid container item md={12} spacing={4} justify="center" >
+              <Grid item xs={6} >
+                <Typography variant="h6"  className={this.props.classes.manufacturer} style={{paddingTop: 10}}>
+                  Manufacturer:
+                </Typography>
+                <Typography className={this.props.classes.hardwareCategory} style={{paddingTop: 5}}>
+                  {this.state.manufacture_name}
+                </Typography>
+              </Grid>
+              <Grid item xs={6} >
+                <Typography variant="h6" className={this.props.classes.hardwareCategory} style={{paddingTop: 10}}>
+                  Hardware Category:
+                </Typography>
+                <Typography className={this.props.classes.hardwareCategory} style={{paddingTop: 5}}>
+                  {this.state.category}
+                </Typography>
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
         <Grid container direction="column" justify="center" alignItems="flex-start">
@@ -307,26 +356,8 @@ class ComponentProfile extends Component {
           </Grid>
           <Grid item xs={12}>
             <Typography variant="body1">
-              {this.state.userText}
+              {this.state.review}
             </Typography>
-          </Grid>
-          <Grid container item md={12} spacing={4} justify="center" >
-            <Grid item xs={4} >
-              <Typography variant="h6"  className={this.props.classes.manufacturer} style={{paddingTop: 10}}>
-                Manufacturer
-              </Typography>
-              <Typography className={this.props.classes.hardwareCategory} style={{paddingTop: 5}}>
-                {this.state.manufacture_name}
-              </Typography>
-            </Grid>
-            <Grid item xs={4} >
-              <Typography variant="h6" className={this.props.classes.hardwareCategory} style={{paddingTop: 10}}>
-                Hardware Category
-              </Typography>
-              <Typography className={this.props.classes.hardwareCategory} style={{paddingTop: 5}}>
-                {this.state.category}
-              </Typography>
-            </Grid>
           </Grid>
           <Grid container item direction="column" xs={12} className={this.props.classes.comments}>
             <Divider variant="middle" style={{marginTop: 20}}/>

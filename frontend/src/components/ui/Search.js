@@ -50,8 +50,8 @@ const useStyles = makeStyles(theme => ({
 class ComponentBox extends Component {
   constructor(props) {
     super(props);
-    
-    
+
+
     this.handleViewComponent = this.handleViewComponent.bind(this);
   }
 
@@ -76,7 +76,7 @@ class ComponentBox extends Component {
             </Typography>
           </div>
               <Typography variant="subtitle1" align="center">
-                Rating:                       
+                Rating:
                 <Rating
                   name="read-only"
                   value={this.props.component.rating.avg_rating}
@@ -108,7 +108,7 @@ class ComponentGrid extends Component {
 
   constructor(props) {
     super(props);
-    this.state = 
+    this.state =
     {
       components: [],
       manufacturers: [],
@@ -147,7 +147,7 @@ handleRatingChange = (e) => {
 };
 
  componentDidMount() {
-   
+
   var filters = {};
   for (const filter in this.state.filters) {
       if (`${this.state.filters[filter]}` != '') {
@@ -156,7 +156,7 @@ handleRatingChange = (e) => {
   }
   filters["name"] = this.props.searchParam;
 
-    
+
     axiosI.get('/components/filter', {
       params: filters
     })
@@ -199,7 +199,7 @@ handleRatingChange = (e) => {
             <Grid item sm={12}>
               <Typography variant="h5">Results for "{this.props.searchParam}"</Typography>
             </Grid>
-    
+
             <Grid container item sm={2} spacing={3}>
             <FilterListIcon style={{ padding: 5 }} color="secondary" />
             <Typography variant="h6" component="h3">Filters:</Typography>
@@ -243,13 +243,13 @@ handleRatingChange = (e) => {
                   <Typography>Price</Typography>
                   <FormGroup>
                     <Typography variant="body2">Less than</Typography>
-                    <Input 
-                      size="small" 
-                      id="outlined-basic" 
+                    <Input
+                      size="small"
+                      id="outlined-basic"
                       type="number"
-                      variant="outlined" 
-                      value={this.state.price} 
-                      onChange={this.handlePriceChange} 
+                      variant="outlined"
+                      value={this.state.price}
+                      onChange={this.handlePriceChange}
                       startAdornment={<InputAdornment position="start">$</InputAdornment>}
                     />
                   </FormGroup>
@@ -265,13 +265,13 @@ handleRatingChange = (e) => {
                 />
               </Box>
             </Grid>
-    
+
       <Grid container item sm={10} spacing={4}>
         {comp.map((component) => (
             <ComponentBox classes={this.props.classes} component={component} />
         ))}
       </Grid>
-    
+
           </Grid>
         </div>
     );
