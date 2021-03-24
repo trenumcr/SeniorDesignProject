@@ -27,6 +27,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import Rating from '@material-ui/lab/Rating';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { Redirect } from 'react-router';
 import axiosInstance from './../../axiosApi.js';
 
@@ -71,9 +73,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   image: {
-    backgroundColor: '#e5e5e5',
-    width: '100%',
-    paddingTop: '100%',
+      maxHeight: '500px',
   },
   box: {
     paddingLeft: 20,
@@ -93,39 +93,29 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 10,
     paddingBottom: 20,
   },
-  '*::-webkit-scrollbar': {
-      width: '0.4em'
-    },
-    '*::-webkit-scrollbar-track': {
-      '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)'
-    },
-    '*::-webkit-scrollbar-thumb': {
-      backgroundColor: 'rgba(0,0,0,.1)',
-      outline: '1px solid slategrey'
-    },
-    button: {
+  button: {
+    background: theme.palette.secondary.main,
+    '&:hover': {
+      background: theme.palette.secondary.dark,
+    }
+  },
+  upload: {
+    background: theme.palette.secondary.light,
+    '&:hover': {
       background: theme.palette.secondary.main,
-      '&:hover': {
-        background: theme.palette.secondary.dark,
-      }
-    },
-    upload: {
-      background: theme.palette.secondary.light,
-      '&:hover': {
-        background: theme.palette.secondary.main,
-      }
-    },
-    buttonText: {
-      color: theme.palette.common.white,
-      textDecoration: 'none',
-    },
-    formControl: {
-      margin: theme.spacing(1),
-      minWidth: 120,
-    },
-    selectEmpty: {
-      marginTop: theme.spacing(2),
-    },
+    }
+  },
+  buttonText: {
+    color: theme.palette.common.white,
+    textDecoration: 'none',
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
 class AddComponentForm extends React.Component {
@@ -168,11 +158,15 @@ class AddComponentForm extends React.Component {
   };
 
   handleNameChange = (event) => {
-    this.state.name = event.target.value;
+    this.setState({
+      name: event.target.value
+    })
   }
 
   handlePriceChange = (event) => {
-    this.state.price = event.target.value;
+    this.setState({
+      price: event.target.value
+    })
   }
 
   handlePictureChange = (e) => {
@@ -184,11 +178,16 @@ class AddComponentForm extends React.Component {
   }
 
   handleDescriptionChange = (e) => {
-    this.state.description = e.target.value;
+    this.setState({
+      description: e.target.value
+    })
   }
 
   handleFeatureChange = (e) => {
     this.state.features[e.currentTarget.attributes[1].nodeValue] = e.target.value;
+    this.setState({
+      features: this.state.features
+    })
   }
 
   handleDatasheetChange = (e) => {
@@ -353,30 +352,17 @@ class AddComponentForm extends React.Component {
                     </Grid>
                 ))}
               </Grid>
-              <Grid container item xs={12}>
-                <Grid item xs={4}>
-                  <FormControl variant="outlined" className={this.props.classes.formControl}>
-                    <InputLabel id="demo-simple-select-outlined-label">Your rating</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-outlined-label"
-                      id="demo-simple-select-outlined"
-                      onChange={this.handleRatingChange}
-                      label="Age"
-                      required
-                      id="rating"
-                    >
-                      <MenuItem value={1}>1</MenuItem>
-                      <MenuItem value={2}>2</MenuItem>
-                      <MenuItem value={3}>3</MenuItem>
-                      <MenuItem value={4}>4</MenuItem>
-                      <MenuItem value={5}>5</MenuItem>
-                    </Select>
-                  </FormControl>
+              <Grid container item xs={12} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                <Grid item xs={3}>
+                    <Typography>Your rating: </Typography>
                 </Grid>
-                <Grid item xs={2}>
-                  <Typography variant="h4" className={this.props.classes.rating}>
-                    <div style={{paddingTop: '10px'}}>/5</div>
-                  </Typography>
+                <Grid item xs={4}>
+                    <Rating
+                      name="customized-empty"
+                      defaultValue={5}
+                      precision={0.5}
+                      emptyIcon={<StarBorderIcon fontSize="inherit" />}
+                    />
                 </Grid>
               </Grid>
               <Grid container item xs={12} spacing={4} >

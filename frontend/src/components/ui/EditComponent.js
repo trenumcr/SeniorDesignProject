@@ -27,10 +27,12 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import Rating from '@material-ui/lab/Rating';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
 import axiosInstance from './../../axiosApi.js';
 import { useParams } from 'react-router-dom';
+import { Redirect } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
-import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 import axios from 'axios';
@@ -72,11 +74,6 @@ function a11yProps(index) {
 }
 
 const useStyles = makeStyles((theme) => ({
-  modal: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   paper: {
     backgroundColor: theme.palette.background.paper,
     border: '2px solid #000',
@@ -88,9 +85,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   image: {
-    backgroundColor: '#e5e5e5',
-    width: '100%',
-    paddingTop: '100%',
+      maxHeight: '500px',
   },
   box: {
     paddingLeft: 20,
@@ -110,39 +105,29 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 10,
     paddingBottom: 20,
   },
-  '*::-webkit-scrollbar': {
-      width: '0.4em'
-    },
-    '*::-webkit-scrollbar-track': {
-      '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)'
-    },
-    '*::-webkit-scrollbar-thumb': {
-      backgroundColor: 'rgba(0,0,0,.1)',
-      outline: '1px solid slategrey'
-    },
-    button: {
+  button: {
+    background: theme.palette.secondary.main,
+    '&:hover': {
+      background: theme.palette.secondary.dark,
+    }
+  },
+  upload: {
+    background: theme.palette.secondary.light,
+    '&:hover': {
       background: theme.palette.secondary.main,
-      '&:hover': {
-        background: theme.palette.secondary.dark,
-      }
-    },
-    upload: {
-      background: theme.palette.secondary.light,
-      '&:hover': {
-        background: theme.palette.secondary.main,
-      }
-    },
-    buttonText: {
-      color: theme.palette.common.white,
-      textDecoration: 'none',
-    },
-    formControl: {
-      margin: theme.spacing(1),
-      minWidth: 120,
-    },
-    selectEmpty: {
-      marginTop: theme.spacing(2),
-    },
+    }
+  },
+  buttonText: {
+    color: theme.palette.common.white,
+    textDecoration: 'none',
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
 class EditComponent extends React.Component {
@@ -150,21 +135,20 @@ class EditComponent extends React.Component {
   constructor(props)
   {
     super(props);
-    
-    this.state=
-    {
+
+    this.state = {
       token: localStorage.getItem('token') ? "Token "+localStorage.getItem('token') : "",
       username: localStorage.getItem('username') ? localStorage.getItem('username') : "",
       id:'',
       value: 0,
       name:"",
-      picture:[],
+      pictures:[""],
       price:"",
       description:"",
       features: [""],
       datasheets:[""],
       tags:[""],
-      rating:"",
+      rating:{},
       review:"",
       manufacture_name:"",
       category:"",
@@ -172,6 +156,8 @@ class EditComponent extends React.Component {
       isUser: false,
       open: false,
       result: "",
+      imageData: [""],
+      docData: [""],
     };
 
 
@@ -185,40 +171,165 @@ class EditComponent extends React.Component {
     }
   }
 
-  handleOpenResultModal = () => {
-    this.setState({ open:true });
-  };
+  componentDidMount() {
+    axiosI.get('/components', {
+      params: { "_id": this.props.componentId }
+    })
+    .then(component => {
+      if (component.data.who == localStorage.getItem('username')) {
+        this.setState({
+          isUser: true,
+        })
+      }
+      else {
+        this.setState({
+          isUser: false,
+        })
+      }
+      // Convert documents object to array
+      this.setState(
+          {
+            user: component.data.who,
+            pictures: component.data.pictures,
+            rating: component.data.rating,
+            description: component.data.description,
+            features: component.data.features,
+            datasheets: component.data.datasheets,
+            name: component.data.name,
+            price: component.data.price,
+            tags: component.data.tags,
+            review: component.data.review,
+            comments: component.data.comments,
+            manufacture_name: component.data.manufacture_name,
+            category: component.data.category,
+          }
+        );
+        console.log(this.state);
 
-  handleCloseResultModal = () => {
-    this.setState({ open:false });
-  };
+        return this.state.pictures.forEach((picture, index) => {
+              axiosI.get('/components/file/', {
+                params: { "id": picture.id.$oid }
+              })
+              .then(image => {
+                this.setState({
+                  imageData: this.state.imageData.concat(image.data[0].$binary),
+                })
+              })
+            });
+    })
+    .catch(function (error) {
+        console.log(error);
+    })
+  }
 
   handleChange = (event, newValue) => {
     this.setState({value: newValue});
   };
 
   handleNameChange = (event) => {
-    this.state.name = event.target.value;
+    this.setState({
+      name: event.target.value
+    })
   }
 
   handlePriceChange = (event) => {
-    this.state.price = event.target.value;
+    this.setState({
+      price: event.target.value
+    })
   }
 
-  handlePictureChange = (e) => {
-    this.state.picture[e.currentTarget.attributes[1].nodeValue] = e.target.value;
+  handlePictureUpload = (e) => {
+    var url = '/components/auth/';
+    var formData = new FormData();
+    var imagefile = e.target.files[0];
+    formData.append("pictures", imagefile);
+    formData.append("id", this.props.componentId);
+
+    var data = {
+      id: this.props.componentId,
+      pictures: formData
+    }
+    console.log(data.id + " " + data.pictures + " " + this.state.token);
+    axiosI.patch(url, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        'Authorization': this.state.token
+    }}).then(response => {
+      this.setState({
+        pictures: this.state.pictures.concat(response.data),
+      })
+
+       return axiosI.get('/components/file/', {
+        params: { "id": response.data.pictures[response.data.pictures.length-1].id.$oid }
+      })
+      .then(image => {
+        this.setState({
+          imageData: this.state.imageData.concat(image.data[0].$binary),
+        })
+        console.log(response);
+        console.log(image);
+        console.log(this.state);
+      })
+    })
+  }
+
+  handlePictureDelete = (e) => {
+      /*var url = '/components/auth/';
+      var formData = new FormData();
+      var imagefile = e.target.files[0];
+      formData.append("pictures", imagefile);
+      formData.append("id", this.props.componentId);
+
+      var data = {
+        id: this.props.componentId,
+        pictures: formData
+      }
+      console.log(data.id + " " + data.pictures + " " + this.state.token);
+      axiosI.delete(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          'Authorization': this.state.token
+      }}).then(response => {
+        this.setState({
+          pictures: this.state.pictures.filter(picture => picture._id.$oid != response.data.id.$oid),
+        })
+      })*/
   }
 
   handleDescriptionChange = (e) => {
-    this.state.description = e.target.value;
+    this.setState({
+      description: e.target.value
+    })
   }
 
   handleFeatureChange = (e) => {
     this.state.features[e.currentTarget.attributes[1].nodeValue] = e.target.value;
+    this.setState({
+      features: this.state.features
+    })
   }
 
-  handleDatasheetChange = (e) => {
-    this.state.datasheets[e.currentTarget.attributes[1].nodeValue] = e.target.value;
+  handleDatasheetUpload = (e) => {
+    var url = '/components/auth/';
+    var formData = new FormData();
+    var docfile = e.target.files[0];
+    formData.append("datasheets", docfile);
+    formData.append("id", this.props.componentId);
+
+    axiosI.patch(url, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        'Authorization': this.state.token
+    }}).then(response => {
+      this.state = response.data;
+      this.setState({
+        datasheets: this.state.datasheets,
+      })
+    })
+  }
+
+  handleDatasheetDelete = (e) => {
+
   }
 
   handleTagsChange = (event) => {
@@ -230,7 +341,7 @@ class EditComponent extends React.Component {
 
   handleRatingChange = (event) => {
     this.setState({
-      rating: event.target.value
+      newRating: event.target.value
     })
   }
 
@@ -253,18 +364,6 @@ class EditComponent extends React.Component {
     })
   }
 
-  addDatasheetUpload = (e) => {
-    this.setState({
-      datasheets: this.state.datasheets.concat("")
-    })
-  }
-
-  addPictureUpload = (e) => {
-    this.setState({
-      pictures: this.state.pictures.concat("")
-    })
-  }
-
   addFeature = (e) => {
     this.setState({
       features: this.state.features.concat("")
@@ -280,38 +379,21 @@ class EditComponent extends React.Component {
       this.state.tags = [""];
     }
 
-    if (this.state.features.length == 0) {
-      this.state.features = [""];
-    }
-
-    if (this.state.features.length == 0) {
-      this.state.picture = [""];
-    }
-
-    var editFields = {
+    var data = {
+      id: this.props.componentId,
       name:this.state.name,
-      picture:this.state.picture,
       price:this.state.price,
       description:this.state.description,
-      datasheets: this.state.datasheet,
       features:this.state.features,
       tags:this.state.tags,
-      rating:this.state.rating,
+      rating:this.state.newRating,
       review:this.state.review,
       manufacture_name:this.state.manufacture_name,
       category:this.state.category,
     };
 
-    var updates = {};
-    for (const field in editFields) {
-        if (`${editFields[field]}` != '' && `${editFields[field]}` != ['']) {
-          updates[`${field}`] = editFields[field];
-        }
-    }
-    updates['id'] = this.props.componentId;
-
     axiosI.patch('/components/auth/',
-      updates,
+      data,
       {
         headers: {
           'Authorization': this.state.token
@@ -320,17 +402,17 @@ class EditComponent extends React.Component {
     )
       .then(res => {
         this.setState({ result: "Success" })
-        this.handleOpenResultModal();
+
         this.setState({
           id: res.data._id.$oid,
-          added: true,
+          edited: true,
         })
     })
     .catch(e => {
       this.setState({ result: "Failure" })
-      this.handleOpenResultModal();
+
       this.setState({
-        added: false,
+        edited: false,
       });
       console.log(e);
     });
@@ -365,41 +447,55 @@ class EditComponent extends React.Component {
       return (<Typography variant="h4" style={{padding: '20px'}}>Please login to edit this component</Typography>)
     }
 
+    if (this.state.edited) {
+      return <Redirect to = {{ pathname: "/component/" + this.props.componentId }} />;
+    }
+
+    var hasFeatures = (this.state.features.length > 1 || this.state.features[0] != "");
+    var hasImage = !(this.state.pictures.length == 0 || this.state.pictures[0] == "");
+    var hasDocs = !(this.state.datasheets.length == 0 || this.state.datasheets[0] == "");
+    var tagString = this.state.tags.toString();
+
     return(
       <Container component="main" maxWidth="md">
         <form className={this.props.classes.form} noValidate>
           <Grid container direction="row" justify="center" alignItems="flex-start">
             <Grid container item xs={12} md={6} lg={6} direction="column">
-              <Grid item xs={12} className={this.props.classes.image}>
-                <Button variant="contained" component="label" className={this.props.classes.upload}>
-                  Upload Image
-                  <input type="file" onChange={this.handlePictureChange} hidden/>
-                </Button>
+              <Grid item xs={12} className={this.props.classes.image} style={{marginTop: '20px', marginRight: '20px', borderStyle: 'solid', overflow: 'hidden'}}>
+              <Carousel autoPlay={false}>
+              {hasImage ? (
+                this.state.pictures.map((picture, index) => (
+                  <Grid item>
+                    <img  className={this.props.classes.image} src={`data:image/jpeg;base64,${this.state.imageData[index+1]}`}/>
+                    <Button onClick={this.handlePictureDelete} variant="contained" style={{marginTop: '-70px'}} component="label" className={this.props.classes.upload}>
+                      Delete this image
+                    </Button>
+                  </Grid>
+                ))) : (<div></div>)}
+
+                </Carousel>
               </Grid>
-              <Grid container item xs={12}>
-                <Grid item xs={4}>
-                  <FormControl variant="outlined" className={this.props.classes.formControl}>
-                    <InputLabel id="demo-simple-select-outlined-label">Your rating</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-outlined-label"
-                      id="demo-simple-select-outlined"
-                      onChange={this.handleRatingChange}
-                      label="Age"
-                      required
-                      id="rating"
-                    >
-                      <MenuItem value={1}>1</MenuItem>
-                      <MenuItem value={2}>2</MenuItem>
-                      <MenuItem value={3}>3</MenuItem>
-                      <MenuItem value={4}>4</MenuItem>
-                      <MenuItem value={5}>5</MenuItem>
-                    </Select>
-                  </FormControl>
+              <Grid item style={{marginTop: '20px'}}>
+                <label for="myfile">
+                  <Typography variant="body1">Upload new image:</Typography>
+                </label>
+                <input type="file" id="myfile" name="myfile" onClick={(e) =>{e.target.value = ''}} onChange={this.handlePictureUpload}/>
+              </Grid>
+
+              <Grid container item xs={12} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                <Grid item xs={3}>
+                    <Typography>Your rating: </Typography>
                 </Grid>
-                <Grid item xs={2}>
-                  <Typography variant="h4" className={this.props.classes.rating}>
-                    <div style={{paddingTop: '10px'}}>/5</div>
-                  </Typography>
+                <Grid item xs={4}>
+                    <Rating
+                      name="customized-empty"
+                      key={`slider-${this.state.rating.avg_rating}`} /* fixed issue */
+                      defaultValue={this.state.rating.avg_rating}
+                      precision={0.5}
+                      value={this.state.newRating}
+                      onChange={this.handleRatingChange}
+                      emptyIcon={<StarBorderIcon fontSize="inherit" />}
+                    />
                 </Grid>
               </Grid>
               <Grid container item xs={12} spacing={4} >
@@ -407,24 +503,24 @@ class EditComponent extends React.Component {
                   <Typography className={this.props.classes.manufacturer} style={{paddingTop: 10}}>
                     Manufacturer:
                   </Typography>
-                  <TextField fullWidth id="manufacturer" onChange={this.handleManufacturerChange} />
+                  <TextField fullWidth id="manufacturer" value={this.state.manufacture_name} onChange={this.handleManufacturerChange} />
                 </Grid>
                 <Grid item xs={6} >
                   <Typography className={this.props.classes.hardwareCategory} style={{paddingTop: 10}}>
                     Hardware Category:
                   </Typography>
-                  <TextField fullWidth id="hardwareCategory" onChange={this.handleHardwareCategoryChange} />
+                  <TextField fullWidth id="hardwareCategory" value={this.state.category} onChange={this.handleHardwareCategoryChange} />
                 </Grid>
               </Grid>
             </Grid>
             <Grid container item xs={12} md={6} lg={6} direction="column" className={this.props.classes.box}>
               <Grid item xs={12}>
                 <Typography variant="h3" className={this.props.classes.rating}>
-                  <TextField required defaultValue={this.state.name} fullWidth id="name" label="Component Name" variant="outlined" name="rating" onChange={this.handleNameChange} autoFocus/>
+                  <TextField required value={this.state.name} fullWidth id="name" label="Component Name" variant="outlined" name="rating" onChange={this.handleNameChange} autoFocus/>
                 </Typography>
               </Grid>
               <Grid container item xs={12}>
-                <TextField onChange={this.handlePriceChange} margin="normal" variant="outlined" required id="price" label="Estimated price"/>
+                <TextField onChange={this.handlePriceChange} margin="normal" value={this.state.price} variant="outlined" required id="price" label="Estimated price"/>
               </Grid>
               <Grid item xs={12} className={this.props.classes.tabs}>
                 <Tabs value={this.state.value} onChange={this.handleChange} aria-label="tabs" indicatorColor="primary"
@@ -434,7 +530,7 @@ class EditComponent extends React.Component {
                   <Tab className={this.props.classes.tab} label="Documents" {...a11yProps(2)} />
                 </Tabs>
                 <TabPanel value={this.state.value} index={0} className={this.props.classes.tabPanel}>
-                  <TextField fullWidth multiline rows={8} id="description" variant="outlined" label="Description" onChange={this.handleDescriptionChange}/>
+                  <TextField fullWidth multiline value={this.state.description} rows={8} id="description" variant="outlined" label="Description" onChange={this.handleDescriptionChange}/>
                 </TabPanel>
                 <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
                   <ul>
@@ -442,7 +538,7 @@ class EditComponent extends React.Component {
                       <li>
                         <Grid container sm={12}>
                           <Grid container sm={8}>
-                            <TextField fullWidth id={index} label="Feature" onChange={this.handleFeatureChange} />
+                            <TextField fullWidth id={index} value={this.state.features[index]} label="Feature" onChange={this.handleFeatureChange} />
                           </Grid>
                         </Grid>
                       </li>
@@ -458,45 +554,34 @@ class EditComponent extends React.Component {
                   </ul>
                 </TabPanel>
                 <TabPanel value={this.state.value} index={2} className={this.props.classes.tabPanel}>
-                  <List className={this.props.classes.root}>
-                    <ListItem>
+                <List className={this.props.classes.root}>
+                  {hasDocs ? (
+                    this.state.datasheets.map((datasheet, index) => (
+                    <ListItem id={index}>
                       <ListItemAvatar>
-                        <Avatar><DescriptionIcon/></Avatar>
+                        <DescriptionIcon>
+                        </DescriptionIcon>
                       </ListItemAvatar>
-                      <Button variant="contained" component="label" className={this.props.classes.upload}>
-                        Upload Refrence Sheet
-                        <input onChange={this.handleReferenceSheetChange} type="file" hidden/>
-                      </Button>
-                      <ListItemText/>
+                      <ListItemText primary={datasheet.filename} />
+                        <Link target="_blank" rel="noopener" href={"http://localhost:8000/api/components/file?id=" + datasheet.id.$oid}>
+                          Delete
+                        </Link>
                     </ListItem>
-                    <ListItem>
-                      <ListItemAvatar>
-                        <Avatar><ImageIcon/></Avatar>
-                      </ListItemAvatar>
-                      <Button variant="contained" component="label" className={this.props.classes.upload}>
-                        Upload Additional Images
-                        <input type="file" onChange={this.handleAdditionalImagesChange} hidden/>
-                      </Button>
-                      <ListItemText/>
-                    </ListItem>
-                    <ListItem>
-                      <ListItemAvatar>
-                        <Avatar><PictureAsPdfIcon/></Avatar>
-                      </ListItemAvatar>
-                      <Button variant="contained" component="label" className={this.props.classes.upload}>
-                        Upload Additional Documents
-                        <input type="file" onChange={this.handleAdditionalDocumentsChange} hidden/>
-                      </Button>
-                      <ListItemText/>
-                    </ListItem>
-                  </List>
+                  ))) : (<div></div>)}
+                  <Grid container sm={12}>
+                    <Grid container sm={8}>
+                      <label for="myfile"><Typography variant="body1">Upload document:</Typography></label>
+                      <input type="file" id="myfile" name="myfile" onClick={(e) =>{e.target.value = ''}} onChange={this.handleDatasheetUpload}/>
+                    </Grid>
+                  </Grid>
+                </List>
                 </TabPanel>
               </Grid>
               <Grid item xs={12}>
-                <Typography variant="body2" className={this.props.classes.keyTerms} style={{paddingTop: 10}}>
+                <Typography variant="body2" className={this.props.classes.tags} style={{paddingTop: 10}}>
                   Tags:
                 </Typography>
-                <TextField fullWidth id="tag1" multiline label="Enter tags in a comma separated list" onChange={this.handleTagsChange} />
+                <TextField fullWidth id="tag1" value={tagString} multiline label="Enter tags in a comma separated list" onChange={this.handleTagsChange} />
               </Grid>
             </Grid>
 
@@ -513,7 +598,7 @@ class EditComponent extends React.Component {
                 <Typography variant="h4" style={{paddingTop: 20, paddingBottom: 10}}>
                   Your Review:
                 </Typography>
-                <TextField fullWidth id="review" multiline rows={4} variant="outlined" label="Describe your experience" onChange={this.handleReviewChange} />
+                <TextField value={this.state.review} fullWidth id="review" multiline rows={4} variant="outlined" label="Describe your experience" onChange={this.handleReviewChange} />
               </Grid>
               <Grid container item xs={12} justify='flex-end' spacing={3}>
                 <Grid item>
@@ -534,26 +619,6 @@ class EditComponent extends React.Component {
             </Grid>
           </Grid>
         </form>
-        <div>
-          <Modal
-          aria-labelledby="transition-modal-title"
-          aria-describedby="transition-modal-description"
-          className={this.props.classes.modal}
-          open={this.state.open}
-          onClose={this.handleCloseResultModal}
-          closeAfterTransition
-          BackdropComponent={Backdrop}
-          BackdropProps={{
-            timeout: 500,
-          }}
-        >
-          <Fade in={this.state.open}>
-            <div className={this.props.classes.paper}>
-              <h2 id="transition-modal-title">Update {this.state.result}</h2>
-            </div>
-          </Fade>
-        </Modal>
-        </div>
       </Container>
     )
   }
