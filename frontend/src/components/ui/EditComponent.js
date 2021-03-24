@@ -422,21 +422,19 @@ class EditComponent extends React.Component {
     let wantToDelete = window.confirm('Are you sure you want to delete?');
     if (wantToDelete) 
     {
-      axios.delete('/components/auth/',
-        {
-          "id":this.props.componentId
-        },      
-        {
-          headers: {
-            'Authorization': this.state.token
-          },
-        })
+      axiosInstance.delete('/components/auth/',
+          {
+            headers: {
+                'Authorization': this.state.token
+            },
+            params : { "_id":this.props.componentId }, 
+          })
         .then(res => {
           this.setState({ result: "Deleted Successfully" })
           this.handleOpenResultModal();
         })
       .catch(e => {
-        this.setState({ result: "Failure" })
+        this.setState({ result: "Failed to Delete" })
         this.handleOpenResultModal();
       });
     }
