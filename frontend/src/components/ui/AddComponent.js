@@ -147,7 +147,7 @@ class AddComponentForm extends React.Component {
       pictures:[""],
       price:"",
       description:"",
-      features: [""],
+      specifications: [""],
       datasheets:[""],
       tags:[""],
       rating:{},
@@ -201,9 +201,9 @@ class AddComponentForm extends React.Component {
   }
 
   handleFeatureChange = (e) => {
-    this.state.features[e.currentTarget.attributes[1].nodeValue] = e.target.value;
+    this.state.specifications[e.currentTarget.attributes[1].nodeValue] = e.target.value;
     this.setState({
-      features: this.state.features
+      specifications: this.state.specifications
     })
   }
 
@@ -255,7 +255,7 @@ class AddComponentForm extends React.Component {
 
   addFeature = (e) => {
     this.setState({
-      features: this.state.features.concat("")
+      specifications: this.state.specifications.concat("")
     })
   }
 
@@ -285,8 +285,8 @@ class AddComponentForm extends React.Component {
       this.state.tags = [""];
     }
 
-    if (this.state.features.length == 0) {
-      this.state.features = [""];
+    if (this.state.specifications.length == 0) {
+      this.state.specifications = [""];
     }
 
     event.preventDefault();
@@ -298,7 +298,7 @@ class AddComponentForm extends React.Component {
         name:this.state.name,
         price:this.state.price,
         description:this.state.description,
-        features:this.state.features,
+        specifications:this.state.specifications,
         tags:this.state.tags,
         rating:this.state.newRating,
         review:this.state.review,
@@ -375,7 +375,7 @@ class AddComponentForm extends React.Component {
       return (<Typography variant="h4" style={{padding: '20px'}}>Please login to add a component</Typography>)
     }
 
-    var hasFeatures = (this.state.features.length > 1 || this.state.features[0] != "");
+    var hasFeatures = (this.state.specifications.length > 1 || this.state.specifications[0] != "");
     var hasImage = !(this.state.pictures.length == 0 || this.state.pictures[0] == "");
     var hasDocs = !(this.state.datasheets.length == 0 || this.state.datasheets[0] == "");
     var tagString = this.state.tags.toString();
@@ -389,7 +389,7 @@ class AddComponentForm extends React.Component {
                 {this.state.pictures.map((picture, index) => (
                     <Grid container sm={12} style={{marginTop: '20px'}}>
                       <Grid container sm={8}>
-                        <label for="myfile"><Typography variant="body1">Upload image:</Typography></label>
+                        <label for={index}><Typography variant="body1">Upload image:</Typography></label>
                         <input type="file" id={index} name="myfile" onClick={(e) =>{e.target.value = ''}} onChange={this.handlePictureChange}/>
                       </Grid>
                     </Grid>
@@ -454,11 +454,11 @@ class AddComponentForm extends React.Component {
                 </TabPanel>
                 <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
                   <ul>
-                    {this.state.features.map((feature, index) => (
+                    {this.state.specifications.map((feature, index) => (
                       <li>
                         <Grid container sm={12}>
                           <Grid container sm={8}>
-                            <TextField fullWidth id={index}  defaultValue={this.state.features[index]} label="Feature" onChange={this.handleFeatureChange} />
+                            <TextField fullWidth id={index}  defaultValue={this.state.specifications[index]} label="Feature" onChange={this.handleFeatureChange} />
                           </Grid>
                         </Grid>
                       </li>

@@ -35,6 +35,7 @@ import { Redirect } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
+import Modal from '@material-ui/core/Modal';
 import axios from 'axios';
 
 const axiosI = axiosInstance;
@@ -128,6 +129,17 @@ const useStyles = makeStyles((theme) => ({
   selectEmpty: {
     marginTop: theme.spacing(2),
   },
+  modal: {
+    position: 'absolute',
+    width: 400,
+    background: theme.palette.common.white,
+    border: '2px solid #000',
+    padding: theme.spacing(2, 4, 3),
+    boxShadow: theme.shadows[5],
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  },
 }));
 
 class EditComponent extends React.Component {
@@ -139,20 +151,21 @@ class EditComponent extends React.Component {
     this.state = {
       token: localStorage.getItem('token') ? "Token "+localStorage.getItem('token') : "",
       username: localStorage.getItem('username') ? localStorage.getItem('username') : "",
-      id:'',
+      id:this.props.componentId,
       value: 0,
       name:"",
       pictures:[""],
       price:"",
       description:"",
-      features: [""],
+      specifications: [""],
       datasheets:[""],
       tags:[""],
       rating:{},
       review:"",
       manufacture_name:"",
       category:"",
-      added: false,
+      edited: false,
+      deleted: false,
       isUser: false,
       open: false,
       imageData: [""],
@@ -191,7 +204,7 @@ class EditComponent extends React.Component {
             pictures: component.data.pictures,
             rating: component.data.rating,
             description: component.data.description,
-            features: component.data.features,
+            specifications: component.data.specifications,
             datasheets: component.data.datasheets,
             name: component.data.name,
             price: component.data.price,
@@ -249,7 +262,7 @@ class EditComponent extends React.Component {
         'Authorization': this.state.token
     }}).then(response => {
       this.setState({
-        pictures: this.state.pictures.concat(response.data),
+        pictures: response.data.pictures,
       })
 
        return axiosI.get('/components/file/', {
@@ -266,27 +279,23 @@ class EditComponent extends React.Component {
     })
   }
 
-  handlePictureDelete = (e) => {
-      /*var url = '/components/auth/';
-      var formData = new FormData();
-      var imagefile = e.target.files[0];
-      formData.append("pictures", imagefile);
-      formData.append("id", this.props.componentId);
+  handlePictureDelete (index) {
+      var url = '/components/file/';
 
-      var data = {
-        id: this.props.componentId,
-        pictures: formData
-      }
-      console.log(data.id + " " + data.pictures + " " + this.state.token);
-      axiosI.delete(url, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          'Authorization': this.state.token
-      }}).then(response => {
+      axiosI.delete(url,  {
+        params: {
+          "fileID": this.state.pictures[index].id.$oid,
+          "compID": this.state.id,
+          "fileType": "pictures",
+        }
+      }).then(response => {
+        var array = [...this.state.imageData];
+        array.splice(index+1, 1);
         this.setState({
-          pictures: this.state.pictures.filter(picture => picture._id.$oid != response.data.id.$oid),
+          pictures: this.state.pictures.filter(image => image.id.$oid != this.state.pictures[index].id.$oid),
+          imageData: array
         })
-      })*/
+      })
   }
 
   handleDescriptionChange = (e) => {
@@ -296,9 +305,9 @@ class EditComponent extends React.Component {
   }
 
   handleFeatureChange = (e) => {
-    this.state.features[e.currentTarget.attributes[1].nodeValue] = e.target.value;
+    this.state.specifications[e.currentTarget.attributes[1].nodeValue] = e.target.value;
     this.setState({
-      features: this.state.features
+      specifications: this.state.specifications
     })
   }
 
@@ -321,8 +330,20 @@ class EditComponent extends React.Component {
     })
   }
 
-  handleDatasheetDelete = (e) => {
+  handleDatasheetDelete (index) {
+    var url = '/components/file/';
 
+    axiosI.delete(url,  {
+      params: {
+        "fileID": this.state.datasheets[index].id.$oid,
+        "compID": this.state.id,
+        "fileType": "datasheets",
+      }
+    }).then(response => {
+      this.setState({
+        datasheets: this.state.datasheets.filter(doc => doc.id.$oid != this.state.datasheets[index].id.$oid)
+      })
+    })
   }
 
   handleTagsChange = (event) => {
@@ -359,7 +380,7 @@ class EditComponent extends React.Component {
 
   addFeature = (e) => {
     this.setState({
-      features: this.state.features.concat("")
+      specifications: this.state.specifications.concat("")
     })
   }
 
@@ -377,7 +398,7 @@ class EditComponent extends React.Component {
       name:this.state.name,
       price:this.state.price,
       description:this.state.description,
-      features:this.state.features,
+      specifications:this.state.specifications,
       tags:this.state.tags,
       rating:this.state.newRating,
       review:this.state.review,
@@ -407,24 +428,51 @@ class EditComponent extends React.Component {
     });
   }
 
+  _handleOpen = (e) => {
+    this.setState({
+      open: true,
+    })
+  }
+
+  _handleClose = (e) => {
+      this.setState({
+        open: false,
+      })
+  }
+
   deleteComponent = () => {
-    let wantToDelete = window.confirm('Are you sure you want to delete?');
-    if (wantToDelete)
-    {
-      axiosInstance.delete('/components/auth/',
-          {
-            headers: {
-                'Authorization': this.state.token
-            },
-            params : { "_id":this.props.componentId }, 
-          })
-        .then(res => {
-          alert("Deleted Successfully")
+    axiosInstance.delete('/components/auth/',
+        {
+          headers: {
+              'Authorization': this.state.token
+          },
+          params : { "_id":this.props.componentId },
         })
-      .catch(e => {
-        alert("Failure to Delete")
-      });
-    }
+      .then(res => {
+        return axiosInstance.get('accounts/auth/view/profile/' + this.state.username + "/")
+          .then( res => {
+            this.setState({
+              posts_made: res.data.posts_made,
+            })
+            return (axiosInstance
+              .patch('accounts/auth/user/profile/' + this.state.username + '/', {
+                  posts_made: this.state.posts_made.filter(post => post != this.state.id)
+                }, {
+                headers: {
+                  'Authorization': this.state.token
+                }
+              })
+              .then( res => {
+                this.setState({
+                  deleted: true,
+                })
+              })
+            );
+          })
+        })
+    .catch(e => {
+      alert("Failure to Delete")
+    });
   }
 
   render(){
@@ -436,7 +484,11 @@ class EditComponent extends React.Component {
       return <Redirect to = {{ pathname: "/component/" + this.props.componentId }} />;
     }
 
-    var hasFeatures = (this.state.features.length > 1 || this.state.features[0] != "");
+    if (this.state.deleted) {
+      return <Redirect to = {{ pathname: "/"}} />;
+    }
+
+    var hasFeatures = (this.state.specifications.length > 1 || this.state.specifications[0] != "");
     var hasImage = !(this.state.pictures.length == 0 || this.state.pictures[0] == "");
     var hasDocs = !(this.state.datasheets.length == 0 || this.state.datasheets[0] == "");
     var tagString = this.state.tags.toString();
@@ -447,16 +499,16 @@ class EditComponent extends React.Component {
           <Grid container direction="row" justify="center" alignItems="flex-start">
             <Grid container item xs={12} md={6} lg={6} direction="column">
               <Grid item xs={12} className={this.props.classes.image} style={{marginTop: '20px', marginRight: '20px', borderStyle: 'solid', overflow: 'hidden'}}>
-              <Carousel autoPlay={false}>
-              {hasImage ? (
-                this.state.pictures.map((picture, index) => (
-                  <Grid item>
-                    <img  className={this.props.classes.image} src={`data:image/jpeg;base64,${this.state.imageData[index+1]}`}/>
-                    <Button onClick={this.handlePictureDelete} variant="contained" style={{marginTop: '-70px'}} component="label" className={this.props.classes.upload}>
-                      Delete this image
-                    </Button>
-                  </Grid>
-                ))) : (<div></div>)}
+                <Carousel autoPlay={false}>
+                {hasImage ? (
+                  this.state.pictures.map((picture, index) => (
+                    <Grid item>
+                      <img  className={this.props.classes.image} src={`data:image/jpeg;base64,${this.state.imageData[index+1]}`}/>
+                      <Button id={index} onClick={() => this.handlePictureDelete(index)} variant="contained" style={{marginTop: '-70px'}} component="label" className={this.props.classes.upload}>
+                        Delete this image
+                      </Button>
+                    </Grid>
+                  ))) : (<div></div>)}
 
                 </Carousel>
               </Grid>
@@ -519,11 +571,11 @@ class EditComponent extends React.Component {
                 </TabPanel>
                 <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
                   <ul>
-                    {this.state.features.map((feature, index) => (
+                    {this.state.specifications.map((feature, index) => (
                       <li>
                         <Grid container sm={12}>
                           <Grid container sm={8}>
-                            <TextField fullWidth id={index} value={this.state.features[index]} label="Feature" onChange={this.handleFeatureChange} />
+                            <TextField fullWidth id={index} value={this.state.specifications[index]} label="Feature" onChange={this.handleFeatureChange} />
                           </Grid>
                         </Grid>
                       </li>
@@ -548,7 +600,7 @@ class EditComponent extends React.Component {
                         </DescriptionIcon>
                       </ListItemAvatar>
                       <ListItemText primary={datasheet.filename} />
-                        <Link target="_blank" rel="noopener" href={"http://localhost:8000/api/components/file?id=" + datasheet.id.$oid}>
+                        <Link rel="noopener" onClick={()=> this.handleDatasheetDelete(index)}>
                           Delete
                         </Link>
                     </ListItem>
@@ -595,7 +647,7 @@ class EditComponent extends React.Component {
                 </Grid>
                 <Grid item>
                   <Button variant="contained" className={this.props.classes.button} color="secondary" style={{marginTop: '20px'}}>
-                    <Typography variant="button" align="center" onClick={this.deleteComponent} className={this.props.classes.buttonText}>
+                    <Typography variant="button" align="center" onClick={this._handleOpen} className={this.props.classes.buttonText}>
                       Delete Component
                     </Typography>
                   </Button>
@@ -604,6 +656,46 @@ class EditComponent extends React.Component {
             </Grid>
           </Grid>
         </form>
+        <div>
+          <Modal
+            open={this.state.open}
+            onClose={this._handleClose}
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+          >
+            <div className={this.props.classes.modal}>
+              <Typography variant="h4" id="simple-modal-title">Delete component?</Typography>
+              <Typography variant="body1" style={{paddingBottom: "20px"}} id="simple-modal-description">
+                Clicking confirm will permanently delete this component.
+              </Typography>
+              <Grid container sm={12} spacing={3}>
+              <Grid item sm={6}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  className={this.props.classes.submit}
+                  onClick={this._handleClose}
+                >
+                  Cancel
+                </Button>
+                </Grid>
+                <Grid item sm={6}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    style={{background: "#918455", color: "#FFF"}}
+                    color="primary"
+                    className={this.props.classes.submit}
+                    onClick={this.deleteComponent}
+                  >
+                    Confirm
+                  </Button>
+                  </Grid>
+                  </Grid>
+            </div>
+          </Modal>
+        </div>
       </Container>
     )
   }

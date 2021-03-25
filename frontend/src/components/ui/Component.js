@@ -138,7 +138,7 @@ class ComponentProfile extends Component {
       rating : {},
 	  userRating: "0",
       description : "",
-      features : [""],
+      specifications : [""],
       datasheets : [""],
       name : "",
       price : "",
@@ -224,7 +224,7 @@ class ComponentProfile extends Component {
             user: component.data.who,
             rating: component.data.rating,
             description: component.data.description,
-            features: component.data.features,
+            specifications: component.data.specifications,
             name: component.data.name,
             price: component.data.price,
             keyTerms: component.data.tags,
@@ -274,7 +274,7 @@ class ComponentProfile extends Component {
 	if(this.state.username == "" || this.state.token == "")
 	{ alert("Must login to comment!"); }
     else {
-        axiosI.post('components/auth/comment/', 
+        axiosI.post('components/auth/comment/',
           {
             "id": this.props.componentId,
             "comments": this.state.userComment,
@@ -287,7 +287,10 @@ class ComponentProfile extends Component {
           }
         )
         .then(doc => {
-          window.location.reload();
+          this.setState({
+            comments: doc.data.comments,
+            userComment: "",
+          })
         })
       }
    }
@@ -321,7 +324,7 @@ class ComponentProfile extends Component {
   render() {
     var isUser = this.state.isUser;
 
-    var hasFeatures = (this.state.features.length > 1 || this.state.features[0] != "");
+    var hasFeatures = (this.state.specifications.length > 1 || this.state.specifications[0] != "");
     var hasImage = !(this.state.pictures.length == 0 || this.state.pictures[0] == "");
     var hasDocs = !(this.state.datasheets.length == 0 || this.state.datasheets[0] == "");
     var hasTags = (this.state.keyTerms.length > 0);
@@ -331,7 +334,7 @@ class ComponentProfile extends Component {
         <Grid container direction="row" justify="center" alignItems="flex-start">
           <Grid container item xs={12} md={6} lg={6} direction="column">
             <Grid item xs={12} style={{marginTop: '20px', marginRight: '20px', borderStyle: 'solid'}}>
-            <Carousel>
+            <Carousel  autoPlay={false}>
             {hasImage ? (
               this.state.pictures.map((picture, index) => (
                 <img  className={this.props.classes.image} src={`data:image/jpeg;base64,${this.state.imageData[index+1]}`}/>
@@ -408,7 +411,7 @@ class ComponentProfile extends Component {
               <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
                 <ul>
                   {hasFeatures ? (
-                    this.state.features.map((feature, index) => (
+                    this.state.specifications.map((feature, index) => (
                     <li>
                       <Grid container sm={12}>
                         <Grid container sm={8}>
@@ -500,6 +503,7 @@ class ComponentProfile extends Component {
                     fullWidth
                     rowsMax={4}
                     variant="standard"
+                    value={this.state.userComment}
                     onChange={this.handleCommentChange}
                   />
                 </Grid>

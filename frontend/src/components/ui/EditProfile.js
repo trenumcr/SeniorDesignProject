@@ -355,7 +355,7 @@ const useStyles = theme => ({
 
       if (this.state.deleted) {
         // redirect to home if signed up
-        return <Redirect to = {{ pathname: "/home" }} />;
+        return <Redirect to = {{ pathname: "/" }} />;
       }
 
         return (

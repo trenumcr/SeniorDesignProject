@@ -22,6 +22,7 @@ import ForumIcon from '@material-ui/icons/Forum';
 import SettingsIcon from '@material-ui/icons/Settings';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -242,15 +243,15 @@ class SearchField extends React.Component
   export default function Header(props) {
     const classes = useStyles()
     const theme = useTheme()
-    var drawerIconList = [<AccountCircleIcon />, <MemoryIcon />, <FindInPageIcon />, <ForumIcon />, <SettingsIcon />]
+    var drawerIconList = [<AccountCircleIcon />, <MemoryIcon />, <FindInPageIcon />]
     var drawerLinkList = ["/login", "/search-component", "/experts"]
     var drawerLinkListText = ["Login or Sign up", "Search Components", "Search Experts"]
     const [open, setOpen] = React.useState(false);
 
     if (localStorage.getItem('username') != null) {
-      drawerIconList = [<AccountCircleIcon />, <MemoryIcon />, <FindInPageIcon />, <ForumIcon />, <SettingsIcon />]
-      drawerLinkList = ["/profile/" + localStorage.getItem('username'), "/search-component", "/experts","/edit-profile"]
-      drawerLinkListText = ["Your Profile", "Search Components", "Search Experts","Edit Your Profile"]
+      drawerIconList = [<AccountCircleIcon />, <MemoryIcon />, <FindInPageIcon />, <SettingsIcon />, <AddCircleOutlineIcon />]
+      drawerLinkList = ["/profile/" + localStorage.getItem('username'), "/search-component", "/experts","/edit-profile", "/add-component"]
+      drawerLinkListText = ["Your Profile", "Search Components", "Search Experts","Edit Your Profile", "Add Component"]
     }
 
     const handleDrawerOpen = () => {
