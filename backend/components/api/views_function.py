@@ -53,16 +53,16 @@ def delete_file(request):
     collection = db["components"]
     fs = gridfs.GridFS(db)
 
-    if request.query_params["fileType"] == "picture":
+    if request.query_params["fileType"] == "pictures":
         collection.update(
             {'_id': ObjectId(request.query_params["compID"])},
-            { "$pull": {"picture": {"id": ObjectId(request.query_params["fileID"])}}},
+            { "$pull": {"pictures": {"id": ObjectId(request.query_params["fileID"])}}},
             False,
             True,
         )
     if request.query_params["fileType"] == "datasheets":
         collection.update(
-            {'_id': ObjectId(request.data["compID"])},
+            {'_id': ObjectId(request.query_params["compID"])},
             {"$pull": {"datasheets": {"id": ObjectId(request.query_params["fileID"])}}},
             False,
             True,
@@ -112,7 +112,7 @@ def post_component(request):
                         "avg_rating": float(request.data["rating"])
                     }
     doc["datasheets"] = []
-    doc["picture"] = []
+    doc["pictures"] = []
     doc["comments"] = []
     doc["created"] = datetime.datetime.now()
     doc["updated"] = doc["created"]
@@ -174,7 +174,7 @@ def update_component(request):
         change_occured = True
 
     if "specifications" in request.data:
-        collection.update({'_id': ObjectId(doc['id']) }, {'$push': {'specifications': doc["specifications"]}})
+        collection.update({'_id': ObjectId(doc['id']) }, {'$set': {'specifications': doc["specifications"]}})
         change_occured = True
 
     if "review" in request.data:
@@ -206,11 +206,11 @@ def delete_component(request):
     doc = collection.find_one({'_id': ObjectId(request.query_params['_id']) })
     fs = gridfs.GridFS(db)
 
-    if doc["picture"]:
-        for object in doc["picture"]:
+    if doc["pictures"]:
+        for object in doc["pictures"]:
             collection.update(
                 {'_id': ObjectId(request.query_params["_id"])},
-                {"$pull": {"picture": {"id": ObjectId(object["id"])}}},
+                {"$pull": {"pictures": {"id": ObjectId(object["id"])}}},
                 False,
                 True,
             )
@@ -219,7 +219,7 @@ def delete_component(request):
         for object in doc["datasheets"]:
             collection.update(
                 {'_id': ObjectId(request.query_params["_id"])},
-                {"$pull": {"picture": {"id": ObjectId(object["id"])}}},
+                {"$pull": {"pictures": {"id": ObjectId(object["id"])}}},
                 False,
                 True,
             )
