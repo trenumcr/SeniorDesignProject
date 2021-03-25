@@ -342,7 +342,7 @@ def key_filter_component(request):
         query["$and"].append({"specifications": { "$in": spec}})
 
     if "rating" in request.query_params:
-        query["$and"].append({"rating": {"$gte": float(request.query_params["rating"])}})
+        query["$and"].append({"rating.avg_rating": {"$gte": float(request.query_params["rating"])}})
 
 
     data = collection.find(query)
