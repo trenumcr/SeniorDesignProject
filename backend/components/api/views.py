@@ -82,7 +82,7 @@ class FileView(APIView):
 
     def get(self, requests, *args, **kwargs):
         return get_file(requests)
-    
+
     def delete(self, requests, *args, **kwargs):
         return delete_file(requests)
 

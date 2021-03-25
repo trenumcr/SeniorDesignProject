@@ -124,6 +124,7 @@ class ComponentGrid extends Component {
         rating:'',
         name:'',
       },
+      searchParam: props.searchParam
     };
     this.componentDidMount = this.componentDidMount.bind(this);
 
@@ -151,19 +152,23 @@ handleRatingChange = (e) => {
     this.state.filters.rating= e.target.value
 };
 
- componentDidMount() {
-
-  this.state.filters['name'] = this.props.searchParam;
-  var filters = {};
-  for (const filter in this.state.filters) {
+  componentDidMount() {
+    var filters = {};
+    for (const filter in this.state.filters) {
       if (`${this.state.filters[filter]}` != '') {
-          filters[`${filter}`] = this.state.filters[filter];
+        filters[`${filter}`] = this.state.filters[filter];
       }
-  }
+    }
+    if (this.state.searchParam != null)
+      filters['name'] = this.state.searchParam;
+    else
+      filters['name'] = '';
 
 
     axiosI.get('/components/filter', {
-      params: filters
+      params: {
+        name: '',
+      }
     })
     .then(results => {
       var categories = [];
@@ -186,7 +191,14 @@ handleRatingChange = (e) => {
           }
         }
       }
-      this.setState({ components: results.data, manufacturers : manufacturers, categories : categories });
+      this.setState({ manufacturers : manufacturers, categories : categories });
+      return (axiosI.get('/components/filter', {
+        params: filters
+      }).then( res => {
+        this.setState({
+          components: res.data
+        })
+      }))
     })
     .catch(e => {
         if (e.response.status == 404)
@@ -195,22 +207,70 @@ handleRatingChange = (e) => {
     })
   }
 
+  applyFilters = (e) => {
+      var filters = {};
+      for (const filter in this.state.filters) {
+          if (`${this.state.filters[filter]}` != '') {
+              filters[`${filter}`] = this.state.filters[filter];
+          }
+      }
+      if (this.state.searchParam != null)
+        filters['name'] = this.state.searchParam;
+      else
+        filters['name'] = '';
+
+
+        axiosI.get('/components/filter', {
+          params: filters
+        })
+        .then( res => {
+           this.setState({
+             components: res.data
+           })
+         })
+        .catch(e => {
+            if (e.response.status == 404)
+              this.setState({ components: []});
+            console.log(e);
+        })
+  }
+
+
+  clearFilters = (e) => {
+      this.state.searchParam = '';
+      axiosI.get('/components/filter', {
+          params: {
+            name: ''
+          }
+        })
+        .then( res => {
+           this.setState({
+             components: res.data
+           })
+         })
+        .catch(e => {
+            if (e.response.status == 404)
+              this.setState({ components: []});
+            console.log(e);
+        })
+  }
   render() {
     let comp = this.state.components;
+    var hasComponents = false;
+    if (comp.length > 0) {
+      hasComponents = true
+    }
 
     return(
         <div className={this.props.classes.root}>
           <Grid container spacing={3}>
             <Grid item sm={12}>
-              <Typography variant="h5">Results for "{this.props.searchParam}"</Typography>
+              <Typography variant="h5">Results for "{this.state.searchParam}"</Typography>
             </Grid>
 
             <Grid container item sm={2} spacing={3}>
             <FilterListIcon style={{ padding: 5 }} color="secondary" />
             <Typography variant="h6" component="h3">Filters:</Typography>
-            <Button variant="contained" color="secondary" onClick={this.componentDidMount}>
-              Apply Filters
-            </Button>
               <Grid item sm={12}>
                 <FormControl className={this.props.classes.formControl}>
                   <Typography>Manufacturer</Typography>
@@ -260,21 +320,37 @@ handleRatingChange = (e) => {
                   </FormGroup>
                 </FormControl>
               </Grid>
-              <Box component="fieldset" mb={3} borderColor="transparent">
-                <Typography component="legend">Rating</Typography>
-                <Rating
-                  name="simple-controlled"
-                  value={this.state.rating}
-                  onChange={this.handleRatingChange}
-                  precision={0.5}
-                />
-              </Box>
+              <Grid item sm={12}>
+                <Box component="fieldset" mb={3} borderColor="transparent">
+                  <Typography component="legend">Rating</Typography>
+                  <Rating
+                    name="simple-controlled"
+                    value={this.state.rating}
+                    onChange={this.handleRatingChange}
+                    precision={0.5}
+                  />
+                </Box>
+              </Grid>
+              <Grid container>
+                <Grid item sm={6}>
+                  <Button variant="contained" style={{color: "#FFF"}} color="secondary" onClick={this.applyFilters}>
+                    Apply Filters
+                  </Button>
+                </Grid>
+                <Grid item sm={6}>
+                  <Button variant="contained" style={{color: "#FFF"}} color="secondary" onClick={this.clearFilters}>
+                    Clear Filters
+                  </Button>
+                </Grid>
+              </Grid>
             </Grid>
 
       <Grid container item sm={10} spacing={4}>
-        {comp.map((component) => (
+        {hasComponents ? (
+          comp.map((component) => (
             <ComponentBox classes={this.props.classes} component={component} />
-        ))}
+        ))
+      ) : (<Typography variant="h4"> No results.</Typography>)}
       </Grid>
 
           </Grid>
