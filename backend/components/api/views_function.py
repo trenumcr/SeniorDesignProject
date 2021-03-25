@@ -77,7 +77,10 @@ def delete_file(request):
 def get_component(request):
     client = pymongo.MongoClient('mongodb://localhost:27017')
     db = client['ComponentReviewDB']
-    doc = db.components.find_one({'_id': ObjectId(request.query_params['_id']) })
+    if '_id' in request.query_params:
+        doc = db.components.find_one({'_id': ObjectId(request.query_params['_id'])})
+    else:
+        doc = db.components.find({})
     content = dumps(doc)
     resp = json.loads(content)
     return Response(resp, status=status.HTTP_200_OK)
