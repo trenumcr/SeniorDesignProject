@@ -165,7 +165,6 @@ handleRatingChange = (e) => {
       filters['name'] = '';
 
 
-
     axiosI.get('/components/filter', {
       params: {
         name: '',
