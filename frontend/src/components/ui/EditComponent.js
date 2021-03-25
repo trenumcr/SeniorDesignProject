@@ -36,6 +36,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 import Modal from '@material-ui/core/Modal';
+import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
+import IconButton from '@material-ui/core/IconButton';
 import axios from 'axios';
 
 const axiosI = axiosInstance;
@@ -311,6 +313,14 @@ class EditComponent extends React.Component {
     })
   }
 
+  removeFeature(index) {
+    var arr = this.state.specifications;
+    arr.splice(index, 1);
+    this.setState({
+      specifications: arr
+    })
+  }
+
   handleDatasheetUpload = (e) => {
     var url = '/components/auth/';
     var formData = new FormData();
@@ -574,8 +584,13 @@ class EditComponent extends React.Component {
                     {this.state.specifications.map((feature, index) => (
                       <li>
                         <Grid container sm={12}>
-                          <Grid container sm={8}>
+                          <Grid item sm={8}>
                             <TextField fullWidth id={index} value={this.state.specifications[index]} label="Feature" onChange={this.handleFeatureChange} />
+                          </Grid>
+                          <Grid item sm={2} style={{marginTop: '5px'}}>
+                            <IconButton onClick={()=> this.removeFeature(index)} aria-label="delete" style={{color: '#a93838'}}>
+                              <RemoveCircleIcon />
+                            </IconButton>
                           </Grid>
                         </Grid>
                       </li>
