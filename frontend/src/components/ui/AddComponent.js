@@ -24,11 +24,13 @@ import Carousel from 'react-material-ui-carousel';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
+import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Modal from '@material-ui/core/Modal';
 import Select from '@material-ui/core/Select';
 import Rating from '@material-ui/lab/Rating';
+import IconButton from '@material-ui/core/IconButton';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import axiosInstance from './../../axiosApi.js';
 
@@ -277,8 +279,30 @@ class AddComponentForm extends React.Component {
         added: false,
       })
   }
-  // Inputs
-  //const estPrice = useRef<TextFieldProps>(null);
+
+  removeFeature(index) {
+    var arr = this.state.specifications;
+    arr.splice(index, 1);
+    this.setState({
+      specifications: arr
+    })
+  }
+
+  removeDocument() {
+    var arr = this.state.datasheets;
+    arr.pop();
+    this.setState({
+      datasheets: arr
+    })
+  }
+
+  removeImage() {
+    var arr = this.state.pictures;
+    arr.pop();
+    this.setState({
+      pictures: arr
+    })
+  }
 
   postComponent = (event) => {
     if (this.state.tags.length == 0) {
@@ -395,6 +419,11 @@ class AddComponentForm extends React.Component {
                     </Grid>
                 ))}
 
+                <Grid item sm={2} style={{marginTop: '-35px', marginLeft: '200px'}}>
+                  <IconButton onClick={()=> this.removeImage()} aria-label="delete" style={{color: '#a93838'}}>
+                    <RemoveCircleIcon />
+                  </IconButton>
+                </Grid>
                   <Button variant="contained" className={this.props.classes.button}  style={{marginTop: '20px', color: "#235a33", paddingLeft: '20px'}} onClick={this.addPictureUpload}>
                     <Typography variant="button" align="center" className={this.props.classes.buttonText}>
                       Add Image
@@ -450,7 +479,7 @@ class AddComponentForm extends React.Component {
                   <Tab className={this.props.classes.tab} label="Documents" {...a11yProps(2)} />
                 </Tabs>
                 <TabPanel value={this.state.value} index={0} className={this.props.classes.tabPanel}>
-                  <TextField fullWidth multiline rows={8} id="description" defaultValue={this.state.description} variant="outlined" label="Description" onChange={this.handleDescriptionChange}/>
+                  <TextField fullWidth multiline rows={8} id="description" value={this.state.description} variant="outlined" label="Description" onChange={this.handleDescriptionChange}/>
                 </TabPanel>
                 <TabPanel value={this.state.value} index={1} className={this.props.classes.tabPanel}>
                   <ul>
@@ -458,7 +487,12 @@ class AddComponentForm extends React.Component {
                       <li>
                         <Grid container sm={12}>
                           <Grid container sm={8}>
-                            <TextField fullWidth id={index}  defaultValue={this.state.specifications[index]} label="Feature" onChange={this.handleFeatureChange} />
+                            <TextField fullWidth id={index}  value={this.state.specifications[index]} label="Feature" onChange={this.handleFeatureChange} />
+                          </Grid>
+                          <Grid item sm={2} style={{marginTop: '5px'}}>
+                            <IconButton onClick={()=> this.removeFeature(index)} aria-label="delete" style={{color: '#a93838'}}>
+                              <RemoveCircleIcon />
+                            </IconButton>
                           </Grid>
                         </Grid>
                       </li>
@@ -485,7 +519,12 @@ class AddComponentForm extends React.Component {
                         </Grid>
                       </li>
                     ))}
-                    <Grid container sm={2}>
+                    <Grid item sm={2} style={{marginTop: '-35px', marginLeft: '200px'}}>
+                      <IconButton onClick={()=> this.removeDocument()} aria-label="delete" style={{color: '#a93838'}}>
+                        <RemoveCircleIcon />
+                      </IconButton>
+                    </Grid>
+                    <Grid container sm={12}>
                       <Button style={{color: "#235a33", paddingTop: '20px', paddingLeft: '20px', float: 'right'}}/>
                     </Grid>
                       <Button variant="contained" className={this.props.classes.button}  style={{color: "#235a33", paddingLeft: '20px'}} onClick={this.addDatasheetUpload}>

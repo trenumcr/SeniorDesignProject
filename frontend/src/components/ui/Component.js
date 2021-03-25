@@ -418,7 +418,7 @@ class ComponentProfile extends Component {
                 </Typography>
               </Button>
               {isUser ? (
-                <Button style={{paddingLeft: '50px'}} variant="contained" className={this.props.classes.button} style={{marginLeft: '20px'}}>
+                <Button style={{marginTop: '20px', marginLeft: '20px'}} variant="contained" className={this.props.classes.button}>
                   <Typography variant="button" align="center">
                     <a className={this.props.classes.buttonText} href={"/edit-component/" + this.props.componentId}>Edit Component</a>
                   </Typography>
