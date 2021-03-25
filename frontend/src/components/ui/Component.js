@@ -136,6 +136,7 @@ class ComponentProfile extends Component {
       user : "",
       pictures : [""],
       rating : {},
+	  userRating: "0",
       description : "",
       features : [""],
       datasheets : [""],
@@ -290,6 +291,32 @@ class ComponentProfile extends Component {
         })
       }
    }
+   
+   handleRatingChange = (e) => {
+    this.setState({ userRating: e.target.value })
+   }
+
+   submitUserRating = () => {
+    if(this.state.username == "" || this.state.token == "")
+    { alert("Must login to submit rating!"); }
+    else {
+      axiosI.patch('/components/auth/', 
+      {
+        id:this.props.componentId,
+        rating:this.state.userRating,
+      }, 
+      {
+        headers: {
+          'Authorization': this.state.token
+      }})
+      .then(response => {
+        window.location.reload();
+      })
+      .catch(e => {
+        console.log(e);
+      })
+    }
+   }
 
   render() {
     var isUser = this.state.isUser;
@@ -314,7 +341,31 @@ class ComponentProfile extends Component {
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h4" className={this.props.classes.rating}>
-                Rating: {this.state.rating.avg_rating}/5
+                Rating:
+                <Rating
+                      name="customized-empty"
+                      key={`slider-${this.state.rating.avg_rating}`} /* fixed issue */
+                      precision={0.5}
+                      value={this.state.rating.avg_rating}
+                      emptyIcon={<StarBorderIcon fontSize="inherit" />}
+                      readOnly
+                  />
+              </Typography>
+              <Typography variant="h4" className={this.props.classes.rating}>
+                Your Rating:
+                <Rating
+                      name="customized-empty"
+                      key={`slider-${this.state.rating.avg_rating}`} /* fixed issue */
+                      precision={0.5}
+                      value={this.state.userRating}
+                      onChange={this.handleRatingChange}
+                      emptyIcon={<StarBorderIcon fontSize="inherit" />}
+                  />
+              <Button variant="contained" onClick={this.submitUserRating} className={this.props.classes.button}>
+                <Typography variant="button" align="center" className={this.props.classes.buttonText}>
+                  Submit Rating
+                </Typography>
+              </Button>
               </Typography>
             </Grid>
             <Grid item xs={12}>
