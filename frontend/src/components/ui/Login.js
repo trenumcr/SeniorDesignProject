@@ -65,11 +65,11 @@ class Login extends Component {
       token: "",
       login: false,
       open: false,
+      loginMessage: "",
     };
   }
 
   login = () => {
-    console.log("data.");
     var data = {
       password: this.state.password,
       username: this.state.username,
@@ -90,6 +90,7 @@ class Login extends Component {
       .catch(e => {
         this.setState({
           login: false,
+          loginMessage: "*Incorrect username/password",
         });
         console.log(this.state.token + " " + this.state.login);
         console.log(e);
@@ -168,6 +169,9 @@ class Login extends Component {
           </Avatar>
           <Typography component="h1" variant="h5">
             Sign in
+          </Typography>
+          <Typography style={{ color: "#FF0000" }}>
+            { this.state.loginMessage }
           </Typography>
           <form className={classes.form} onSubmit={this.login}>
             <TextField
