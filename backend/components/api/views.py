@@ -26,6 +26,8 @@ class FilterComponentView(APIView):
     def get(self, requests, *args, **kwargs):
         if "general" in requests.query_params:
             return general_filter_component(requests)
+        elif not requests.query_params:
+            return get_component(requests)
         else:
             return key_filter_component(requests)
 
