@@ -296,6 +296,24 @@ class ComponentProfile extends Component {
           }
         )
         .then(doc => {
+          //Comment Formatting
+          for (const comment in doc.data.comments)
+          {
+            var date = new Date(doc.data.comments[comment].created.$date)
+            var halfOfDay = "am";
+            var hours = (date.getHours() + 4) % 23
+            var minutes = date.getMinutes();
+            if(hours > 12) {
+              halfOfDay = "pm";
+              hours = hours - 12;
+            }
+            if(minutes < 10)
+            {
+              minutes = "0"+minutes.toString();
+            }
+            var formattedDate = hours + ":" + minutes + halfOfDay + " " + (date.getMonth() + 1) +  "-"  + date.getDate() + "-" + date.getFullYear()
+            doc.data.comments[comment].created.$date = formattedDate;
+          }
           this.setState({
             comments: doc.data.comments,
             userComment: "",
@@ -504,6 +522,9 @@ class ComponentProfile extends Component {
             </Typography>
           </Grid>
           <Grid item xs={12}>
+            <Typography variant="h5" style={{paddingTop: 20, paddingBottom: 10}}>
+              Review:
+            </Typography>
             <Typography variant="body1">
               {this.state.review}
             </Typography>
