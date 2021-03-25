@@ -62,7 +62,7 @@ def delete_file(request):
         )
     if request.query_params["fileType"] == "datasheets":
         collection.update(
-            {'_id': ObjectId(request.data["compID"])},
+            {'_id': ObjectId(request.query_params["compID"])},
             {"$pull": {"datasheets": {"id": ObjectId(request.query_params["fileID"])}}},
             False,
             True,
