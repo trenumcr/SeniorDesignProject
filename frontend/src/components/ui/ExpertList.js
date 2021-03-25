@@ -74,6 +74,9 @@ const useStyles = theme => ({
       width: '20ch',
     },
   },
+  filters: {
+    maxHeight: '500px'
+  },
   filterLabel: {
     fontSize: '1.2rem',
   },
@@ -82,7 +85,14 @@ const useStyles = theme => ({
   },
   formControlLabel: {
     fontSize: '0.6rem'
-  }
+  },
+  button: {
+    background: theme.palette.secondary.main,
+    color: theme.palette.common.white,
+    '&:hover': {
+      background: theme.palette.secondary.dark,
+    }
+  },
 });
 
 class ExpertList extends React.Component {
@@ -267,47 +277,10 @@ class ExpertList extends React.Component {
 
     return(
       <Container component="main" maxWidth="lg">
-        <Grid container item direction="row">
-          <Grid container item direction="column" xs={3} >
-
-          </Grid>
-          <Grid container item direction="column"  xs={9} spacing={3}>
-            <Grid container direction="row" alignItems="flex-start" style={{paddingTop: 40}}>
-              <Grid item>
-                <Typography variant="h5">
-                  Search for an Expert
-                </Typography>
-              </Grid>
-              <Grid item>
-                <div className={classes.search}>
-                  <div className={classes.searchIcon}>
-                    <SearchIcon />
-                  </div>
-                  <InputBase
-                    placeholder="Search…"
-                    classes={{
-                      root: classes.inputRoot,
-                      input: classes.inputInput,
-                    }}
-                    inputProps={{ 'aria-label': 'search' }}
-                    component={Link} to="/search-component"
-                    color="primary"
-                  />
-                </div>
-              </Grid>
-            </Grid>
-            <Grid item>
-              <Typography variant="caption">
-                Showing results for ...
-              </Typography>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item  style={{margin: 10}}>
-          <Divider />
+        <Grid item  style={{margin: 50}}>
         </Grid>
         <Grid container item direction="row">
-          <Grid container item direction="row" xs={12} md={3}>
+          <Grid container item direction="row" className={classes.filters} xs={12} md={3}>
             <Typography variant="h5" style={{width: '100%'}}>Filters</Typography>
             <FormControl className={classes.formControl}>
               <InputLabel htmlFor="filled-age-native-simple">University</InputLabel>
@@ -348,33 +321,29 @@ class ExpertList extends React.Component {
           <Grid container item xs={12} md={8}>
             {this.state.experts.map((expert) => (
               <Card className={classes.root} style={{height: 150, marginBottom: '20px', width: '100%'}}>
-                <CardActionArea>
-                  <Grid container item direction="row">
-                    <Grid item xs={3} style={{height: 100, width: 100, backgroundColor: '#eee'}}>
-                    </Grid>
-                    <Grid item  xs={9}>
-                      <CardMedia
-                        title={expert.user.username}
-                      />
-                      <CardContent>
-                        <Typography gutterBottom variant="h5" component="h2">
-                        {expert.user.username}
-                          <Typography gutterBottom variant="body1">
-                            University: {expert.school}
+                <Button style={{width: '100%'}} component={Link} to={"/profile/" + expert.user.username}>
+                    <Grid container item direction="row">
+                      <Grid item xs={3}>
+                        <img style={{height: 150, width: 150}} src={'http://localhost:8000' + expert.image} />
+                      </Grid>
+                      <Grid item style={{paddingLeft: '50px'}} xs={9}>
+                        <CardMedia
+                          title={expert.user.username}
+                        />
+                        <CardContent>
+                          <Typography gutterBottom variant="h5" component="h2">
+                          {expert.firstname + " " + expert.lastname}
+                            <Typography gutterBottom variant="body1">
+                              University: {expert.school}
+                            </Typography>
+                            <Typography gutterBottom variant="body1">
+                              Specialty: {expert.field_study}
+                            </Typography>
                           </Typography>
-                          <Typography gutterBottom variant="body1">
-                            Specialty: {expert.field_study}
-                          </Typography>
-                        </Typography>
-                      </CardContent>
+                        </CardContent>
+                      </Grid>
                     </Grid>
-                  </Grid>
-                </CardActionArea>
-                <CardActions>
-                  <Button size="small" color="primary" component={Link} to={"/profile/" + expert.user.username}>
-                    Contact
                   </Button>
-                </CardActions>
               </Card>
             ))}
           </Grid>

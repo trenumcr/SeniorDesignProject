@@ -89,6 +89,12 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 10,
     paddingBottom: 20,
   },
+  ratingContainer: {
+    background: "#FFF",
+    paddingTop: '20px',
+    paddingBottom: '20px',
+    paddingLeft: '50px'
+  },
   button: {
     background: theme.palette.secondary.main,
     '&:hover': {
@@ -151,6 +157,7 @@ class ComponentProfile extends Component {
       docData: [""],
       userComment: [''],
       isUser: false,
+      rated: false,
     }//{value:0, commentValue:""};
     this.handleChange = this.handleChange.bind(this);
     if (this.state.username == "" || this.state.token == "") {
@@ -232,6 +239,8 @@ class ComponentProfile extends Component {
             comments: component.data.comments,
             manufacture_name: component.data.manufacture_name,
             category: component.data.category,
+            avg_rating: component.data.rating.avg_rating,
+            total: component.data.rating.votes,
           }
         );
 
@@ -294,7 +303,7 @@ class ComponentProfile extends Component {
         })
       }
    }
-   
+
    handleRatingChange = (e) => {
     this.setState({ userRating: e.target.value })
    }
@@ -303,17 +312,21 @@ class ComponentProfile extends Component {
     if(this.state.username == "" || this.state.token == "")
     { alert("Must login to submit rating!"); }
     else {
-      axiosI.patch('/components/auth/', 
+      axiosI.patch('/components/auth/',
       {
         id:this.props.componentId,
         rating:this.state.userRating,
-      }, 
+      },
       {
         headers: {
           'Authorization': this.state.token
       }})
       .then(response => {
-        window.location.reload();
+        this.setState({
+          rated: true,
+          avg_rating: response.data.rating.avg_rating,
+          total: response.data.rating.votes,
+        })
       })
       .catch(e => {
         console.log(e);
@@ -323,18 +336,20 @@ class ComponentProfile extends Component {
 
   render() {
     var isUser = this.state.isUser;
+    var isLoggedIn = (this.state.token != "")
 
     var hasFeatures = (this.state.specifications.length > 1 || this.state.specifications[0] != "");
     var hasImage = !(this.state.pictures.length == 0 || this.state.pictures[0] == "");
     var hasDocs = !(this.state.datasheets.length == 0 || this.state.datasheets[0] == "");
     var hasTags = (this.state.keyTerms.length > 0);
+    var rated = this.state.rated;
 
     return(
       <Container component="main" maxWidth="lg">
         <Grid container direction="row" justify="center" alignItems="flex-start">
           <Grid container item xs={12} md={6} lg={6} direction="column">
             <Grid item xs={12} style={{marginTop: '20px', marginRight: '20px', borderStyle: 'solid'}}>
-            <Carousel  autoPlay={false}>
+            <Carousel autoPlay={false}>
             {hasImage ? (
               this.state.pictures.map((picture, index) => (
                 <img  className={this.props.classes.image} src={`data:image/jpeg;base64,${this.state.imageData[index+1]}`}/>
@@ -343,42 +358,49 @@ class ComponentProfile extends Component {
               </Carousel>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="h4" className={this.props.classes.rating}>
-                Rating:
+              <Grid container style={{paddingLeft: '50px'}} className={this.props.classes.rating}>
                 <Rating
                       name="customized-empty"
                       key={`slider-${this.state.rating.avg_rating}`} /* fixed issue */
                       precision={0.5}
-                      value={this.state.rating.avg_rating}
+                      value={this.state.avg_rating}
                       emptyIcon={<StarBorderIcon fontSize="inherit" />}
                       readOnly
                   />
-              </Typography>
-              <Typography variant="h4" className={this.props.classes.rating}>
-                Your Rating:
-                <Rating
-                      name="customized-empty"
-                      key={`slider-${this.state.rating.avg_rating}`} /* fixed issue */
-                      precision={0.5}
-                      value={this.state.userRating}
-                      onChange={this.handleRatingChange}
-                      emptyIcon={<StarBorderIcon fontSize="inherit" />}
-                  />
-              <Button variant="contained" onClick={this.submitUserRating} className={this.props.classes.button}>
-                <Typography variant="button" align="center" className={this.props.classes.buttonText}>
-                  Submit Rating
+                  <Typography style={{paddingLeft: '5px', margin: '3px'}} variant="body2"> ({this.state.total}) </Typography>
+              </Grid>
+              <Divider variant="middle" />
+              {(!isUser && isLoggedIn && !rated) ? (
+              <Grid container class={this.props.classes.ratingContainer}>
+                <Typography variant="h6" style={{marginTop: '-15px'}}>
+                  Your Rating:
                 </Typography>
-              </Button>
-              </Typography>
+                  <Rating
+                        name="customized-empty"
+                        key={`slider-${this.state.rating.avg_rating}`} /* fixed issue */
+                        precision={0.5}
+                        value={this.state.userRating}
+                        onChange={this.handleRatingChange}
+                        emptyIcon={<StarBorderIcon fontSize="inherit" />}
+                    />
+                <Button variant="contained" style={{marginLeft: '20px', marginTop: '-30px', background: '#235a33'}} onClick={this.submitUserRating} className={this.props.classes.button}>
+                  <Typography variant="button" align="center" className={this.props.classes.buttonText}>
+                    Submit Rating
+                  </Typography>
+                </Button>
+              </Grid>
+            ) : null}
             </Grid>
+
+            <Divider variant="middle" />
             <Grid item xs={12}>
-              <Button variant="contained" className={this.props.classes.button}>
+              <Button variant="contained" style={{marginTop: '20px'}} className={this.props.classes.button}>
                 <Typography variant="button" align="center">
                   <a className={this.props.classes.buttonText} href="/experts">Find an Expert</a>
                 </Typography>
               </Button>
               {isUser ? (
-                <Button variant="contained" className={this.props.classes.button} style={{marginLeft: '20px'}}>
+                <Button style={{paddingLeft: '50px'}} variant="contained" className={this.props.classes.button} style={{marginLeft: '20px'}}>
                   <Typography variant="button" align="center">
                     <a className={this.props.classes.buttonText} href={"/edit-component/" + this.props.componentId}>Edit Component</a>
                   </Typography>
@@ -509,8 +531,8 @@ class ComponentProfile extends Component {
                 </Grid>
               </Grid>
               <Grid container item xs={12} justify='flex-end'>
-                <Button variant="contained" className={this.props.classes.button}>
-                  <Typography variant="button" align="center" className={this.props.classes.buttonText} onClick={this.postComment}>
+                <Button variant="contained" style={{ background: '#235a33'}} className={this.props.classes.button}>
+                  <Typography variant="button" align="center"className={this.props.classes.buttonText} onClick={this.postComment}>
                     Post Comment
                   </Typography>
                 </Button>
