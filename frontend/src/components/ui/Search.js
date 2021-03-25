@@ -122,6 +122,7 @@ class ComponentGrid extends Component {
         manufacture_name:'',
         category:'',
         rating:'',
+        name:'',
       },
     };
     this.componentDidMount = this.componentDidMount.bind(this);
@@ -152,13 +153,13 @@ handleRatingChange = (e) => {
 
  componentDidMount() {
 
+  this.state.filters['name'] = this.props.searchParam;
   var filters = {};
   for (const filter in this.state.filters) {
       if (`${this.state.filters[filter]}` != '') {
           filters[`${filter}`] = this.state.filters[filter];
       }
   }
-  filters["name"] = this.props.searchParam;
 
 
     axiosI.get('/components/filter', {
